@@ -1,6 +1,16 @@
 # 팀 협업 규칙 — 브랜치 하나(`main`), 포지션별 담당
 
-저장소: `https://github.com/wpalswpa/project2608` · 브랜치는 **`main` 하나만** 쓴다.
+저장소: `https://github.com/wpalswpa/project2608`
+
+**브랜치 규칙 — 작업은 `team`, 제출은 `main`**
+
+| 브랜치 | 용도 | 누가 올리나 |
+|---|---|---|
+| `team` | **4명이 공유하는 작업 브랜치.** 매일 여기에 pull/push | 전원 |
+| `main` | 발표·제출용 스냅샷. 직접 커밋하지 않는다 | ②가 리허설 통과 후 `team` → `main` 으로 합침 |
+
+clone 한 뒤 반드시 `git checkout team` 부터. 개인 브랜치는 만들지 않는다(브랜치가 늘면 합치는 사람만 고생한다).
+팀 서버(맥)도 `team` 을 보고 있어서 `./check_project.sh deploy` 가 `team` 의 최신을 반영한다.
 공개 서비스: **https://p4.sumzip.com** (팀 서버 = 맥 192.168.0.19, 프런트 9504 · 백엔드 9524)
 
 ## 최종 배치 — 1인 1역 (4인)
@@ -68,6 +78,7 @@
 ## 매번 이 순서로 (하나의 브랜치를 안전하게 공유하는 법)
 
 ```bash
+git checkout team             # 0. 항상 team 브랜치에서 (처음 한 번, 이후엔 이미 team)
 git pull                      # 1. 시작 전 항상 최신으로 (pull.rebase=true 라 내 커밋이 위로 올라간다)
 # ... 작업 ...
 ./check_project.sh test       # 2. 서비스·predict.py 를 건드렸으면 파리티·스모크 통과 확인
@@ -78,6 +89,12 @@ git pull && git push          # 4. 올리기 직전에 한 번 더 pull
 - 충돌이 나면 **내 담당 폴더는 내 것, 남의 폴더는 남의 것**으로 푼다. 모르겠으면 덮어쓰지 말고 물어본다.
 - 커밋하지 않는 것: `.env`(비밀번호·API 키) · `venv*/` · `data/*.csv`(라이선스·97MB) · `run/` `logs/` — `.gitignore`가 막아주지만 `git status`로 확인.
 - 문서 숫자를 바꿨으면 `python src/factcheck.py` 가 0건인지 본다.
+
+## 제출 시점에 `team` → `main` 합치기 (②만, 리허설 통과 후)
+
+```bash
+git checkout main && git pull && git merge --ff-only team && git push && git checkout team
+```
 
 ## 팀 서버(공개 서비스)에 반영하기
 
@@ -95,6 +112,7 @@ DDBM 사이트의 "시스템 설계 구현 상태"도 이 폴더(`specs/002-ml-p
 
 ```bash
 git clone https://github.com/wpalswpa/project2608.git && cd project2608
+git checkout team                     # 작업 브랜치로 (main 은 제출본)
 python3.11 -m venv venv311            # Windows: py -3.11 -m venv venv311
 venv311/bin/pip install -r requirements.txt     # Windows: venv311\Scripts\pip install -r requirements.txt
 cp .env.example .env                  # DB_PASSWORD 만 채운다 (커밋 금지)
