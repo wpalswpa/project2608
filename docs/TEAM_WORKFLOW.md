@@ -11,7 +11,7 @@
 
 clone 한 뒤 반드시 `git checkout team` 부터. 개인 브랜치는 만들지 않는다(브랜치가 늘면 합치는 사람만 고생한다).
 팀 서버(맥)도 `team` 을 보고 있어서 `./check_project.sh deploy` 가 `team` 의 최신을 반영한다.
-공개 서비스: **https://p4.sumzip.com** (팀 서버 = 맥 192.168.0.19, 프런트 9504 · 백엔드 9524)
+공개 서비스: **https://p4.sumzip.com** (팀 서버 내부망 맥, 프런트 9504 · 백엔드 9524)
 
 ## 최종 배치 — 1인 1역 (4인)
 
@@ -101,7 +101,7 @@ git checkout main && git pull && git merge --ff-only team && git push && git che
 `main`에 push 했다고 사이트가 바뀌지 않는다. 팀 서버에서 한 번 실행한다:
 
 ```bash
-ssh pioneer4@192.168.0.19        # 또는 서버에 앉은 사람이
+# 팀 서버에 접속(접속 정보는 게시판) 하거나, 서버에 앉은 사람이
 cd ~/project2608 && ./check_project.sh deploy    # git pull → 재시작 → 테스트
 ./check_project.sh status        # https://p4.sumzip.com 200 확인
 ```

@@ -108,7 +108,7 @@
 `docs/` 8종(planning · spec · plan · intent-task · experiment_report · data_analysis · study.md · study.pdf) ·
 `notebooks/eda_visualization.ipynb` · `notebooks/visualizations.ipynb`
 
-## 5. 팀 서버 배포 (2026-09-01, 팀 서버 = 맥 192.168.0.19) ← T20
+## 5. 팀 서버 배포 (2026-09-01, 팀 서버 = 내부망 맥) ← T20
 
 - [x] **T50** `web/app.py` — 백엔드 API 서버, 포트 **B9524**, 0.0.0.0 바인드. `/api/health · schema · examples · predict · predict/batch · report · match-types · summoner`. 예측은 `predict.py` 를 그대로 import
 - [x] **T51** `web/frontend.py` — 프런트 서버, 포트 **F9504**. 화면을 내려주고 `/api/*` 를 백엔드로 중계 (도메인 **p4.sumzip.com** → 여기). 예측 로직 0줄
