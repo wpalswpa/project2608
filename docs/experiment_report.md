@@ -160,7 +160,7 @@ k=4는 실루엣이 아니라 **해석 편의로 고른 값**입니다(한계로
 ## 5. 제출물 6종
 
 README · final_analysis.ipynb(무오류 실행) · model.joblib(복원 assert) ·
-schema.json · predict.py · model_card.md — **전부 완료.** 남은 것: 정성 스모크 테스트(SC-7) · 발표 준비.
+schema.json · predict.py · model_card.md — **전부 완료.** SC-7 은 실행 후 부록을 보완했습니다. 남은 것: 발표 준비.
 
 ---
 
