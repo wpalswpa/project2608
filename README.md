@@ -114,9 +114,26 @@ python src/factcheck.py              # 문서·코드 정합성 자동 점검
 # 또는 notebooks/final_analysis.ipynb 하나로 전 과정 재현 (무오류 실행 검증됨)
 ```
 
-**웹 데모(범위 외 보너스)**: `python web/app.py` → http://localhost:5000.
-웹은 `predict.py`를 직접 import해 보여주기만 하므로 화면 확률과 모델 확률이 갈라질 수 없고,
-`python web/test_parity.py`로 일치를 기계 검증했다(3건 소수점까지 일치).
+### 웹 서비스
+
+```bash
+./check_project.sh start      # 시작 (프론트 9504 · 백엔드 9524)
+./check_project.sh status     # 상태 확인 (실제 응답까지 확인)
+./check_project.sh restart    # 재시작
+./check_project.sh stop       # 중지
+./check_project.sh logs       # 최근 로그
+```
+
+접속: **http://p4.sumzip.com:9504** (팀원·시연) · http://127.0.0.1:9504 (서버 안에서)
+
+| 계층 | 포트 | 하는 일 |
+|---|---|---|
+| 프론트엔드 `web/frontend.py` | **9504** | 화면을 보여주고, `/api/*` 요청을 백엔드로 넘긴다. 도메인이 여기로 매핑된다 |
+| 백엔드 `web/backend.py` | **9524** | `predict.py`를 불러 예측한다. 바깥에 노출하지 않는다 |
+
+브라우저는 9504 하나만 알면 되므로 도메인 매핑이 단순하고 CORS 설정도 필요 없다.
+예측 계산은 여전히 `predict.py` 한 곳뿐이라, 화면 확률과 모델 확률이 갈라질 수 없다 —
+`python web/test_parity.py`가 세 경로(predict.py · 백엔드 · 프론트엔드)의 일치를 자동 검증한다.
 
 ## 5. 산출물 6종과 저장소 구조
 
@@ -142,7 +159,8 @@ python src/factcheck.py              # 문서·코드 정합성 자동 점검
 ├─ db/           MariaDB 적재 스크립트 · SQL 피처 뷰
 ├─ src/          분석 스크립트 (day1 → day2 → finalize → timepoint → repeat · factcheck)
 ├─ notebooks/    final_analysis(전 과정 재현) · eda_visualization · visualizations
-├─ web/          Flask 데모 (범위 외 보너스)
+├─ web/          웹 서비스 — frontend.py(9504) · backend.py(9524) · config.py · templates/
+├─ check_project.sh  서비스 시작·중지·재시작·상태 확인
 ├─ reports/      그림·표
 └─ docs/         아래 표
 ```
@@ -156,6 +174,7 @@ python src/factcheck.py              # 문서·코드 정합성 자동 점검
 | `docs/experiment_report.md` | 과정 기록 — 무엇을 했고 무슨 값이 나왔나 |
 | `docs/data_analysis.md` | 피처 명세 · 기술통계 |
 | `docs/study.md` | 스터디 가이드 — 개념·원리·예상 질문 리허설 |
+| `docs/deploy.md` | 팀 서버 배포 절차 (p4.sumzip.com 매핑) |
 | `docs/study.pdf` | ML 이론 노트 (18쪽) |
 
 ## 6. 한계

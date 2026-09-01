@@ -20,7 +20,7 @@
 ## 서비스
 
 - [x] **predict.py** — 예측 담당 단 하나의 파일. 확률 + 이유 상위 5 + 경고 반환
-- [x] **web/app.py** — Flask 화면 서버. 예측하지 않고 predict.py 결과를 전달만
+- [x] **web/frontend.py · web/backend.py** — Flask 화면 서버. 예측하지 않고 predict.py 결과를 전달만
 - [x] **web/templates/index.html** — 입력 폼 · 승률 막대 · 이유 · 경고
 - [x] **web/test_parity.py** — 화면 숫자 == 모델 숫자 자동 대조 (3건 소수점까지 일치)
 - [x] **src/riot_api.py** — 라이엇에서 끝난 경기 불러와 10분 시점 복기

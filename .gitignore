@@ -12,3 +12,5 @@ Thumbs.db
 
 # 로컬 백업 (저장소에는 불필요)
 docs/_archive/
+run/
+logs/

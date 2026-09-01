@@ -37,7 +37,7 @@ python predict.py --demo             # 예시 3건: 접전 51.2% / 파랑 우세
 ## 웹 화면
 
 ```bash
-python web/app.py                    # 켜기 → 브라우저에서 http://localhost:5000
+./check_project.sh start                    # 켜기 → 브라우저에서 http://localhost:5000
 python web/test_parity.py            # (다른 터미널에서) 화면 숫자 == 모델 숫자 검증
 ```
 
@@ -45,6 +45,6 @@ python web/test_parity.py            # (다른 터미널에서) 화면 숫자 ==
 
 ## 자주 걸리는 것
 
-- 5000번 포트가 사용 중이면 web/app.py 마지막 줄의 port를 5001로
+- 5000번 포트가 사용 중이면 web/frontend.py · web/backend.py 마지막 줄의 port를 5001로
 - DB 없이도 된다 — 접속 정보가 없으면 자동으로 로컬 CSV를 쓴다 (계산식 동일)
 - 라이엇 복기 기능은 개발 키가 필요하다 (환경변수 RIOT_API_KEY, 24시간마다 갱신)

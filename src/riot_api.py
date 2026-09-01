@@ -5,7 +5,7 @@
 #   python src/riot_api.py "Hide on bush#KR1"
 #
 # 사용 (함수):
-#   from riot_api import analyze_recent      # 웹(web/app.py)이 이걸 쓴다
+#   from riot_api import analyze_recent      # 웹(web/frontend.py · web/backend.py)이 이걸 쓴다
 #
 # 할 수 있는 것: 끝난 경기의 10분 시점 승률 복기 (Match-V5 타임라인)
 # 할 수 없는 것: 진행 중 경기의 실시간 승률 — 라이엇이 실시간 수치를 API로 주지 않음

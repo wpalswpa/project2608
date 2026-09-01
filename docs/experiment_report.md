@@ -243,7 +243,7 @@ python src/timepoint_compare.py      # 실험 B
 python src/repeat_check.py           # 시드 10회 반복
 python predict.py --demo             # 예측 스모크
 python src/factcheck.py              # 문서·코드 정합성 점검
-python web/app.py                    # 웹 데모 (localhost:5000)
+./check_project.sh start                    # 웹 데모 (localhost:5000)
 ```
 
 DB 뷰(피처 정의 정본) 재현과 피처 상세는 [data_analysis.md](data_analysis.md) 참고.
