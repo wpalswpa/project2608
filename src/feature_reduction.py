@@ -110,6 +110,85 @@ def evaluate(X_tr, y_tr, X_te, y_te, cols, name):
     }
 
 
+def without_gold(X_tr, y_tr, X_te, y_te):
+    """페이즈 2의 핵심 — 가장 강한 지표(골드)를 빼면 무엇이 달라지나.
+
+    골드가 가중치를 거의 다 가져가는 바람에 나머지 지표의 계수가 음수로 뒤집혀 있었다.
+    골드를 빼면 그 지표들이 제 목소리를 내는지, 그리고 점수는 얼마나 떨어지는지 본다.
+    """
+    NL = chr(10)
+    full = list(DIFF13)
+    nogold = [c for c in DIFF13 if c != "GoldDiff"]
+    cv = StratifiedKFold(5, shuffle=True, random_state=SEED)
+
+    m1 = pipe().fit(X_tr[full], y_tr)
+    m2 = pipe().fit(X_tr[nogold], y_tr)
+    c1 = pd.Series(m1.named_steps["model"].coef_[0], index=full)
+    c2 = pd.Series(m2.named_steps["model"].coef_[0], index=nogold)
+    a1 = accuracy_score(y_te, m1.predict(X_te[full]))
+    a2 = accuracy_score(y_te, m2.predict(X_te[nogold]))
+    s1 = cross_val_score(pipe(), X_tr[full], y_tr, cv=cv, n_jobs=1).mean()
+    s2 = cross_val_score(pipe(), X_tr[nogold], y_tr, cv=cv, n_jobs=1).mean()
+
+    flipped = [k for k in nogold if c1.get(k, 0) < 0 < c2.get(k, 0)]
+    print(chr(10) + "[4] 골드를 빼고 다시 분석")
+    print(f"    점수    : 홀드아웃 {a1:.4f} → {a2:.4f}  (차이 {a1-a2:+.4f})")
+    print(f"    킬 계수 : {c1['KillsDiff']:+.3f} → {c2['KillsDiff']:+.3f}")
+    print(f"    음수에서 양수로 바뀐 지표 {len(flipped)}개: {flipped}")
+
+    fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.4))
+    ax = axes[0]
+    order = c2.abs().sort_values(ascending=False).head(7).index[::-1]
+    y = np.arange(len(order)); w = 0.38
+    ax.barh(y - w/2, [c1.get(k, 0) for k in order], w, label="골드 포함 (13개)", color="#9aa5b1")
+    ax.barh(y + w/2, [c2.get(k, 0) for k in order], w, label="골드 제외 (12개)", color="#2f6fe4")
+    for i, k in enumerate(order):
+        if c1.get(k, 0) < 0 < c2.get(k, 0):
+            ax.annotate("음수 -> 양수", xy=(c2[k], i + w/2), xytext=(c2[k] + 0.08, i + w/2),
+                        fontsize=9, color="#c0392b", fontweight="bold", va="center")
+    ax.set_yticks(y); ax.set_yticklabels(order, fontsize=9)
+    ax.axvline(0, color="black", lw=0.9)
+    ax.set_xlabel("표준화 계수"); ax.legend(fontsize=9, loc="lower right")
+    ax.set_title("골드를 빼면 가려져 있던 지표가 살아난다" + NL +
+                 f"킬 차이: 음수({c1['KillsDiff']:.2f}) -> 양수(+{c2['KillsDiff']:.2f})", fontsize=12, pad=12)
+
+    ax = axes[1]
+    x = np.arange(2)
+    ax.bar(x - 0.2, [s1, s2], 0.4, label="교차검증", color="#8fa8c8")
+    ax.bar(x + 0.2, [a1, a2], 0.4, label="홀드아웃", color="#2f6fe4")
+    for i, (a, b) in enumerate(zip([s1, s2], [a1, a2])):
+        ax.text(i - 0.2, a + 0.004, f"{a:.4f}", ha="center", fontsize=10)
+        ax.text(i + 0.2, b + 0.004, f"{b:.4f}", ha="center", fontsize=10, fontweight="bold")
+    ax.axhline(0.5010, color="gray", ls=":", lw=1.2)
+    ax.set_xticks(x); ax.set_xticklabels(["골드 포함" + NL + "(13개)", "골드 제외" + NL + "(12개)"], fontsize=10)
+    ax.set_ylim(0.48, 0.79); ax.set_ylabel("정확도"); ax.legend(fontsize=9)
+    ax.annotate(f"떨어진 폭 {abs(a1-a2):.4f}", xy=(0.5, 0.755), fontsize=11.5, ha="center",
+                fontweight="bold", color="#2e7d32")
+    ax.set_title("가장 강한 지표를 빼도 점수는 거의 그대로" + NL +
+                 "다른 지표들이 같은 정보를 담고 있다는 뜻", fontsize=12, pad=12)
+    fig.suptitle("페이즈 2 — 골드를 빼고 다시 분석하면", fontsize=14, fontweight="bold", y=1.0)
+    fig.tight_layout()
+    fig.savefig("reports/07_phase2_without_gold.png", dpi=130, bbox_inches="tight")
+
+    # 단계별로 더 빼보기
+    steps = [("전체 13개", full), ("골드 제외", nogold),
+             ("골드+경험치 제외", [c for c in nogold if c != "ExpDiff"]),
+             ("성장 지표 전부 제외", [c for c in DIFF13 if c not in
+              ("GoldDiff","ExpDiff","KillsDiff","AvgLevelDiff","AssistsDiff","TotalMinionsKilledDiff")])]
+    rows = []
+    for name, cols in steps:
+        s = cross_val_score(pipe(), X_tr[cols], y_tr, cv=cv, n_jobs=1)
+        m = pipe().fit(X_tr[cols], y_tr)
+        acc = accuracy_score(y_te, m.predict(X_te[cols]))
+        co = pd.Series(m.named_steps["model"].coef_[0], index=cols).sort_values(key=abs, ascending=False)
+        rows.append({"구성": name, "지표수": len(cols), "교차검증": round(s.mean(), 4),
+                     "홀드아웃": round(acc, 4), "1위요인": co.index[0], "1위계수": round(co.iloc[0], 3)})
+    pd.DataFrame(rows).to_csv("reports/tables/phase2_without_gold.csv", index=False, encoding="utf-8-sig")
+    print("    단계별 제거:")
+    for r in rows:
+        print(f"      {r['구성']:22} {r['지표수']:>2}개 · CV {r['교차검증']:.4f} · 홀드아웃 {r['홀드아웃']:.4f} · 1위 {r['1위요인']}")
+
+
 def main():
     os.makedirs("reports", exist_ok=True)
     X_tr, y_tr, X_te, y_te, source = load_data()
@@ -219,8 +298,11 @@ def main():
     fig.tight_layout()
     fig.savefig("reports/figures/phase2_comparison.png", dpi=130, bbox_inches="tight")
 
+    without_gold(X_tr, y_tr, X_te, y_te)
+
     print("\n[저장] reports/figures/phase2_correlation.png · phase2_comparison.png")
     print("       reports/tables/phase2_feature_sets.csv · phase2_dropped.txt")
+    print("       reports/07_phase2_without_gold.png · tables/phase2_without_gold.csv")
 
     # ── 5. 결론 ───────────────────────────────────────────────
     best_acc = res.loc[res["홀드아웃"].idxmax()]
