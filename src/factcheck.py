@@ -47,8 +47,8 @@ schema = json.load(open("artifacts/schema.json", encoding="utf-8"))
 acc = schema["metrics_holdout"]["accuracy"]
 for p, s in docs.items():
     for found in set(re.findall(r"홀드아웃[^\n|]{0,30}?(0\.7\d{3})", s)):
-        # 정본(spec) 수치는 조건이 달라 예외로 둔다
-        if found not in (f"{acc}", "0.7394", "0.7144"):
+        # 예외: 0.7394(정렬 후 분할) · 0.7136(팀 DB ml_split 분할) — 둘 다 문서가 설명하는 값
+        if found not in (f"{acc}", "0.7394", "0.7136"):
             issues.append(f"[수치 확인] {p}: 홀드아웃 {found} (실측 {acc})")
 
 # 4) 피처 목록이 schema · 코드 · 노트북에서 일치하는가
