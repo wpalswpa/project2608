@@ -131,7 +131,7 @@ def main():
     print(f"\n[승리요인] 두 방법 상위 6개 중 {top6_overlap}개 일치 (기준 5개 이상: "
           f"{'충족' if top6_overlap >= 5 else '미달'})")
     print(rank.to_string())
-    rank.to_csv("reports/win_factor_ranking.csv", encoding="utf-8-sig")
+    rank.to_csv("reports/tables/win_factor_ranking.csv", encoding="utf-8-sig")
 
     # ---- 4. 오류 분석 (FR-4) — 골드차 구간별 정확도 ----
     err = pd.DataFrame({"abs_gold": X_te["GoldDiff"].abs().values,
@@ -144,7 +144,7 @@ def main():
     ea["비중_%"] = (ea["경기수"] / ea["경기수"].sum() * 100).round(1)
     print("\n[오류 분석] 골드차 구간별 홀드아웃 정확도 — '접전일수록 틀린다' 검증:")
     print(ea.to_string())
-    ea.to_csv("reports/day4_error_analysis.csv", encoding="utf-8-sig")
+    ea.to_csv("reports/tables/day4_error_analysis.csv", encoding="utf-8-sig")
 
     fig, ax = plt.subplots(figsize=(7, 4))
     ea["정확도"].plot.bar(ax=ax, color="tab:blue")
@@ -153,7 +153,7 @@ def main():
     ax.set_title("Accuracy by |GoldDiff| bin (holdout)")
     ax.legend()
     fig.tight_layout()
-    fig.savefig("reports/day4_error_analysis.png", dpi=120)
+    fig.savefig("reports/figures/day4_error_analysis.png", dpi=120)
 
     # ---- 5. 아티팩트 — 저장 → 복원 → 일치 assert ----
     joblib.dump(pipe, "artifacts/model.joblib")

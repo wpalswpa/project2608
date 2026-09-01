@@ -99,7 +99,7 @@ fig, ax = plt.subplots(figsize=(8, 8))
 corr.head(20)[::-1].plot.barh(ax=ax)  # [::-1] : 큰 값이 위로 오게 뒤집기
 ax.set_title("Correlation with blueWins (top 20)")
 fig.tight_layout()
-fig.savefig("reports/eda_corr_top20.png", dpi=120)
+fig.savefig("reports/figures/eda_corr_top20.png", dpi=120)
 
 # 승리 경기(파란색)와 패배 경기(빨간색)의 분포가 얼마나 갈리는지 눈으로 확인
 fig, axes = plt.subplots(2, 2, figsize=(10, 7))
@@ -109,8 +109,8 @@ for a, col in zip(axes.ravel(), ["blueGoldDiff", "blueExperienceDiff", "blueKill
     a.set_title(col)
     a.legend(fontsize=8)
 fig.tight_layout()
-fig.savefig("reports/eda_hist_key_features.png", dpi=120)
-print("\n[EDA] 그림 저장: reports/eda_corr_top20.png, reports/eda_hist_key_features.png")
+fig.savefig("reports/figures/eda_hist_key_features.png", dpi=120)
+print("\n[EDA] 그림 저장: reports/figures/eda_corr_top20.png, reports/figures/eda_hist_key_features.png")
 
 # ---------- 3. 층화 분할 (분할이 전처리보다 먼저!) ----------
 # stratify=y : 훈련/시험 양쪽의 승/패 비율을 똑같이 유지 (층화 분할)

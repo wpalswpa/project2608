@@ -51,7 +51,7 @@
 
 - 접전(골드차 <1,000, 34%) 정확도 0.615 — 정보량의 한계 (7장 후속 아이디어의 동기)
 - 실험 B 팀 단위 분할 미적용 — 절대 수치 낙관 가능 (7장 후속 아이디어의 동기)
-- `reports/viz_3_game_types.png` 라벨 오류(군집 이름 뒤섞임) — visualizations.ipynb 수정 필요
+- `reports/figures/viz_3_game_types.png` 라벨 오류(군집 이름 뒤섞임) — visualizations.ipynb 수정 필요
 - 실루엣 점수가 문서(0.219)와 노트북 재실행(0.216)에서 미세하게 다름 — `silhouette_score(sample_size=3000)`의 표본추출 탓. 전체 표본으로 고정할 것
 
 ---

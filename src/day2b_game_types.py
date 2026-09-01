@@ -79,7 +79,7 @@ profile = profile.sort_values("일방성_골드차")  # 접전 → 일방적 순
 print("\n[경기 유형 프로파일] (학습셋, 리드팀승률 = 10분에 골드 앞선 팀이 최종 승리한 비율)")
 print(profile.to_string())
 # encoding="utf-8-sig" : 엑셀에서 한글 컬럼명이 깨지지 않게 BOM 포함 저장
-profile.to_csv("reports/day2b_game_type_profile.csv", encoding="utf-8-sig")
+profile.to_csv("reports/tables/day2b_game_type_profile.csv", encoding="utf-8-sig")
 # → 실측 해석: 운영전 42%(킬9, 승률68%) / 난타전 32%(킬15, 68%) /
 #   시야전 7%(와드 3배, 70%) / 일방적 19%(골드차 4200, ★90%)
 #   = 일방적 경기는 10분에 사실상 결판, 접전은 아직 1/3이 뒤집힌다.
@@ -91,5 +91,5 @@ ax.set_xlabel("|GoldDiff| (onesidedness)")   # x축: 오른쪽일수록 일방�
 ax.set_ylabel("total kills (combat intensity)")  # y축: 위일수록 난타전
 ax.set_title(f"Game types, KMeans k={K}")
 fig.tight_layout()
-fig.savefig("reports/day2b_game_types.png", dpi=120)
-print("\n[저장] reports/day2b_game_type_profile.csv · day2b_game_types.png")
+fig.savefig("reports/figures/day2b_game_types.png", dpi=120)
+print("\n[저장] reports/tables/day2b_game_type_profile.csv · day2b_game_types.png")

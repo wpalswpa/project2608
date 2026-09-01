@@ -99,7 +99,7 @@
 ### 6단계. 승리요인 — 두 방법 교차 확인
 
 최종 모델(diff13) 기준, 유의미한 요인은 **3개뿐**이고 두 방법에서 **순위까지 일치**합니다
-(`reports/win_factor_ranking.csv`).
+(`reports/tables/win_factor_ranking.csv`).
 
 | 순위 | 요인 | 표준화 계수 | permutation |
 |---|---|---|---|

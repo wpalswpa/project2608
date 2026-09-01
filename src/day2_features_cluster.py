@@ -144,7 +144,7 @@ ax[1].set_title(f"KMeans k={best_k} on PCA plane")
 ax[1].set_xlabel("PC1")
 ax[1].set_ylabel("PC2")
 fig.tight_layout()
-fig.savefig("reports/day2_pca_cluster.png", dpi=120)
+fig.savefig("reports/figures/day2_pca_cluster.png", dpi=120)
 
 # 군집 프로파일 = 군집별 평균값 표. "각 군집이 어떤 경기들의 모임인지" 읽는 도구.
 key_cols = ["GoldDiff", "ExpDiff", "KillsDiff", "DragonsDiff", "HeraldsDiff",
@@ -158,7 +158,7 @@ profile = prof.groupby("cluster").agg(
 profile["share_%"] = (profile["n"] / profile["n"].sum() * 100).round(1)
 print("\n[군집 프로파일] (학습셋 기준, 값은 블루-레드 차이의 평균)")
 print(profile.to_string())
-profile.to_csv("reports/day2_cluster_profile.csv")
+profile.to_csv("reports/tables/day2_cluster_profile.csv")
 # ★ 교훈: 이 군집은 k=2 로 "블루 우세 vs 레드 우세"(승률 73%/27%)가 나왔다.
 #   정답을 되비추는 '자명한 군집'이라 새 정보가 없음.
 #   → day2b_game_types.py 에서 진영 정보를 지운 피처로 재설계했다.
@@ -169,4 +169,4 @@ from runlog import log_run
 
 for _name, _res, _sec in runs:
     log_run(_name, _res, _sec)
-print("\n[기록] runs.csv 추가 · reports/day2_pca_cluster.png · day2_cluster_profile.csv 저장")
+print("\n[기록] runs.csv 추가 · reports/figures/day2_pca_cluster.png · day2_cluster_profile.csv 저장")

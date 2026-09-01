@@ -151,7 +151,7 @@ def main():
     ax.set_title("오른쪽 아래 빨간 점 = 관련 있는데 가중치가 음수\n(대표 지표가 몫을 가져간 결과)", pad=12)
     ax.legend()
     fig.tight_layout()
-    fig.savefig("reports/phase2_correlation.png", dpi=130, bbox_inches="tight")
+    fig.savefig("reports/figures/phase2_correlation.png", dpi=130, bbox_inches="tight")
 
     print("[1] 상관 0.7 이상인 쌍")
     pairs = [(a, b, corr.loc[a, b]) for a, b in itertools.combinations(DIFF13, 2)
@@ -187,10 +187,10 @@ def main():
               f" · 뒤집힘 {r['부호뒤집힘']:.1f}개")
 
     res = pd.DataFrame(rows).drop(columns=["cols"])
-    res.to_csv("reports/phase2_feature_sets.csv", index=False, encoding="utf-8-sig")
+    res.to_csv("reports/tables/phase2_feature_sets.csv", index=False, encoding="utf-8-sig")
 
     # 제거된 지표 기록
-    with open("reports/phase2_dropped.txt", "w", encoding="utf-8") as f:
+    with open("reports/tables/phase2_dropped.txt", "w", encoding="utf-8") as f:
         for (name, cols), r in zip(configs, rows):
             dropped = [c for c in DIFF13 if c not in cols]
             f.write(f"{name}\n  남김: {cols}\n  제거: {dropped}\n\n")
@@ -217,10 +217,10 @@ def main():
     ax.set_ylabel("부호가 뒤집힌 지표 수 (시드 10회 평균)")
     ax.set_title("덜어낼수록 해석이 깨끗해지는가\n(적을수록 좋다)", pad=10)
     fig.tight_layout()
-    fig.savefig("reports/phase2_comparison.png", dpi=130, bbox_inches="tight")
+    fig.savefig("reports/figures/phase2_comparison.png", dpi=130, bbox_inches="tight")
 
-    print("\n[저장] reports/phase2_correlation.png · phase2_comparison.png")
-    print("       reports/phase2_feature_sets.csv · phase2_dropped.txt")
+    print("\n[저장] reports/figures/phase2_correlation.png · phase2_comparison.png")
+    print("       reports/tables/phase2_feature_sets.csv · phase2_dropped.txt")
 
     # ── 5. 결론 ───────────────────────────────────────────────
     best_acc = res.loc[res["홀드아웃"].idxmax()]

@@ -131,7 +131,7 @@ def main():
     coefs = pd.DataFrame(coef_table)
     coefs["변화"] = (coefs["15분"] - coefs["10분"]).round(3)
     print(coefs.to_string())
-    coefs.to_csv("reports/expB_coef_shift.csv", encoding="utf-8-sig")
+    coefs.to_csv("reports/tables/expB_coef_shift.csv", encoding="utf-8-sig")
 
     # ---------- 5. 격차가 얼마나 벌어지는가 ----------
     print("\n" + "-" * 64)
@@ -162,7 +162,7 @@ def main():
     tab["개선"] = (tab["정확도_15분"] - tab["정확도_10분"]).round(4)
     tab["비중_%"] = (tab["경기수"] / tab["경기수"].sum() * 100).round(1)
     print(tab.to_string())
-    tab.to_csv("reports/expB_close_games.csv", encoding="utf-8-sig")
+    tab.to_csv("reports/tables/expB_close_games.csv", encoding="utf-8-sig")
 
     # 접전이 5분 뒤 어디로 갔나
     close = te[te["gold10"].abs() < 1000]
@@ -187,8 +187,8 @@ def main():
     ax[1].set_xlabel("10분 골드차"); ax[1].set_ylabel("15분 골드차")
     ax[1].set_title("격차의 이동 (주황=10분 접전 구간)")
     fig.tight_layout()
-    fig.savefig("reports/expB_timepoint.png", dpi=120)
-    print("\n[저장] reports/expB_timepoint.png · expB_coef_shift.csv · expB_close_games.csv")
+    fig.savefig("reports/figures/expB_timepoint.png", dpi=120)
+    print("\n[저장] reports/figures/expB_timepoint.png · expB_coef_shift.csv · expB_close_games.csv")
 
     # ---------- 8. 기록 ----------
     rows = [{"date": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M"),
