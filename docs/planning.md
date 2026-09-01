@@ -4,7 +4,7 @@
 > 기능·성공 기준의 정리는 [spec.md](spec.md), 구현 계획은 [plan.md](plan.md),
 > 실측 기록은 [experiment_report.md](experiment_report.md)를 보세요.
 >
-> **발표 주제**: LoL 경기는 언제 승부가 결정되는가?
+> **발표 주제**: LoL 경기는 언제 승부가 결정되는가? — 인게임 시점별 경기 데이터 기반 승패 예측 및 핵심 승리요인 분석
 > **시스템 이름**: LoL 승패 예측·설명 서비스 (10분 데이터로 승률과 '왜'까지)
 
 ## 문제 영역 (PROBLEM DOMAIN)
