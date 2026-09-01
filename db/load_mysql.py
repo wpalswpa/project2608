@@ -2,7 +2,7 @@
 # CSV -> MariaDB 적재 스크립트
 #
 # 사용법: python db/load_mysql.py <사용자명> <비밀번호> [DB명]
-# 예:     python db/load_mysql.py pioneer4 ****** ABC8pioneer4
+# 예:     python db/load_mysql.py <사용자명> <비밀번호> <팀DB명>
 #
 # 설계 포인트:
 #   - 비밀번호는 코드에 하드코딩하지 않고 실행 인자로 받는다 (보안 습관)
@@ -22,13 +22,15 @@ import csv
 
 import pymysql
 
-HOST, PORT = "mis.iptime.org", 13306
+# 접속 정보는 환경변수로 받는다 (공개 저장소에 서버 주소를 남기지 않는다)
+HOST = os.environ.get("DB_HOST", "localhost")
+PORT = int(os.environ.get("DB_PORT", 3306))
 CSV = "data/high_diamond_ranked_10min.csv"
 TABLE = "lol_matches_10min"
 
-# 명령 인자: [1]=사용자명, [2]=비밀번호, [3]=DB명(생략 시 ABC8pioneer4)
+# 명령 인자: [1]=사용자명, [2]=비밀번호, [3]=DB명(생략 시 <팀DB명>)
 user, pw = sys.argv[1], sys.argv[2]
-db = sys.argv[3] if len(sys.argv) > 3 else "ABC8pioneer4"
+db = sys.argv[3] if len(sys.argv) > 3 else os.environ.get("DB_NAME", "lol_db")
 
 # ---------- 1. CSV 읽기 ----------
 with open(CSV, encoding="utf-8") as f:

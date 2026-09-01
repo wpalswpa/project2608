@@ -2,7 +2,7 @@
 # Day1 층화분할 결과(train/test)를 DB에 올리는 스크립트
 #
 # 사용법: python db/load_split.py <사용자명> <비밀번호> [DB명]
-# 예:     python db/load_split.py pioneer4 ****** ABC8pioneer4
+# 예:     python db/load_split.py <사용자명> <비밀번호> <팀DB명>
 #
 # 왜 필요한가:
 #   분할 결과가 로컬 CSV에 '행 번호'로만 저장돼 있어서 DB에서는 쓸 수 없다.
@@ -25,13 +25,15 @@ cd_root()   # 어디서 실행하든 프로젝트 폴더 기준으로 맞춘다
 import pandas as pd
 import pymysql
 
-HOST, PORT = "mis.iptime.org", 13306
+# 접속 정보는 환경변수로 받는다 (공개 저장소에 서버 주소를 남기지 않는다)
+HOST = os.environ.get("DB_HOST", "localhost")
+PORT = int(os.environ.get("DB_PORT", 3306))
 CSV = "data/high_diamond_ranked_10min.csv"
 TRAIN_IDX = "data/splits/train_idx.csv"
 TEST_IDX = "data/splits/test_idx.csv"
 
 user, pw = sys.argv[1], sys.argv[2]
-db = sys.argv[3] if len(sys.argv) > 3 else "ABC8pioneer4"
+db = sys.argv[3] if len(sys.argv) > 3 else os.environ.get("DB_NAME", "lol_db")
 
 # ---------- 1. 행 번호 -> gameId 매핑 ----------
 # CSV 를 읽은 순서가 곧 행 번호다. Day1 이 저장한 인덱스가 이 순서를 가리킨다.

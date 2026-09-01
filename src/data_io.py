@@ -18,8 +18,12 @@ cd_root()   # 어디서 실행하든 프로젝트 폴더 기준으로 맞춘다 
 
 import pandas as pd
 
-HOST, PORT = "mis.iptime.org", 13306
-USER, DB, TABLE = "pioneer4", "ABC8pioneer4", "lol_matches_10min"
+# 접속 정보는 환경변수로 받는다 (공개 저장소에 서버 주소를 남기지 않는다)
+HOST = os.environ.get("DB_HOST", "localhost")
+PORT = int(os.environ.get("DB_PORT", 3306))
+USER = os.environ.get("DB_USER", "root")
+DB = os.environ.get("DB_NAME", "lol_db")
+TABLE = os.environ.get("DB_TABLE", "lol_matches_10min")
 CSV = "data/high_diamond_ranked_10min.csv"
 EXPECTED_ROWS = 9879
 

@@ -15,7 +15,7 @@
 |---|---|
 | Language | Python 3.12 (학습·예측·웹 단일 스택) |
 | Dependencies | pandas · scikit-learn(Pipeline) · joblib · matplotlib · Flask · pymysql (버전 고정) |
-| Storage | 팀 MariaDB `ABC8pioneer4` (SQL 뷰 4종이 피처 정의의 정본) · CSV 폴백 · v2 적재처 후보 `ABC6pioneer4` |
+| Storage | 팀 MariaDB `<팀DB명>` (SQL 뷰 4종이 피처 정의의 정본) · CSV 폴백 · v2 적재처 후보 `<후속DB명>` |
 | Testing | 복원 일치 assert · 서빙 파리티(web/test_parity.py) · 문서 정합성(src/factcheck.py) |
 | Platform | Windows 네이티브 · 1코어(n_jobs=1) · Docker 미사용 |
 
@@ -97,7 +97,7 @@
 | **Riot Match-V5 타임라인** (신규) | 랭크 경기의 **분 단위** 골드·경험치·CS·킬 프레임 | `src/riot_api.py`의 타임라인→피처 변환기 재사용, 수집 스크립트만 추가하면 됨 (개발 키 rate limit 감안) | 분 단위 곡선의 메인 데이터, 랭크 일반화 |
 | 픽밴·챔피언 (선택) | 경기 시작 전 정보 | Match-V5 메타데이터에 포함 | 0분 기준선 (7-2 ①: 시간이 지나면 효력 소멸 확인용) |
 
-- 적재한다면: 팀 MariaDB `ABC6pioneer4` (빈 스키마 확인됨). `CREATE TABLE IF NOT EXISTS`만, `DROP` 금지
+- 적재한다면: 팀 MariaDB `<후속DB명>` (빈 스키마 확인됨). `CREATE TABLE IF NOT EXISTS`만, `DROP` 금지
 - 분할 키: **팀 ID(프로) / 소환사 ID(랭크) 그룹** + **패치 버전 시간순** — 같은 팀·같은 패치가 양쪽에 못 들어가게
 - 피처: 기존 diff 피처에서 WardsPlacedDiff 제외 + 경과 시간 t + 시점 t까지의 오브젝트 획득 (타임라인에 시점별 값이 있어 실험 B에서 뺐던 드래곤·타워 복원 가능)
 

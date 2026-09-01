@@ -39,7 +39,7 @@
 ## 2. 데이터
 
 **출처**: [Kaggle — LoL Diamond Ranked Games 10min](https://www.kaggle.com/datasets/bobbyscience/league-of-legends-diamond-ranked-games-10-min)
-**적재**: 팀 MariaDB `ABC8pioneer4.lol_matches_10min` · **한 줄 = 경기 한 판** (10분 상태 + 최종 승패 `blueWins`)
+**적재**: 팀 MariaDB `<팀DB명>.lol_matches_10min` · **한 줄 = 경기 한 판** (10분 상태 + 최종 승패 `blueWins`)
 
 | 점검 | 결과 |
 |---|---|

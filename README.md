@@ -21,7 +21,7 @@
 | [Oracle's Elixir 2022 프로 경기](https://lol.timsevenhuysen.com/matchdata/) | 통제 후 10,656경기 | **실험 B** — 10분 vs 15분 시점 비교 전용 |
 
 한 줄 = 경기 한 판(10분 상태 + 최종 승패 `blueWins`). 결측 0 · 중복 0 · 승패 50.1:49.9 실측.
-팀 MariaDB(`ABC8pioneer4.lol_matches_10min`) 적재, 피처 계산은 SQL 뷰(`v_diff13_*` 등)가 정본이고 CSV 폴백은 동일 계산식.
+팀 MariaDB(`<팀DB명>.lol_matches_10min`) 적재, 피처 계산은 SQL 뷰(`v_diff13_*` 등)가 정본이고 CSV 폴백은 동일 계산식.
 두 실험은 데이터·실력대·피처 수가 달라 **절대 수치를 서로 비교하지 않는다.**
 
 **가장 중요한 규칙 — 분할 먼저.** 어떤 전처리보다 먼저 학습 7,903 / 시험 1,976으로 층화 분할(시드 42, `gameId` 정렬)하고 시험셋을 봉인했다.

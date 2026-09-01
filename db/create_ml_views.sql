@@ -5,7 +5,7 @@
 --   아래 뷰들은 그 하나의 모델에 넣을 '재료 묶음'을 바꿔 놓은 것이다.
 --   (예외: cluster5 는 예측이 아니라 KMeans 군집용)
 --
--- 실행:  mysql -h mis.iptime.org -P 13306 -u pioneer4 -p ABC8pioneer4 < db/create_ml_views.sql
+-- 실행:  mysql -h <서버주소> -P <포트> -u <사용자명> -p <팀DB명> < db/create_ml_views.sql
 -- 선행:  python db/load_split.py <user> <pw>   (ml_split 테이블이 먼저 있어야 함)
 --
 -- 왜 뷰로 만드나:
@@ -165,7 +165,7 @@ SELECT * FROM v_cluster5_all WHERE split = 'train';
 -- 확인용 질의 (실행 후 눈으로 검증)
 -- ---------------------------------------------------------------------
 -- SELECT TABLE_NAME FROM information_schema.VIEWS
---  WHERE TABLE_SCHEMA = 'ABC8pioneer4' ORDER BY TABLE_NAME;
+--  WHERE TABLE_SCHEMA = '<팀DB명>' ORDER BY TABLE_NAME;
 --
 -- SELECT split, COUNT(*) n, ROUND(AVG(y),4) 승률
 --   FROM v_diff13_all GROUP BY split;

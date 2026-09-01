@@ -1,7 +1,7 @@
 [기술 스택 — 확정]
 · 언어 Python 3.12 (학습·예측·웹 단일 언어) · pandas · scikit-learn(Pipeline) · joblib · matplotlib · pymysql — 버전 고정
 · 웹 Flask (계획의 Vue/Express에서 8/31 변경 — 예측 로직을 predict.py 한 곳에 두어 화면·모델 패리티 보장)
-· 데이터 팀 MariaDB ABC8pioneer4 — 피처 뷰 4종(v_diff13 · v_clean27 · v_gold2 · v_cluster5, 각 _train/_test/_all)이 피처 정의의 정본. CSV 폴백 동일 계산식
+· 데이터 팀 MariaDB <팀DB명> — 피처 뷰 4종(v_diff13 · v_clean27 · v_gold2 · v_cluster5, 각 _train/_test/_all)이 피처 정의의 정본. CSV 폴백 동일 계산식
 · 실행 Windows 네이티브 · 1코어(n_jobs=1) · Docker 미사용 · 브랜치 main 단일
 
 [데이터베이스 설정]

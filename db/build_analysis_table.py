@@ -28,12 +28,14 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 SEED = 42
-HOST, PORT = "mis.iptime.org", 13306
+# 접속 정보는 환경변수로 받는다 (공개 저장소에 서버 주소를 남기지 않는다)
+HOST = os.environ.get("DB_HOST", "localhost")
+PORT = int(os.environ.get("DB_PORT", 3306))
 CSV = "data/high_diamond_ranked_10min.csv"
 TABLE = "lol_analysis_10min"
 
 user, pw = sys.argv[1], sys.argv[2]
-db = sys.argv[3] if len(sys.argv) > 3 else "ABC8pioneer4"
+db = sys.argv[3] if len(sys.argv) > 3 else os.environ.get("DB_NAME", "lol_db")
 
 df = pd.read_csv(CSV)
 tr_idx = pd.read_csv("data/splits/train_idx.csv")["idx"].values

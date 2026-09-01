@@ -10,7 +10,7 @@
 
 # 1부. 피처 명세 — 어떤 컬럼을 왜 골랐나
 
-**대상**: `ABC8pioneer4` 의 `v_diff13_*` · `v_clean27_*` · `v_gold2_*` · `v_cluster5_*`
+**대상**: `<팀DB명>` 의 `v_diff13_*` · `v_clean27_*` · `v_gold2_*` · `v_cluster5_*`
 **원천 테이블**: `lol_matches_10min` (9,879행 × 40컬럼)
 **작성**: 2026-08-31 · 근거는 전부 학습셋 7,903행 실측
 
@@ -262,7 +262,7 @@ k=4 는 실루엣 최고값(k=3)이 아니라 **해석 가능성으로 고른 �
 ```bash
 python db/load_mysql.py <user> <pw>          # 원본 적재
 python db/load_split.py <user> <pw>          # 분할 고정
-mysql -h mis.iptime.org -P 13306 -u pioneer4 -p ABC8pioneer4 < db/create_ml_views.sql
+mysql -h <서버주소> -P <포트> -u <사용자명> -p <팀DB명> < db/create_ml_views.sql
 python db/build_analysis_table.py <user> <pw>  # 분석용 테이블(경기유형 포함)
 
 $env:DB_PASSWORD='<pw>'
