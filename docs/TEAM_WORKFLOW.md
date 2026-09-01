@@ -3,18 +3,67 @@
 저장소: `https://github.com/wpalswpa/project2608` · 브랜치는 **`main` 하나만** 쓴다.
 공개 서비스: **https://p4.sumzip.com** (팀 서버 = 맥 192.168.0.19, 프런트 9504 · 백엔드 9524)
 
-## 포지션 4개와 담당 폴더 (4인)
+## 최종 배치 — 1인 1역 (4인)
 
-| # | 포지션 | 책임 | 담당 폴더·파일 | 담당자 |
-|---|---|---|---|---|
-| 1 | **데이터·피처** | DB 적재·분할 고정·뷰 4종, 중복 제거·차이 피처, 경기 유형 군집, 입력 허용 범위 | `db/` · `data/` · `src/day1_baseline.py` `day2_features_cluster.py` `day2b_game_types.py` `load_from_db.py` · `specs/…/data-model.md` | |
-| 2 | **모델·해석** | 8종 비교→로지스틱, 승리요인(계수×permutation), 실험 B(10 vs 15분), 모델 저장·복원 | `src/finalize_model.py` `timepoint_compare.py` · `artifacts/` · `model_card.md` · `specs/…/research.md` | |
-| 3 | **평가지표·검증** | 정확도·F1·AUC·Brier, 5-fold·시드 10회, 오류 구간(접전 0.615↔결정 0.947), 캘리브레이션, 찍기 대비 개선 폭, SC-1~6 채점표 관리, 파리티·스모크 테스트, `factcheck` 0건 유지 | `src/repeat_check.py` `factcheck.py` · `web/test_parity.py` `test_api.py` · `reports/*.csv` · `runs.csv` · `specs/…/spec.md` 채점표 · `/api/report` 내용 | |
-| 4 | **서비스·문서·발표** | 백엔드/프런트 운영·배포(p4.sumzip.com), DDBM 사이트(캔버스·시스템 의도·설계 문서), README·PPT, SC-7 스모크 테스트 | `predict.py` · `web/` · `check_project.sh` · `README.md` · `docs/` · `specs/…/plan.md` `quickstart.md` `tasks.md` · `presentation_draft.pptx` · `Intent-*.md` | |
+분석·모델·배포는 끝났다. 남은 건 **발표까지 "숫자 방어 · 서비스 운영 · 발표 · 검증"** 네 가지고, 한 사람이 하나씩 맡는다.
+데이터·모델 폴더(`db/` `src/day*` `src/finalize_model.py` `artifacts/`)는 **동결** — 건드려야 하면 ①이 승인한다(숫자가 바뀌니까).
 
-- **평가지표 담당(3)**이 "숫자의 최종 책임자"다: 문서·발표·API에 나가는 모든 성능 수치는 3번이 `reports/`·`runs.csv`로 근거를 갖고 있어야 하고, 대표값은 **반복 평균 0.7366 ± 0.0081**(단일 분할 0.7394는 표본)로 통일한다.
-- 1→2→3 순서로 산출물이 흐른다(뷰 → 모델 → 평가). 4는 셋의 결과를 사이트·문서·발표로 내보낸다.
-- 담당 폴더 밖을 고칠 땐 게시판/메신저로 먼저 알린다. 같은 파일을 두 사람이 동시에 고치지 않는다.
+| # | 담당 | 한 줄 목표 | 손대는 파일 (겹침 없음) |
+|---|---|---|---|
+| ① | **평가지표** | 발표에 나가는 모든 숫자를 근거와 함께 방어할 수 있게 | `reports/` `runs.csv` `src/repeat_check.py` `src/factcheck.py` `docs/experiment_report.md` `specs/…/spec.md` 채점표 |
+| ② | **서비스·운영 (웹 포함)** | https://p4.sumzip.com 이 발표 순간까지 살아 있고 보기 좋게 | `check_project.sh` `web/` `predict.py` `specs/…/quickstart.md` `Intent-*.md` `docs/ddbm-intent/` |
+| ③ | **발표자료·시연** | 12~15장 + 시연 3단계 + 예상 질문 카드, 리허설 2회 | `presentation_draft.pptx` `docs/presentation_script.md`(새로) |
+| ④ | **문서·정성검증** | SC-7 테스트 기록, `viz_3` 수정, 문서 숫자 정합성 | `notebooks/visualizations.ipynb` `README.md` `docs/study.md` `model_card.md` `specs/…/plan.md` `tasks.md` `research.md` `data-model.md` |
+
+### ① 평가지표 — 세부 업무 (순서대로)
+
+1. **지표 한 표** 만들기 → `reports/metrics_summary.md` (새 파일). 열: 지표 · 값 · 근거 파일 · 한 줄 의미
+   - 홀드아웃 정확도 0.7394 (`runs.csv`) · 교차검증 0.7315 ± 0.0153 · 시드 10회 **0.7366 ± 0.0081** (`reports/repeat_experimentA.csv`) · 찍기 0.5010 대비 +23.8%p · 연습−검증 격차 +0.0022
+   - F1 0.7352 · AUC 0.8150 · Brier 0.1756
+   - 승리요인: 골드 > 경험치 > 드래곤, 계수·permutation 순위 일치 (`reports/win_factor_ranking.csv`)
+   - 오류 구간: 접전 0.615 → 우세 0.741 → 크게 우세 0.859 → 결정 0.947 (`reports/day4_error_analysis.csv`)
+   - 실험 B: +5.25%p, 접전만 +7.8%p (`reports/expB_close_games.csv` `repeat_experimentB.csv`)
+2. **"왜 이 지표인가"** 한 줄씩: 정확도 1순위 = 승패 50.1:49.9 균형 + 오답 비용 대칭. F1·AUC·Brier는 보조. 임계값 0.5 = 0.40~0.60 훑어 평평함 확인.
+3. **방어 카드 5장** — 반드시 답을 준비할 질문:
+   - "접전 0.615는 너무 낮지 않나?" → 모델이 아니라 10분 정보의 한계. 증거: 15분 정보로 접전만 +7.8%p
+   - "0.7394 · 0.7366 · 0.7136 왜 다 다르냐?" → 분할이 다르다(시드 42 단일 / 시드 10회 평균 / 팀 DB `ml_split`). 대표값은 반복 평균
+   - "킬 계수가 음수면 킬하면 진다는 뜻?" → 골드에 이미 반영(상관 0.92). 킬은 골드로 바뀔 때만 의미
+   - "더 좋은 모델 안 써봤나?" → 8종 비교, 복잡할수록 낮았음. RF는 연습 1.0000 과적합
+   - "다른 티어·패치에도 되나?" → 안 된다. 다이아·해당 패치 한정, 재학습 절차는 남김
+4. 문서 숫자를 바꿨거나 남이 바꿨으면 `python src/factcheck.py` → **0건** 확인 (③④에게 표 공유 후에도 한 번 더).
+5. **완료 기준**: ③이 이 표와 카드만 보고 예상 질문에 답할 수 있다.
+
+### ② 서비스·운영 — 세부 업무
+
+1. **매일 아침** 서버에서 `./check_project.sh status` → 세 줄 다 초록(백엔드·프런트·공개 도메인 200). 아니면 `./check_project.sh restart`. 서버가 재부팅됐으면 `start`.
+2. **4명 접속 확인**: 각자 브라우저로 https://p4.sumzip.com → 예시 버튼 3개 → 51.2% / 94.6% / 16.8% 나오는지. 스크린샷 1장씩 게시판에.
+3. **화면 다듬기** (`web/templates/index.html` 한 파일만): 첫 화면 3초 안에 "무엇을 넣고 무엇이 나오는지" 보이게 · 시연용 예시 버튼 이름 유지 · 리포트 패널 표 가독성 · 톤은 하나로(밝은 톤 유지 권장, 시간 남으면 색만). `predict.py`·`app.py`·`frontend.py`는 **손대지 않는다** (숫자는 서버 것).
+   고친 뒤 반드시: `./check_project.sh restart && ./check_project.sh test` → 파리티 6/6 · 스모크 11/11.
+4. **DDBM 사이트 갱신** (https://abc.sumzip.com/member): "시스템 의도"의 Plan·Tasks·Implement·Clarify·Report 레코드를 `docs/ddbm-intent/*.md` 내용으로 교체(기존 템플릿 레코드 삭제 후 추가) → "시스템 의도 파일 저장" 버튼 → 루트 `Intent-*.md` 갱신됨. Specify(캔버스)는 그대로. "시스템 설계 구현 상태" 6개가 전부 켜졌는지 확인.
+5. 누가 `main`에 push하면 서버에서 `./check_project.sh deploy` (pull → 재기동 → 테스트).
+6. **발표 당일**: 30분 전 `restart` + `test` + 공개 도메인 확인. 발표용 노트북에서 https://p4.sumzip.com 미리 열어 두기. 만약 도메인이 죽으면 서버에서 `http://127.0.0.1:9504` 로 대체 시연.
+7. **완료 기준**: 4명 접속 스크린샷 + 사이트 6단계 채워짐 + 발표 당일 체크리스트 통과.
+
+### ③ 발표자료·시연 — 세부 업무
+
+1. **12~15장으로 압축** (`presentation_draft.pptx` 24장에서): ① 질문 "언제 승부가 결정되나" ② 데이터(9,879판·40컬럼·10분) ③ 방법(분할 먼저·찍기 0.50·8종→로지스틱) ④ 결과(0.74, 요인 3개) ⑤ 언제 틀리나(접전 0.615↔결정 0.947) ⑥ 실험 B(+5.25%p, 접전만) ⑦ 한 줄 결론("골드차 4천이면 끝난 경기, 1천 미만이면 이제 시작") ⑧ 한계 ⑨ 시연.
+2. **시연 시나리오 3단계** → `docs/presentation_script.md`: 접전 버튼(51%) → "이건 모델도 모른다" · 블루 우세(95%) → 요인 목록 → "킬이 음수인 이유" 한 마디 · 리포트 패널 펼쳐 오류 구간 표 → ⑤장과 연결.
+3. **예상 질문 카드 10장**: ①의 방어 카드 5장 + 도메인 질문 5장(왜 10분·왜 다이아·와드 무관·경기 유형 k=4 한계·실시간 안 되는 이유). 답은 `specs/002-ml-prediction-service/research.md`의 Q&A를 그대로 쓰면 된다.
+4. **리허설 2회** — 시간 재기. 1회는 ②가 서버 켜둔 상태에서 실제 사이트로. 넘치면 ③⑥장부터 줄인다.
+5. **완료 기준**: 제한 시간 −1분 안에 끝남 + 질문 카드 10장 + 시연이 실제 사이트에서 됨.
+
+### ④ 문서·정성검증 — 세부 업무
+
+1. **SC-7 스모크 테스트**: 게임 모르는 사람 1~2명에게 `README.md` 부록(관전 포인트 3개)과 화면만 보여주고 "지금 어느 팀이 왜 유리한지" 말하게 한다. 말했으면 통과, 못 했으면 어디서 막혔는지. **결과를 정직하게** `docs/experiment_report.md` 끝에 기록하고 `specs/…/spec.md` 채점표 SC-7을 ✅/❌로.
+2. **`viz_3_game_types.png` 라벨 버그**: `notebooks/visualizations.ipynb`에서 군집 번호↔이름 매핑을 `reports/day2b_game_type_profile.csv` 기준으로 고친다 (0 운영전 41.3% · 3 난타전 32.5% · 1 일방적 19.4% · 2 시야전 6.8%). 재생성 후 PPT용으로 ③에게 전달.
+3. **문서 숫자 정합성**: `README.md` · `docs/*.md` · `specs/002-ml-prediction-service/*.md`의 숫자가 ①의 `metrics_summary.md`와 같은지 대조. 다르면 문서를 고친다(숫자 출처는 ①). 끝나면 `python src/factcheck.py` 0건.
+4. `model_card.md` 사용 금지 상황 6가지가 캔버스 [부정적 영향]과 맞는지 확인.
+5. **GitHub 첫 화면** 정리: `README.md` 맨 위에 공개 주소 · 실행 5줄 · `docs/TEAM_WORKFLOW.md` 링크가 보이게.
+6. **완료 기준**: SC-7 기록 + viz_3 수정본 + factcheck 0건 + README 첫 화면.
+
+### 서로 주고받는 것 (마감 순서)
+
+①의 지표 표 → ④(문서 대조)와 ③(질문 카드) → ②가 사이트·서버 반영 → ③ 리허설(②의 서버 위에서). **①이 가장 먼저 끝나야** 나머지가 굴러간다.
 
 ## 매번 이 순서로 (하나의 브랜치를 안전하게 공유하는 법)
 
