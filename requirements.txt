@@ -1,0 +1,9 @@
+# 재현성 규약 4 — 버전 고정 (2026-08-31 실측 환경, Python 3.11)
+numpy==2.4.6
+pandas==3.0.5
+scikit-learn==1.9.0
+matplotlib==3.11.1
+joblib==1.5.3
+PyMySQL==2.2.8
+Flask==3.1.3
+

@@ -1,0 +1,14 @@
+# 파이썬
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# 원본 데이터 — 라이선스상 재배포 금지 + 용량(97MB). 받는 법은 data/README.md
+data/*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로컬 백업 (저장소에는 불필요)
+docs/_archive/
