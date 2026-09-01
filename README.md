@@ -132,16 +132,31 @@ python src/factcheck.py              # 문서·코드 정합성 자동 점검
 재현성 규약: 시드 42 · 분할 파일 저장 · 절대경로 금지 · 버전 고정 · 순차 실행 · Pipeline 내부 전처리 · runs.csv 기록 · **행 정렬 고정(`gameId`)**.
 
 ```
-├─ README.md · predict.py · model_card.md · requirements.txt · runs.csv
-├─ artifacts/   model.joblib · schema.json
-├─ data/        원본 CSV · 분할 인덱스 (원본 재배포 금지 — 출처 링크로 안내)
-├─ db/          MariaDB 적재 · SQL 피처 뷰
-├─ src/         분석 스크립트 (day1 → finalize → timepoint → repeat)
-├─ notebooks/   EDA 시각화 · 최종분석
-├─ web/         Flask 데모 (범위 외 보너스)
-├─ reports/     그림·표
-└─ docs/        planning.md(기획 캔버스·결정 기록) · spec.md(요구사항·성공 기준) · plan.md(구현 계획·다음 모델) · experiment_report.md(과정 기록) · data_analysis.md(피처 명세·기술통계) · _archive/
+├─ README.md                 전체 요약 (이 문서)
+├─ predict.py                예측 진입점 — 예측 로직의 단일 진실
+├─ model_card.md             모델 사용설명서 · 사용 금지 상황
+├─ presentation_draft.pptx   발표자료 초안 (발표 대본은 슬라이드 노트에)
+├─ requirements.txt · runs.csv   버전 고정 · 실험 기록
+├─ artifacts/    model.joblib · schema.json
+├─ data/         분할 인덱스 (원본 CSV는 라이선스상 미포함 — data/README.md 참고)
+├─ db/           MariaDB 적재 스크립트 · SQL 피처 뷰
+├─ src/          분석 스크립트 (day1 → day2 → finalize → timepoint → repeat · factcheck)
+├─ notebooks/    final_analysis(전 과정 재현) · eda_visualization · visualizations
+├─ web/          Flask 데모 (범위 외 보너스)
+├─ reports/      그림·표
+└─ docs/         아래 표
 ```
+
+| 문서 | 역할 |
+|---|---|
+| `docs/planning.md` | 기획 캔버스 · 팀 결정 기록 (팀 사이트 캔버스와 동일 내용) |
+| `docs/spec.md` | 요구사항 · 성공 기준 판정 (+ 미확정 후속 아이디어) |
+| `docs/plan.md` | 구현 계획 · 후속 아이디어 구상 (모델 검토·유사 사례 포함) |
+| `docs/intent-task.md` | 의도와 단계별 작업 분할 (완료 / 남음 / 아이디어) |
+| `docs/experiment_report.md` | 과정 기록 — 무엇을 했고 무슨 값이 나왔나 |
+| `docs/data_analysis.md` | 피처 명세 · 기술통계 |
+| `docs/study.md` | 스터디 가이드 — 개념·원리·예상 질문 리허설 |
+| `docs/background_theory.pdf` | ML 이론 노트 |
 
 ## 6. 한계
 
