@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # LoL 승패 예측·설명 서비스 — 시작/중지/재시작/상태/로그/테스트
 #
-#   ./check_project.sh start | stop | restart | status | logs | test | health
+#   ./check_project.sh start | stop | restart | status | logs | test | health | deploy
+#   deploy = git pull --ff-only → restart → test  (팀원이 main 에 push 한 뒤 팀 서버에 반영할 때)
 #
 # 포트·도메인 (DDBM 팀 배정): 프런트 F9504 · 백엔드 B9524 · p4.sumzip.com → 프런트
 #   환경변수로 바꿀 수 있다: FRONTEND_PORT BACKEND_PORT DOMAIN
@@ -82,10 +83,15 @@ cmd_status() {
 }
 cmd_logs()   { echo "▶ logs/backend.log"; tail -n "${1:-40}" "$LOG/backend.log" 2>/dev/null; echo; echo "▶ logs/frontend.log"; tail -n "${1:-40}" "$LOG/frontend.log" 2>/dev/null; }
 cmd_health() { [ "$(http_code "http://127.0.0.1:$BACKEND_PORT/api/health")" = "200" ] && [ "$(http_code "http://127.0.0.1:$FRONTEND_PORT/healthz")" = "200" ] && { c_ok "healthy"; return 0; } || { c_bad "unhealthy"; return 1; }; }
+cmd_deploy() {
+  echo "▶ 배포: 최신 main 가져오기 → 재시작 → 테스트"
+  git -C "$ROOT" pull --ff-only || { c_bad "git pull 실패 — 로컬 변경이 있으면 먼저 커밋/스태시"; return 1; }
+  cmd_restart && cmd_test
+}
 cmd_test()   { echo "▶ 서빙 파리티"; "$PY" web/test_parity.py || return 1; echo; echo "▶ API 스모크"; "$PY" web/test_api.py; }
 
 case "${1:-}" in
   start) cmd_start ;;  stop) cmd_stop ;;  restart) cmd_restart ;;  status) cmd_status ;;
-  logs) cmd_logs "${2:-40}" ;;  health) cmd_health ;;  test) cmd_test ;;
-  *) echo "사용법: $0 {start|stop|restart|status|logs [n]|health|test}"; exit 2 ;;
+  logs) cmd_logs "${2:-40}" ;;  health) cmd_health ;;  test) cmd_test ;;  deploy) cmd_deploy ;;
+  *) echo "사용법: $0 {start|stop|restart|status|logs [n]|health|test|deploy}"; exit 2 ;;
 esac
