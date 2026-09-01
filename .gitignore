@@ -12,3 +12,12 @@ Thumbs.db
 
 # 로컬 백업 (저장소에는 불필요)
 docs/_archive/
+
+# 로컬 실행 환경·런타임 (커밋 금지)
+.env
+venv/
+venv311/
+run/
+logs/
+*.log
+node_modules/

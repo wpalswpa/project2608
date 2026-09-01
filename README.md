@@ -114,6 +114,9 @@ python src/factcheck.py              # 문서·코드 정합성 자동 점검
 # 또는 notebooks/final_analysis.ipynb 하나로 전 과정 재현 (무오류 실행 검증됨)
 ```
 
+**팀 서버 배포(2026-09-01)**: `./check_project.sh start|stop|restart|status|logs|test` — 백엔드 API **9524** + 프런트 **9504**,
+공개 주소 **https://p4.sumzip.com**. Python 3.11 `venv311` 필수(모델이 scikit-learn 1.9.0 저장본). 자세한 건 `specs/002-ml-prediction-service/quickstart.md`.
+
 **웹 데모(범위 외 보너스)**: `python web/app.py` → http://localhost:5000.
 웹은 `predict.py`를 직접 import해 보여주기만 하므로 화면 확률과 모델 확률이 갈라질 수 없고,
 `python web/test_parity.py`로 일치를 기계 검증했다(3건 소수점까지 일치).

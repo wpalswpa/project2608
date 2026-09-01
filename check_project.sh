@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# LoL 승패 예측·설명 서비스 — 시작/중지/재시작/상태/로그/테스트
+#
+#   ./check_project.sh start | stop | restart | status | logs | test | health
+#
+# 포트·도메인 (DDBM 팀 배정): 프런트 F9504 · 백엔드 B9524 · p4.sumzip.com → 프런트
+#   환경변수로 바꿀 수 있다: FRONTEND_PORT BACKEND_PORT DOMAIN
+# 파이썬: venv311 (Python 3.11, requirements.txt 고정 버전) — 없으면 venv → python3
+set -u
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT" || exit 1
+FRONTEND_PORT="${FRONTEND_PORT:-9504}"
+BACKEND_PORT="${BACKEND_PORT:-9524}"
+DOMAIN="${DOMAIN:-p4.sumzip.com}"
+export FRONTEND_PORT BACKEND_PORT DOMAIN
+RUN="$ROOT/run"; LOG="$ROOT/logs"; mkdir -p "$RUN" "$LOG"
+
+# .env 가 있으면 읽는다 (DB_PASSWORD · RIOT_API_KEY 등). 값은 출력하지 않는다.
+if [ -f "$ROOT/.env" ]; then set -a; . "$ROOT/.env"; set +a; fi
+
+if   [ -x "$ROOT/venv311/bin/python" ]; then PY="$ROOT/venv311/bin/python"
+elif [ -x "$ROOT/venv/bin/python" ];    then PY="$ROOT/venv/bin/python"
+else PY="$(command -v python3)"; fi
+
+c_ok()  { printf "\033[32m%s\033[0m\n" "$*"; }
+c_bad() { printf "\033[31m%s\033[0m\n" "$*"; }
+
+pid_of() { [ -f "$RUN/$1.pid" ] && cat "$RUN/$1.pid" 2>/dev/null; }
+alive()  { local p; p=$(pid_of "$1"); [ -n "${p:-}" ] && kill -0 "$p" 2>/dev/null; }
+port_pids() { lsof -nP -iTCP:"$1" -sTCP:LISTEN -t 2>/dev/null; }
+http_code() { local c; c=$(curl -s -m "${2:-5}" -o /dev/null -w "%{http_code}" "$1" 2>/dev/null); echo "${c:-000}"; }
+
+wait_up() {  # wait_up <url> <seconds>
+  local i=0; while [ $i -lt "$2" ]; do [ "$(http_code "$1" 3)" = "200" ] && return 0; sleep 1; i=$((i+1)); done; return 1
+}
+
+start_one() {  # start_one <name> <script> <port> <health-url>
+  local name=$1 script=$2 port=$3 url=$4
+  if alive "$name"; then echo "$name: 이미 실행 중 (pid $(pid_of "$name"))"; return 0; fi
+  if [ -n "$(port_pids "$port")" ]; then c_bad "$name: 포트 $port 를 다른 프로세스가 쓰고 있다 (pid $(port_pids "$port" | tr '\n' ' '))"; return 1; fi
+  nohup "$PY" "$script" --port "$port" >> "$LOG/$name.log" 2>&1 &
+  echo $! > "$RUN/$name.pid"
+  if wait_up "$url" 25; then c_ok "$name: 시작됨 → http://0.0.0.0:$port (pid $(pid_of "$name"))"; else
+    c_bad "$name: 기동 실패 — logs/$name.log 마지막 줄:"; tail -n 15 "$LOG/$name.log"; return 1; fi
+}
+
+stop_one() {  # stop_one <name> <port>
+  local name=$1 port=$2 p
+  p=$(pid_of "$name")
+  if [ -n "${p:-}" ] && kill -0 "$p" 2>/dev/null; then
+    kill "$p" 2>/dev/null; for _ in 1 2 3 4 5 6 7 8 9 10; do kill -0 "$p" 2>/dev/null || break; sleep 0.5; done
+    kill -0 "$p" 2>/dev/null && kill -9 "$p" 2>/dev/null
+    echo "$name: 중지됨 (pid $p)"
+  else echo "$name: 실행 중이 아님"; fi
+  rm -f "$RUN/$name.pid"
+  for q in $(port_pids "$port"); do kill "$q" 2>/dev/null && echo "$name: 포트 $port 잔여 프로세스 정리 (pid $q)"; done
+}
+
+cmd_start() {
+  echo "▶ 시작  (python: $PY · 프런트 $FRONTEND_PORT · 백엔드 $BACKEND_PORT · 도메인 $DOMAIN)"
+  [ -f "$ROOT/artifacts/model.joblib" ] || { c_bad "artifacts/model.joblib 이 없다 — 먼저 학습 산출물을 받아오거나 python src/finalize_model.py"; return 1; }
+  "$PY" -c "import flask, sklearn, joblib" 2>/dev/null || { c_bad "$PY 에 flask/sklearn 이 없다 — python3.11 -m venv venv311 && venv311/bin/pip install -r requirements.txt"; return 1; }
+  start_one backend  web/app.py      "$BACKEND_PORT"  "http://127.0.0.1:$BACKEND_PORT/api/health" || return 1
+  start_one frontend web/frontend.py "$FRONTEND_PORT" "http://127.0.0.1:$FRONTEND_PORT/healthz"   || return 1
+  echo "화면: http://127.0.0.1:$FRONTEND_PORT  ·  공개: https://$DOMAIN"
+}
+cmd_stop()    { echo "▶ 중지"; stop_one frontend "$FRONTEND_PORT"; stop_one backend "$BACKEND_PORT"; }
+cmd_restart() { cmd_stop; sleep 1; cmd_start; }
+
+cmd_status() {
+  local rc=0
+  echo "▶ 상태  (프런트 $FRONTEND_PORT · 백엔드 $BACKEND_PORT · 도메인 $DOMAIN)"
+  for spec in "backend:$BACKEND_PORT:/api/health" "frontend:$FRONTEND_PORT:/healthz"; do
+    IFS=: read -r name port path <<< "$spec"
+    local p code; p=$(pid_of "$name"); code=$(http_code "http://127.0.0.1:$port$path")
+    if alive "$name" && [ "$code" = "200" ]; then c_ok "  $name   실행 중  pid ${p}  포트 $port  health $code"
+    else c_bad "  $name   중지/이상  pid ${p:-없음}  포트 $port  health $code  (listen: $(port_pids "$port" | tr '\n' ' '))"; rc=1; fi
+  done
+  local pub; pub=$(http_code "https://$DOMAIN/" 8)
+  if [ "$pub" = "200" ]; then c_ok "  공개 도메인  https://$DOMAIN  → $pub"; else echo "  공개 도메인  https://$DOMAIN  → $pub  (200 이 아니면 수업 서버 프록시 설정을 확인)"; fi
+  return $rc
+}
+cmd_logs()   { echo "▶ logs/backend.log"; tail -n "${1:-40}" "$LOG/backend.log" 2>/dev/null; echo; echo "▶ logs/frontend.log"; tail -n "${1:-40}" "$LOG/frontend.log" 2>/dev/null; }
+cmd_health() { [ "$(http_code "http://127.0.0.1:$BACKEND_PORT/api/health")" = "200" ] && [ "$(http_code "http://127.0.0.1:$FRONTEND_PORT/healthz")" = "200" ] && { c_ok "healthy"; return 0; } || { c_bad "unhealthy"; return 1; }; }
+cmd_test()   { echo "▶ 서빙 파리티"; "$PY" web/test_parity.py || return 1; echo; echo "▶ API 스모크"; "$PY" web/test_api.py; }
+
+case "${1:-}" in
+  start) cmd_start ;;  stop) cmd_stop ;;  restart) cmd_restart ;;  status) cmd_status ;;
+  logs) cmd_logs "${2:-40}" ;;  health) cmd_health ;;  test) cmd_test ;;
+  *) echo "사용법: $0 {start|stop|restart|status|logs [n]|health|test}"; exit 2 ;;
+esac

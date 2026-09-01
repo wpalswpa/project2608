@@ -30,6 +30,7 @@
 <body>
 <h1>LoL 승패 예측·설명 서비스</h1>
 <p class="sub">10분 시점의 두 팀 차이(블루 − 레드)를 넣으면, 블루팀 승리 확률과 <b>왜</b>를 알려줍니다.</p>
+<p class="meta" id="svc">{% if domain %}공개 주소 https://{{ domain }} · {% endif %}백엔드 {% if backend_ok is defined and not backend_ok %}<span style="color:#c53030">연결 안 됨 — 서버에서 ./check_project.sh status 확인</span>{% else %}연결됨{% endif %} · 예측은 서버의 predict.py 한 곳에서만 계산됩니다</p>
 
 <fieldset>
   <legend>미리 만들어 둔 예시</legend>
@@ -97,6 +98,11 @@
   <div id="warnings"></div>
   <p class="meta" id="meta"></p>
 </fieldset>
+
+<details id="reportBox">
+  <summary>모델 성적표 · 승리요인 순위 · 경기 유형 (서버 리포트)</summary>
+  <fieldset><div id="report">불러오는 중...</div></fieldset>
+</details>
 
 <script>
 const FEATURES = ["FirstBlood","KillsDiff","GoldDiff","ExpDiff","WardsPlacedDiff",
@@ -178,6 +184,35 @@ async function doPredict() {
     ` · 접전(골드차 1,000 미만)에서는 정확도가 낮으니 참고용으로만 보세요`;
   document.getElementById("result").style.display = "block";
 }
+
+// ----- 서버 리포트 (/api/report, /api/match-types) — 숫자는 전부 서버 산출물, 화면은 표시만 -----
+function table(rows, cols) {
+  if (!rows || !rows.length) return "<p class=\"meta\">자료 없음</p>";
+  cols = cols || Object.keys(rows[0]);
+  const fmt = v => typeof v === "number" ? (Number.isInteger(v) ? v.toLocaleString() : v.toFixed(4).replace(/0+$/, "").replace(/\.$/, "")) : v;
+  return `<table style="border-collapse:collapse;font-size:13px;margin:6px 0"><tr>${cols.map(c => `<th style="border-bottom:1px solid #ccc;padding:3px 8px;text-align:left">${c}</th>`).join("")}</tr>` +
+    rows.map(r => `<tr>${cols.map(c => `<td style="padding:3px 8px">${fmt(r[c])}</td>`).join("")}</tr>`).join("") + "</table>";
+}
+async function loadReport() {
+  const box = document.getElementById("report");
+  try {
+    const [r, m] = await Promise.all([fetch("/api/report").then(x => x.json()), fetch("/api/match-types").then(x => x.json())]);
+    const perf = [];
+    for (const [k, v] of Object.entries(r.performance || {})) {
+      if (v && typeof v === "object") for (const [k2, v2] of Object.entries(v)) perf.push({항목: `${k}.${k2}`, 값: v2});
+      else perf.push({항목: k, 값: v});
+    }
+    const wf = (r.win_factors || []).slice(0, 5).map(w => ({요인: (r.feature_names || {})[w.name] || w.name, 표준화계수: w.coef_std, 계수순위: w.coef_rank, permutation: w.perm_importance, perm순위: w.perm_rank}));
+    const bins = (r.errors?.bins || []);
+    const types = (m.types || []).map(t => ({유형: t.label, 경기수: t.count, "비중%": t.share_pct, "리드팀 최종승률": t.lead_team_win_rate, 평균골드차: t.centroid["일방성_골드차"], 평균킬: t.centroid["난타전_총킬"], 평균와드: t.centroid["시야전_총와드"]}));
+    box.innerHTML =
+      `<h3>성적표</h3>${table(perf)}` +
+      `<h3>승리요인 상위 5 (두 방법 교차)</h3>${table(wf)}<p class="meta">계수는 골드를 통제한 뒤의 값 — 킬이 음수여도 "킬하면 진다"가 아닙니다.</p>` +
+      `<h3>언제 틀리나 — 골드차 구간별</h3>${table(bins)}<p class="meta">가장 약한 구간: ${r.errors?.weakest_bin || "-"}. 접전은 모델이 아니라 10분 정보의 한계입니다.</p>` +
+      `<h3>경기 유형 (k=${m.k})</h3>${table(types)}<p class="meta">${m.note || ""}</p>`;
+  } catch (e) { box.innerHTML = `<p class="warn">리포트를 불러오지 못했습니다: ${e}</p>`; }
+}
+document.addEventListener("DOMContentLoaded", loadReport);
 </script>
 </body>
 </html>

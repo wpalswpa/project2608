@@ -25,7 +25,8 @@
 | 학습·예측 | Python + scikit-learn | 수업에서 배운 범위 |
 | 모델 | 로지스틱 회귀 | 점수 1등 + 이유를 숫자로 설명 가능 |
 | 데이터 보관 | 팀 MariaDB (계산식은 DB 쪽에) | 누가 읽어도 같은 13개가 나오게 |
-| 웹 화면 | Flask | 아래 참고 — 계획에서 바뀐 것 |
+| 웹 화면 | Flask 2개 — 백엔드 API(**9524**) + 프런트/프록시(**9504**) | 아래 참고 — 계획에서 바뀐 것. 공개 주소 **https://p4.sumzip.com** → 프런트 |
+| 운영 | `check_project.sh` (start/stop/restart/status/logs/test) · `venv311`(Python 3.11) | 팀 서버에서 한 명령으로 켜고 끄고 검증 |
 | 모델 저장 | joblib 파일 하나 | 전처리까지 통째로, 복원 검증 |
 
 **계획에서 바뀐 것 — 화면을 Vue/Express 대신 Flask로.**

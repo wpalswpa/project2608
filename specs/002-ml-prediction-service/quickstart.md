@@ -34,14 +34,21 @@ python src/factcheck.py              # 문서 숫자 자동 점검 (0건이어�
 python predict.py --demo             # 예시 3건: 접전 51.2% / 파랑 우세 94.6% / 빨강 우세 16.8%
 ```
 
-## 웹 화면
+## 웹 서비스 (팀 서버 · 포트 F9504 / B9524 · p4.sumzip.com)
 
 ```bash
-python web/app.py                    # 켜기 → 브라우저에서 http://localhost:5000
-python web/test_parity.py            # (다른 터미널에서) 화면 숫자 == 모델 숫자 검증
+python3.11 -m venv venv311 && venv311/bin/pip install -r requirements.txt   # 처음 한 번 (Python 3.11 필수)
+./check_project.sh start      # 백엔드 9524 + 프런트 9504 기동
+./check_project.sh status     # pid · 포트 · health · 공개 도메인(https://p4.sumzip.com) 확인
+./check_project.sh test       # 서빙 파리티(6건) + API 스모크(11건)
+./check_project.sh logs       # logs/backend.log · logs/frontend.log
+./check_project.sh restart    # 코드·모델을 바꾼 뒤
+./check_project.sh stop
 ```
 
-화면에서 예시 버튼 3개 중 하나를 누르면 바로 결과가 나온다. 끄려면 Ctrl+C.
+- 공개 주소 **https://p4.sumzip.com** → 수업 서버 프록시 → 이 서버의 프런트 9504. 프런트가 `/api/*` 를 백엔드 9524 로 중계하므로 화면 JS 는 상대경로만 쓴다.
+- 포트·도메인을 바꾸려면 환경변수: `FRONTEND_PORT=… BACKEND_PORT=… DOMAIN=… ./check_project.sh start`
+- 화면에서 예시 버튼 3개 중 하나를 누르면 바로 결과가 나온다. 아래 "서버 리포트" 를 펼치면 성적표·승리요인·경기 유형이 보인다.
 
 ## 자주 걸리는 것
 
