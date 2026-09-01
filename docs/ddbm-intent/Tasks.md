@@ -17,6 +17,7 @@ T01~T05 DB 적재·분할·뷰·로더 (선택, CSV 폴백 가능)
 → T30~T32 paths·runlog·factcheck [P] · T40~T45 산출물 6종 [P]
 
 [남은 작업 B1~B4]
+B1 게임 모르는 사람 스모크 테스트 (SC-7) — 관전 포인트 3개만 보고 유불리를 말하는지 1~2명 ⬜
 B2 viz_3_game_types.png 라벨 수정 — 군집 이름-수치 매핑 교정 후 재생성 ⬜
 B3 발표 리허설 — presentation_draft.pptx 발표자 노트로 1회 ⬜
 B4 팀 서버 배포 — 팀 결정 시 (Flask debug 끄고 WSGI) ⬜

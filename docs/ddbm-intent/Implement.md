@@ -28,4 +28,4 @@ tasks 의도의 A1~A9를 전부 구현했다 (2026-09-01 완료). 코드는 GitH
 · notebooks/final_analysis.ipynb 클린 런타임 무오류 실행
 
 [아직 안 한 것]
-B1 viz_3 경기유형 그림 라벨 수정(완료) · B2 발표 리허설 · B3 팀 서버 배포(Flask debug 끄고 WSGI)
+B1 게임 모르는 사람 스모크 테스트(SC-7) · B2 viz_3 경기유형 그림 라벨 수정(완료) · B3 발표 리허설 · B4 팀 서버 배포(Flask debug 끄고 WSGI)

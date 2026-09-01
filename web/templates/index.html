@@ -25,6 +25,16 @@
   .plus  { color: #2b6cb0; }  .minus { color: #c53030; }
   .warn { color: #b7791f; font-size: 13px; margin: 4px 0; }
   .meta { color: #888; font-size: 12px; margin-top: 10px; }
+  /* 1단계 체험 — 슬라이더 */
+  .step { font-size: 12px; color: #fff; background: #2b6cb0; border-radius: 10px; padding: 2px 9px; margin-right: 6px; }
+  .who { color: #666; font-size: 13px; margin: 2px 0 10px; }
+  .slider-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+  .slider-row label { width: 108px; font-size: 14px; }
+  .slider-row input[type=range] { flex: 1; }
+  .slider-row .val { width: 78px; text-align: right; font-weight: bold; font-variant-numeric: tabular-nums; }
+  #liveBox { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px; margin-top: 10px; }
+  #livePct { font-size: 30px; font-weight: bold; color: #2b6cb0; }
+  #liveNote { font-size: 13px; color: #666; }
 </style>
 </head>
 <body>
@@ -33,14 +43,42 @@
 <p class="meta" id="svc">{% if domain %}공개 주소 https://{{ domain }} · {% endif %}백엔드 {% if backend_ok is defined and not backend_ok %}<span style="color:#c53030">연결 안 됨 — 서버에서 ./check_project.sh status 확인</span>{% else %}연결됨{% endif %} · 예측은 서버의 predict.py 한 곳에서만 계산됩니다</p>
 
 <fieldset>
-  <legend>미리 만들어 둔 예시</legend>
-  <button onclick="fillDemo('close')">팽팽한 접전</button>
-  <button onclick="fillDemo('blue')">블루 크게 우세</button>
-  <button onclick="fillDemo('red')">레드 우세</button>
+  <legend><span class="step">1단계</span>직접 움직여 보기</legend>
+  <p class="who">게임을 몰라도 됩니다. 막대를 끌면 승률이 바로 바뀝니다.</p>
+
+  <div class="slider-row">
+    <label for="sGold">골드(돈) 차이</label>
+    <input type="range" id="sGold" min="-6000" max="6000" step="100" value="0" oninput="onSlide()">
+    <span class="val" id="vGold">0</span>
+  </div>
+  <div class="slider-row">
+    <label for="sExp">경험치 차이</label>
+    <input type="range" id="sExp" min="-5000" max="5000" step="100" value="0" oninput="onSlide()">
+    <span class="val" id="vExp">0</span>
+  </div>
+  <div class="slider-row">
+    <label for="sDragon">드래곤</label>
+    <input type="range" id="sDragon" min="-1" max="1" step="1" value="0" oninput="onSlide()">
+    <span class="val" id="vDragon">없음</span>
+  </div>
+
+  <div id="liveBox">
+    <span id="liveHead">파란 팀 승리 확률</span> <span id="livePct">50.0%</span>
+    <div class="gauge" style="margin:8px 0"><div class="blue" id="liveGauge" style="width:50%">50%</div><div class="red"></div></div>
+    <div id="liveNote">막대를 움직여 보세요. 돈 차이가 가장 크게 작용합니다.</div>
+  </div>
+
+  <p style="margin-top:12px">
+    <button onclick="fillDemo('close')">팽팽한 접전</button>
+    <button onclick="fillDemo('blue')">블루 크게 우세</button>
+    <button onclick="fillDemo('red')">레드 우세</button>
+    <small style="color:#888">← 실제 경기 예시로 채우기</small>
+  </p>
 </fieldset>
 
 <fieldset>
-  <legend>내 경기 불러오기 (Riot API — 끝난 경기 복기)</legend>
+  <legend><span class="step">2단계</span>내 경기로 확인하기</legend>
+  <p class="who">소환사명을 넣으면 최근 5경기의 10분 시점 승률을 보여줍니다. "이 판은 10분에 30%였는데 뒤집었네" 같은 걸 볼 수 있습니다.</p>
   {% if riot_ready %}
   <div class="row">
     <input type="text" id="riotId" placeholder="게임명#태그 (예: Hide on bush#KR1)" style="width:280px;padding:6px">
@@ -58,6 +96,8 @@
   {% endif %}
 </fieldset>
 
+<details>
+<summary><b>3단계 — 숫자를 직접 넣어 보기</b> (선택)</summary>
 <fieldset>
   <legend>핵심 입력 (승리요인 상위 3개)</legend>
   <div class="row"><label for="GoldDiff">골드 차이 (돈)</label><input type="number" id="GoldDiff" value="0" step="100"> <small>학습 범위 약 ±10,000</small></div>
@@ -83,6 +123,7 @@
 </details>
 
 <p><button class="primary" onclick="doPredict()">승률 예측하기</button></p>
+</details>
 
 <fieldset id="result">
   <legend>결과</legend>
@@ -100,8 +141,17 @@
 </fieldset>
 
 <details id="reportBox">
-  <summary>모델 성적표 · 승리요인 순위 · 경기 유형 (서버 리포트)</summary>
-  <fieldset><div id="report">불러오는 중...</div></fieldset>
+  <summary>왜 이 모델인가 · 모델 성적표 · 승리요인 순위 · 경기 유형</summary>
+  <fieldset>
+    <p style="margin:4px 0 8px;font-size:14px">
+      후보 8종을 같은 조건에서 비교한 결과입니다. <b>점수는 7개가 비슷하지만</b>,
+      연습과 검증을 나란히 보면 누가 외웠는지 드러납니다.
+      점수가 비슷할 때는 <b>이유를 설명할 수 있는 모델</b>이 맞다는 것이 저희 판단입니다.
+    </p>
+    <img src="/static/06_model_choice.png" alt="왜 이 모델인가 — 후보 8종 비교"
+         style="width:100%;border:1px solid #ddd;border-radius:6px;background:#fff">
+    <div id="report" style="margin-top:12px">불러오는 중...</div>
+  </fieldset>
 </details>
 
 <script>
@@ -116,8 +166,48 @@ const DEMOS = {
   red:   {FirstBlood:0,KillsDiff:-3,GoldDiff:-2200,ExpDiff:-1500,WardsPlacedDiff:-1,WardsDestroyedDiff:-1,AssistsDiff:-4,DragonsDiff:-1,HeraldsDiff:0,TowersDestroyedDiff:0,AvgLevelDiff:-0.6,TotalMinionsKilledDiff:-15,TotalJungleMinionsKilledDiff:-5},
 };
 
+// ---- 1단계: 슬라이더를 움직이면 바로 예측 (연타 방지로 살짝 늦춰 호출) ----
+let slideTimer = null;
+function onSlide() {
+  const g = +document.getElementById("sGold").value;
+  const e = +document.getElementById("sExp").value;
+  const d = +document.getElementById("sDragon").value;
+  document.getElementById("vGold").textContent = (g > 0 ? "+" : "") + g.toLocaleString();
+  document.getElementById("vExp").textContent = (e > 0 ? "+" : "") + e.toLocaleString();
+  document.getElementById("vDragon").textContent = d > 0 ? "블루 +1" : (d < 0 ? "레드 −1" : "없음");
+  clearTimeout(slideTimer);
+  slideTimer = setTimeout(() => livePredict(g, e, d), 120);
+}
+
+async function livePredict(g, e, d) {
+  const payload = {};
+  for (const f of FEATURES) payload[f] = 0;          // 나머지 지표는 0 (평균 상태)
+  payload.GoldDiff = g; payload.ExpDiff = e; payload.DragonsDiff = d;
+  const res = await fetch("/api/predict", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)});
+  const r = await res.json();
+  if (r.error) return;
+  const pct = (r.win_prob_blue * 100).toFixed(1);
+  document.getElementById("livePct").textContent = pct + "%";
+  const bar = document.getElementById("liveGauge");
+  bar.style.width = pct + "%"; bar.textContent = pct + "%";
+  // 접전 구간이면 신뢰도 경고 — 모델의 한계를 화면에서도 알린다
+  const close = Math.abs(g) < 1000;
+  document.getElementById("liveNote").innerHTML = close
+    ? '<span style="color:#b7791f">지금은 <b>팽팽한 구간</b>입니다. 이 구간에서 모델의 적중률은 62%로 떨어집니다 — 아직 승부가 안 갈렸다는 뜻입니다.</span>'
+    : (Math.abs(g) >= 4200
+        ? '<span style="color:#2f855a">이미 <b>크게 벌어진</b> 경기입니다. 이 구간의 적중률은 95%입니다.</span>'
+        : '한쪽이 앞서고 있습니다. 이 구간의 적중률은 74~86% 입니다.');
+}
+
 function fillDemo(name) {
   for (const f of FEATURES) document.getElementById(f).value = DEMOS[name][f];
+  const d = DEMOS[name];
+  document.getElementById("sGold").value = Math.max(-6000, Math.min(6000, d.GoldDiff));
+  document.getElementById("sExp").value = Math.max(-5000, Math.min(5000, d.ExpDiff));
+  document.getElementById("sDragon").value = d.DragonsDiff;
+  onSlide();
   doPredict();
 }
 
@@ -212,7 +302,7 @@ async function loadReport() {
       `<h3>경기 유형 (k=${m.k})</h3>${table(types)}<p class="meta">${m.note || ""}</p>`;
   } catch (e) { box.innerHTML = `<p class="warn">리포트를 불러오지 못했습니다: ${e}</p>`; }
 }
-document.addEventListener("DOMContentLoaded", loadReport);
+document.addEventListener("DOMContentLoaded", () => { loadReport(); onSlide(); });
 </script>
 </body>
 </html>
