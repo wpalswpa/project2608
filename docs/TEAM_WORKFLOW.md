@@ -3,16 +3,18 @@
 저장소: `https://github.com/wpalswpa/project2608` · 브랜치는 **`main` 하나만** 쓴다.
 공개 서비스: **https://p4.sumzip.com** (팀 서버 = 맥 192.168.0.19, 프런트 9504 · 백엔드 9524)
 
-## 포지션과 담당 폴더
+## 포지션 4개와 담당 폴더 (4인)
 
-| 포지션 | 담당 폴더·파일 | 담당자 |
-|---|---|---|
-| 데이터·DB | `db/` · `data/` · DB 뷰(`v_diff13_*` 등) · `src/load_from_db.py` | |
-| 모델·분석 | `src/day*.py` `finalize_model.py` `repeat_check.py` `timepoint_compare.py` · `artifacts/` · `reports/` · `notebooks/` | |
-| 서비스(웹·API) | `predict.py` · `web/` · `check_project.sh` · `requirements.txt` | |
-| 문서·발표 | `README.md` · `docs/` · `specs/002-ml-prediction-service/` · `model_card.md` · `presentation_draft.pptx` | |
+| # | 포지션 | 책임 | 담당 폴더·파일 | 담당자 |
+|---|---|---|---|---|
+| 1 | **데이터·피처** | DB 적재·분할 고정·뷰 4종, 중복 제거·차이 피처, 경기 유형 군집, 입력 허용 범위 | `db/` · `data/` · `src/day1_baseline.py` `day2_features_cluster.py` `day2b_game_types.py` `load_from_db.py` · `specs/…/data-model.md` | |
+| 2 | **모델·해석** | 8종 비교→로지스틱, 승리요인(계수×permutation), 실험 B(10 vs 15분), 모델 저장·복원 | `src/finalize_model.py` `timepoint_compare.py` · `artifacts/` · `model_card.md` · `specs/…/research.md` | |
+| 3 | **평가지표·검증** | 정확도·F1·AUC·Brier, 5-fold·시드 10회, 오류 구간(접전 0.615↔결정 0.947), 캘리브레이션, 찍기 대비 개선 폭, SC-1~6 채점표 관리, 파리티·스모크 테스트, `factcheck` 0건 유지 | `src/repeat_check.py` `factcheck.py` · `web/test_parity.py` `test_api.py` · `reports/*.csv` · `runs.csv` · `specs/…/spec.md` 채점표 · `/api/report` 내용 | |
+| 4 | **서비스·문서·발표** | 백엔드/프런트 운영·배포(p4.sumzip.com), DDBM 사이트(캔버스·시스템 의도·설계 문서), README·PPT, SC-7 스모크 테스트 | `predict.py` · `web/` · `check_project.sh` · `README.md` · `docs/` · `specs/…/plan.md` `quickstart.md` `tasks.md` · `presentation_draft.pptx` · `Intent-*.md` | |
 
-담당 폴더 밖을 고칠 땐 게시판/메신저로 먼저 알린다. 같은 파일을 두 사람이 동시에 고치지 않는다.
+- **평가지표 담당(3)**이 "숫자의 최종 책임자"다: 문서·발표·API에 나가는 모든 성능 수치는 3번이 `reports/`·`runs.csv`로 근거를 갖고 있어야 하고, 대표값은 **반복 평균 0.7366 ± 0.0081**(단일 분할 0.7394는 표본)로 통일한다.
+- 1→2→3 순서로 산출물이 흐른다(뷰 → 모델 → 평가). 4는 셋의 결과를 사이트·문서·발표로 내보낸다.
+- 담당 폴더 밖을 고칠 땐 게시판/메신저로 먼저 알린다. 같은 파일을 두 사람이 동시에 고치지 않는다.
 
 ## 매번 이 순서로 (하나의 브랜치를 안전하게 공유하는 법)
 
