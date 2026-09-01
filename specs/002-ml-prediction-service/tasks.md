@@ -119,7 +119,6 @@
 
 ## 6. 아직 안 한 것
 
-- [ ] **B1** 게임 모르는 사람에게 순위표만 보여주고 관전 포인트를 말할 수 있는지 확인 (1~2명, SC-7)
 - [ ] **B2** 경기 유형 그림(`reports/viz_3_game_types.png`) 라벨이 뒤섞인 버그 수정 (`visualizations.ipynb`)
 - [ ] **B3** 발표 리허설 (`presentation_draft.pptx` 발표자 노트로 1회)
 - [x] **B4** 팀 서버 배포 — 완료 (5절). Flask 내장 서버 → WSGI(gunicorn) 전환은 선택
