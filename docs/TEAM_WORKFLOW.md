@@ -120,3 +120,12 @@ venv311/bin/python predict.py --demo  # 51.2% / 94.6% / 16.8% 가 나오면 환�
 ```
 
 줄바꿈은 `.gitattributes`로 LF 통일돼 있어 Windows에서도 그대로 쓰면 된다. Python은 **3.11** (모델이 scikit-learn 1.9.0 저장본).
+
+`predict.py --demo` 까지 나오면 환경 준비 끝이다. **`./check_project.sh start` 는 팀 서버에서 쓰는 명령이라 각자 PC 에서는 실행할 필요가 없다**
+(Windows 는 Git Bash 가 있어야 돌고, 각자 9504 를 띄울 이유도 없다). 서비스 확인은 https://p4.sumzip.com 에서 한다.
+
+### push 가 403 이면 — 초대를 못 받은 것이다
+
+저장소가 공개(Public)라 **clone 은 누구나 되지만, `team` 에 push 하려면 Collaborator 초대가 따로 필요하다.**
+저장소 주인이 GitHub → Settings → Collaborators → Add people 에서 팀원 3명을 초대하고,
+초대받은 사람은 메일이나 https://github.com/notifications 에서 수락해야 push 가 열린다.
