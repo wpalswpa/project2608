@@ -1,0 +1,20 @@
+전체 13개 (현재)
+  남김: ['FirstBlood', 'KillsDiff', 'GoldDiff', 'ExpDiff', 'WardsPlacedDiff', 'WardsDestroyedDiff', 'AssistsDiff', 'DragonsDiff', 'HeraldsDiff', 'TowersDestroyedDiff', 'AvgLevelDiff', 'TotalMinionsKilledDiff', 'TotalJungleMinionsKilledDiff']
+  제거: []
+
+상관 0.9 이상 제거 (11개)
+  남김: ['FirstBlood', 'GoldDiff', 'ExpDiff', 'WardsPlacedDiff', 'WardsDestroyedDiff', 'AssistsDiff', 'DragonsDiff', 'HeraldsDiff', 'TowersDestroyedDiff', 'TotalMinionsKilledDiff', 'TotalJungleMinionsKilledDiff']
+  제거: ['KillsDiff', 'AvgLevelDiff']
+
+상관 0.8 이상 제거 (10개)
+  남김: ['FirstBlood', 'GoldDiff', 'WardsPlacedDiff', 'WardsDestroyedDiff', 'AssistsDiff', 'DragonsDiff', 'HeraldsDiff', 'TowersDestroyedDiff', 'TotalMinionsKilledDiff', 'TotalJungleMinionsKilledDiff']
+  제거: ['KillsDiff', 'ExpDiff', 'AvgLevelDiff']
+
+상관 0.7 이상 제거 (9개)
+  남김: ['FirstBlood', 'GoldDiff', 'WardsPlacedDiff', 'WardsDestroyedDiff', 'DragonsDiff', 'HeraldsDiff', 'TowersDestroyedDiff', 'TotalMinionsKilledDiff', 'TotalJungleMinionsKilledDiff']
+  제거: ['KillsDiff', 'ExpDiff', 'AssistsDiff', 'AvgLevelDiff']
+
+골드+경험치 2개
+  남김: ['GoldDiff', 'ExpDiff']
+  제거: ['FirstBlood', 'KillsDiff', 'WardsPlacedDiff', 'WardsDestroyedDiff', 'AssistsDiff', 'DragonsDiff', 'HeraldsDiff', 'TowersDestroyedDiff', 'AvgLevelDiff', 'TotalMinionsKilledDiff', 'TotalJungleMinionsKilledDiff']
+
