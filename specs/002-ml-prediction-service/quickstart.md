@@ -1,31 +1,35 @@
 # Quickstart — ML 승패예측·설명 서비스
 
 
-> ### 2026-09-01 갱신 — 실제 구현 결과 반영
-> 이 문서는 계획 시점(8/31) 작성분이며, 아래 4가지가 구현 과정에서 확정·변경되었다.
->
-> | 항목 | 계획(8/31) | **확정(9/1)** |
-> |---|---|---|
-> | 웹 스택 | Vue 3 / Express | **Flask** — 학습·예측과 같은 Python 스택이라 `predict.py` 를 직접 import, 서빙 파리티가 구조적으로 보장됨 |
-> | 차이 지표 | 14개 | **13개** — `EliteMonsters = Dragons + Heralds` 선형종속을 발견해 제거(성능 동일 0.7371→0.7369, 해석 정합) |
-> | 시점 비교 | 후속 과제 이관 | **실험 B로 완료** — 프로 경기 10,656판 통제 비교, 5분 추가 시 +5.25%p(개선은 접전에 집중) |
-> | 성능 | 미실측 | **홀드아웃 0.7394**(찍기 0.5010 대비 +23.8%p) · 시드 10회 반복 0.7366 ± 0.0081 |
->
-> 갱신 전 원본은 저장소 `specs/002-ml-prediction-service/_server_backup_2026-09-01/` 에 보존되어 있다.
+## 2026-09-01 갱신 — 실제 구현 결과 반영
 
-> **9/1 확정 실행 절차 (Flask 단일 스택)**
-> ```bash
-> pip install -r requirements.txt
-> python src/day1_baseline.py          # 첫점검 · EDA · 분할 · 찍기 0.5009
-> python src/day2_features_cluster.py  # 중복 정리 · 차이 피처 13개 · PCA · 군집
-> python src/finalize_model.py         # 최종 학습 · 홀드아웃 0.7394 · 해석 · 아티팩트
-> python src/timepoint_compare.py      # 실험 B — 10분 vs 15분 (+5.25%p)
-> python src/repeat_check.py           # 시드 10회 반복 0.7366 ± 0.0081
-> python predict.py --demo             # 예측 스모크 3건
-> python web/app.py                    # 웹 데모 → http://localhost:5000
-> python web/test_parity.py            # 서빙 파리티 (서버 켜고 실행)
-> python src/factcheck.py              # 문서·코드 정합성 자동 점검
-> ```
+이 문서는 계획 시점(2026-08-31) 작성분이며, 아래 4가지가 구현 과정에서 확정·변경되었다.
+
+- **웹 스택** — 계획 Vue 3 / Express → **확정 Flask.** 학습·예측과 같은 Python 스택이라 웹이 `predict.py` 를 직접 import 한다. 예측 로직이 한 곳에만 존재하므로 서빙 파리티가 구조적으로 보장된다.
+- **차이 지표** — 계획 14개 → **확정 13개.** `EliteMonsters = Dragons + Heralds` 선형종속을 발견해 제거했다(성능 동일: 0.7371 → 0.7369, 해석 정합성 확보).
+- **시점 비교** — 계획 후속 과제 이관 → **확정 실험 B로 완료.** 프로 경기 10,656판 통제 비교, 5분 추가 시 +5.25%p이며 개선은 접전 경기에 집중된다.
+- **성능** — 계획 미실측 → **확정 홀드아웃 0.7394** (찍기 기준선 0.5010 대비 +23.8%p), 시드 10회 반복 0.7366 ± 0.0081.
+
+갱신 전 원본은 저장소 `specs/002-ml-prediction-service/_server_backup_2026-09-01/` 에 보존되어 있다.
+
+---
+
+### 9/1 확정 실행 절차 (Flask 단일 스택)
+
+```bash
+pip install -r requirements.txt
+python src/day1_baseline.py          # 첫점검 · EDA · 분할 · 찍기 0.5009
+python src/day2_features_cluster.py  # 중복 정리 · 차이 피처 13개 · PCA · 군집
+python src/day2b_game_types.py       # 경기 유형 프로파일
+python src/finalize_model.py         # 최종 학습 · 홀드아웃 0.7394 · 해석 · 아티팩트
+python src/timepoint_compare.py      # 실험 B — 10분 vs 15분 (+5.25%p)
+python src/repeat_check.py           # 시드 10회 반복 0.7366 ± 0.0081
+python predict.py --demo             # 예측 스모크 3건
+python web/app.py                    # 웹 데모 → http://localhost:5000
+python web/test_parity.py            # 서빙 파리티 (서버 켜고 실행)
+python src/factcheck.py              # 문서·코드 정합성 자동 점검
+```
+
 
 
 **Feature**: `002-ml-prediction-service` | **Date**: 2026-08-31
