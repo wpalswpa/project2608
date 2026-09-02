@@ -1,10 +1,10 @@
-# 백엔드 API 서버 (FR-9) — 포트 B9524. 경기 상태를 받아 predict.py 결과를 돌려준다.
+# 백엔드 API 서버 (FR-9) — 포트 B9524. 경기 상태를 받아 lolwin.predict 결과를 돌려준다.
 #
 # 실행: python web/app.py            (환경변수 BACKEND_PORT, 기본 9524)
 #       ./check_project.sh start     (프런트 9504 + 백엔드 9524 함께)
 #
-# 중요: 이 서버는 예측을 직접 하지 않는다. 입력을 받아 predict.py 에 넘기고,
-#       결과를 돌려줄 뿐이다. 그래서 "화면의 확률 ≠ predict.py 확률" 사고
+# 중요: 이 서버는 예측을 직접 하지 않는다. 입력을 받아 lolwin.predict 에 넘기고,
+#       결과를 돌려줄 뿐이다. 그래서 "화면의 확률 ≠ 모델 확률" 사고
 #       (서빙 파리티 문제)가 구조적으로 일어날 수 없다. web/test_parity.py 가 이를 검증한다.
 import argparse
 import csv

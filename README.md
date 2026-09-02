@@ -618,8 +618,8 @@ python src/phase2_pca.py     # 위 두 그림을 다시 생성
 ## 화면의 숫자는 어디서 나오나
 
 ```
-브라우저 → web/frontend.py (9504) → web/app.py (9524) → predict.py → artifacts/model.joblib
-            화면·중계만              예측 API           예측 전담      학습된 모델 (2.2KB)
+브라우저 → web/frontend.py (9504) → web/app.py (9524) → lolwin.predict → artifacts/model.joblib
+            화면·중계만              예측 API            예측 전담        학습된 모델 (2.2KB)
 ```
 
 **각 계층이 무엇을 import 하는지**가 곧 "누가 계산하는가"입니다.
@@ -627,8 +627,9 @@ python src/phase2_pca.py     # 위 두 그림을 다시 생성
 | 파일 | import 하는 것 | 하는 일 |
 |---|---|---|
 | `web/frontend.py` | `flask` · `urllib` | 화면을 내려주고 `/api/*`를 백엔드로 **중계만**. 예측 코드 0줄 |
-| `web/app.py` | `flask` · **`from predict import predict`** | 입력을 받아 `predict()`에 넘기고 결과를 JSON으로 반환 |
-| `predict.py` | **`joblib` · `pandas` · `numpy`** | 모델을 불러 확률과 승리요인을 계산 |
+| `web/app.py` | `flask` · **`from lolwin import predict`** | 입력을 받아 `predict()`에 넘기고 결과를 JSON으로 반환 |
+| `lolwin/predict.py` | **`joblib` · `pandas` · `numpy`** | 모델을 불러 확률과 승리요인을 계산 — **계산은 이 파일뿐** |
+| `predict.py` (루트) | `from lolwin.predict import …` | 명령행·기존 코드용 호환 진입점. 계산 없음 |
 
 **`web/` 어디에도 `sklearn`·`joblib` import가 없습니다.** 웹은 계산하지 않고 `predict()`를 부를 뿐입니다.
 계산이 두 곳에 있으면 화면 확률과 모델 확률이 갈라져도 아무도 모르기 때문입니다.
@@ -690,7 +691,7 @@ z    = (입력값 - scaler.mean_) / scaler.scale_   # ① 표준화
 ```bash
 pip install -r requirements.txt          # Python 3.11 · scikit-learn 1.9.0
 
-pip install -e .                         # 먼저 한 번 — lolwin 라이브러리 설치
+pip install -e .                         # 한 번만 — 노트북·다른 폴더에서 lolwin 을 쓰려면 (서비스 자체는 없어도 뜸)
 python src/day1_baseline.py              # 데이터 확인 · 분할 · 찍기 점수 0.5009
 python src/split_check.py                # 분할 진단 (겹침·층화·분포 4항목)
 python src/day2_features_cluster.py      # 중복 정리 · 차이 지표 13개 · 군집

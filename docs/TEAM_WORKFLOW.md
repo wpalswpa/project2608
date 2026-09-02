@@ -20,7 +20,7 @@ clone 한 뒤 반드시 `git checkout team` 부터. 개인 브랜치는 만들�
 | 사람 | 맡는 것 | 손대는 파일 (완전히 갈라짐) |
 |---|---|---|
 | **정상천** (팀장 · 발표) | 발표자료 · 대본 · 리허설 2회 | **`presentation_draft.pptx` 이 파일 하나만** |
-| **이제민** (`wpalswpa`) | 분석 · 지표 · 문서 전부 | `reports/` `docs/` `notebooks/` `README.md` `model_card.md` `runs.csv` `specs/` `src/repeat_check.py` `src/factcheck.py` |
+| **이제민** (`wpalswpa`) | 분석 · 지표 · 문서 · 라이브러리 | `lolwin/` `tests/` `pyproject.toml` `reports/` `docs/` `notebooks/` `README.md` `STUDY.md` `model_card.md` `runs.csv` `specs/` `src/repeat_check.py` `src/factcheck.py` |
 | **임예은 · 임의석** | 웹 · 서버 · 배포 | `web/` `check_project.sh` `docs/deploy.md` `docs/ddbm-intent/` |
 
 `.pptx` 는 바이너리라 충돌이 나면 병합이 불가능하다.
