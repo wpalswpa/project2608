@@ -48,6 +48,18 @@ KOREAN: dict[str, str] = {
     "TotalMinionsKilledDiff": "미니언(CS) 차이",
     "TotalJungleMinionsKilledDiff": "정글 몬스터 차이",
 }
+# 골드차 구간 — 오류 분석·화면 신뢰도 배지가 같은 경계를 써야 한다.
+# 여기가 정본이다. finalize_model.py 가 이 경계로 CSV 를 만들고,
+# web/app.py 가 같은 경계를 화면에 내려준다. 두 곳에 따로 적으면 조용히 어긋난다.
+GOLD_BINS = [0, 1000, 2500, 4200, float("inf")]
+GOLD_BIN_LABELS = [
+    "접전(<1k)", "우세(1k~2.5k)", "크게 우세(2.5k~4.2k)", "사실상 결정(4.2k+)",
+]
+
+
+def gold_bin_bounds():
+    """(라벨, 상한) 목록. 화면이 "이 경기는 어느 구간인가"를 판정할 때 쓴다."""
+    return list(zip(GOLD_BIN_LABELS, GOLD_BINS[1:]))
 
 
 def build(df):
@@ -129,3 +141,4 @@ if __name__ == "__main__":
         print(f"피처 {len(DIFF13)}개 · 시점 {TIME_POINT_MIN}분 · 정답 {TARGET}")
         for i, f in enumerate(DIFF13, 1):
             print(f"  {i:2}. {f:30} {KOREAN[f]}")
+

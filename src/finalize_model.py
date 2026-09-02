@@ -36,7 +36,7 @@ plt.rcParams["axes.unicode_minus"] = False
 from sklearn.inspection import permutation_importance
 
 from lolwin.data import load as load_data
-from lolwin.features import DIFF13
+from lolwin.features import DIFF13, GOLD_BIN_LABELS, GOLD_BINS
 from lolwin.model import SEED, make_pipeline, train
 
 # 기존 코드가 이 이름들을 import 하던 흔적 — 라이브러리로 옮겼다
@@ -77,9 +77,8 @@ def main():
     # ---- 4. 오류 분석 — 골드차 구간별 정확도 ("접전일수록 틀린다" 검증) ----
     err = pd.DataFrame({"abs_gold": X_te["GoldDiff"].abs().values,
                         "correct": (pred == y_te.values).astype(int)})
-    bins = [0, 1000, 2500, 4200, np.inf]
-    labels = ["접전(<1k)", "우세(1k~2.5k)", "크게 우세(2.5k~4.2k)", "사실상 결정(4.2k+)"]
-    err["구간"] = pd.cut(err["abs_gold"], bins=bins, labels=labels, right=False)
+    # 구간 경계는 lolwin/features.py 가 정본 — 화면(web/app.py)도 같은 값을 쓴다
+    err["구간"] = pd.cut(err["abs_gold"], bins=GOLD_BINS, labels=GOLD_BIN_LABELS, right=False)
     ea = err.groupby("구간", observed=True).agg(경기수=("correct", "size"),
                                                 정확도=("correct", "mean")).round(4)
     ea["비중_%"] = (ea["경기수"] / ea["경기수"].sum() * 100).round(1)

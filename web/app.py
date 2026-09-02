@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.join(ROOT, "src")) # src/riot_api.py
 from flask import Flask, jsonify, render_template, request
 
 from lolwin import KOREAN, predict            # 예측 로직의 단일 진실
+from lolwin.features import gold_bin_bounds
 from lolwin.artifacts import SCHEMA_PATH
 from lolwin.predict import DEMOS
 
@@ -125,6 +126,12 @@ def api_report():
     mean = sum(accs) / len(accs) if accs else None
     std = (sum((a - mean) ** 2 for a in accs) / len(accs)) ** 0.5 if accs else None
     bins = _csv("day4_error_analysis.csv")
+    # 화면이 "이 경기는 어느 구간인가"를 판정하려면 경계값이 필요하다.
+    # 화면에 숫자를 다시 적지 않도록 서버가 상한을 함께 내려준다 (경계 정본은 lolwin/features.py).
+    bounds = dict(gold_bin_bounds())
+    for b in bins:
+        hi = bounds.get(b.get("구간"))
+        b["max_gold"] = None if hi is None or hi == float("inf") else hi
     return jsonify({
         "performance": {**s.get("metrics_holdout", {}), **{k: s[k] for k in ("metrics_cv", "baseline") if k in s},
                         "repeat_seeds": {"n": len(accs), "mean": round(mean, 4) if mean else None, "std": round(std, 4) if std else None}},
