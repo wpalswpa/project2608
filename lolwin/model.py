@@ -78,6 +78,8 @@ def cross_validate_stability(pipe, X_tr, y_tr, seed: int = SEED) -> dict:
         "cv_accuracy": round(acc, 4), "cv_std": round(std, 4),
         "train_minus_cv": round(gap, 4),
         "stable": bool(std < 0.02), "not_overfit": bool(gap < 0.03),
+        # 원본 폴드별 점수 — runs.csv 기록처럼 표준편차까지 필요한 곳에서 쓴다
+        "raw": res,
     }
 
 
@@ -88,6 +90,7 @@ def train(source: str | None = None, seed: int = SEED, out_dir: str | None = Non
     out_dir 을 주면 그쪽에 쓴다(검증용). 안 주면 artifacts/ 에 쓴다.
     """
     import joblib
+    import pandas as pd
     import sklearn
 
     from lolwin import data
@@ -129,13 +132,16 @@ def train(source: str | None = None, seed: int = SEED, out_dir: str | None = Non
         "time_point_min": 10,
         "target": "blueWins (블루팀 승리 확률)",
         "feature_set": "diff13 (블루-레드 차이, 양수=블루 우세)",
-        "trained_at": __import__("pandas").Timestamp.now().strftime("%Y-%m-%d %H:%M"),
+        "trained_at": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M"),
         "data_source": dmeta["data_source"],
         "sklearn_version": sklearn.__version__,
         "seed": seed,
         "metrics_holdout": {k: v for k, v in metrics.items() if k != "confusion_matrix"},
+        # type 은 실제 dtype 으로 판정한다. 하드코딩하면 AvgLevelDiff(실수)가
+        # int 로 적혀 쓰는 쪽이 잘못된 입력 검증을 하게 된다.
         "features": {
-            f: {"type": "int", "train_min": float(X_tr[f].min()),
+            f: {"type": "int" if pd.api.types.is_integer_dtype(X_tr[f]) else "float",
+                "train_min": float(X_tr[f].min()),
                 "train_max": float(X_tr[f].max()),
                 "train_mean": round(float(X_tr[f].mean()), 3)}
             for f in DIFF13
@@ -146,7 +152,7 @@ def train(source: str | None = None, seed: int = SEED, out_dir: str | None = Non
             "split_hash": dmeta.get("split_hash"),
             "n_train": dmeta["n_train"], "n_test": dmeta["n_test"],
             "git_commit": _git_commit(),
-            "cv": stab,
+            "cv": {k: v for k, v in stab.items() if k != "raw"},
             "confusion_matrix": metrics["confusion_matrix"],
         },
     }

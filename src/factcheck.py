@@ -10,6 +10,7 @@ import io
 import json
 import os
 import re
+import sys
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 issues = []
@@ -55,10 +56,16 @@ for p, s in docs.items():
 
 # 4) 피처 목록이 schema · 코드 · 노트북에서 일치하는가
 feats = list(schema["features"].keys())
+# 정본은 lolwin/features.py 다 (예전엔 학습 스크립트에서 읽었다)
 code = re.findall(r'"(\w+)"', re.search(
-    r"DIFF13 = \[(.*?)\]", read("src/finalize_model.py"), re.S).group(1))
+    r"DIFF13: list\[str\] = \[(.*?)\]", read("lolwin/features.py"), re.S).group(1))
 if feats != code:
-    issues.append(f"[피처 불일치] schema {len(feats)}개 ≠ finalize_model {len(code)}개")
+    issues.append(f"[피처 불일치] schema {len(feats)}개 ≠ lolwin/features {len(code)}개")
+# 파이썬 정의와 SQL 뷰가 어긋나면 DB 학습 시 값이 달라진다
+sys.path.insert(0, os.getcwd())
+from lolwin.features import sql_matches_file
+for bad_sql in sql_matches_file():
+    issues.append(f"[SQL 불일치] {bad_sql}")
 nb = read("notebooks/final_analysis.ipynb")
 missing_nb = [f for f in feats if f not in nb]
 if missing_nb:

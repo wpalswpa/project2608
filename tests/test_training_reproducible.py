@@ -48,21 +48,40 @@ def test_retraining_reproduces_shipped_model():
                      "학습 경로나 데이터가 바뀌었습니다.")
 
 
-def test_metrics_match_schema():
-    """재학습 성능이 schema.json 에 적힌 값과 같아야 한다."""
+def test_schema_matches_shipped():
+    """재학습이 만든 schema 가 배포본과 같아야 한다 — 성능과 피처 규격 둘 다.
+
+    성능만 보면 피처 type·범위가 어긋나도 통과한다. 실제로 AvgLevelDiff 가
+    float 인데 int 로 적히는 버그를 이 검사가 없어서 놓쳤다.
+    """
     import json
 
     from lolwin.model import train
 
     with tempfile.TemporaryDirectory(prefix="lolwin_test_") as tmp:
-        r = train(out_dir=tmp, verbose=False)
+        got = train(out_dir=tmp, verbose=False)["schema"]
 
     with open(os.path.join(ROOT, "artifacts", "schema.json"), encoding="utf-8") as f:
-        shipped = json.load(f)["metrics_holdout"]
+        shipped = json.load(f)
 
-    bad = [f"{k}: {shipped[k]} → {r['metrics'][k]}"
-           for k in shipped if r["metrics"].get(k) != shipped[k]]
-    assert not bad, "성능이 달라졌습니다:\n  " + "\n  ".join(bad)
+    bad = []
+    for k, v in shipped["metrics_holdout"].items():
+        if got["metrics_holdout"].get(k) != v:
+            bad.append(f"성능 {k}: {v} → {got['metrics_holdout'].get(k)}")
+
+    for feat, spec in shipped["features"].items():
+        for field, want in spec.items():
+            have = got["features"].get(feat, {}).get(field)
+            if have != want:
+                bad.append(f"피처 {feat}.{field}: {want} → {have}")
+
+    # 재학습해도 바뀌면 안 되는 정체성 항목 (trained_at·provenance 는 당연히 바뀐다)
+    for k in ("model_name", "version", "time_point_min", "target",
+              "feature_set", "seed", "sklearn_version"):
+        if got.get(k) != shipped.get(k):
+            bad.append(f"{k}: {shipped.get(k)} → {got.get(k)}")
+
+    assert not bad, "배포본과 달라졌습니다:\n  " + "\n  ".join(bad)
 
 
 def main():
@@ -72,7 +91,7 @@ def main():
         return 0
 
     failed = 0
-    for t in (test_retraining_reproduces_shipped_model, test_metrics_match_schema):
+    for t in (test_retraining_reproduces_shipped_model, test_schema_matches_shipped):
         try:
             t()
             print(f"[통과] {t.__name__} — {t.__doc__.splitlines()[0]}")

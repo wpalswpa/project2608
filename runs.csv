@@ -24,3 +24,4 @@ date,run,cv_acc_mean,cv_acc_std,cv_f1_mean,cv_f1_std,train_acc_mean,train_f1_mea
 2026-09-01 09:31,logreg_clean27,0.728,0.0163,0.728,0.0163,0.7327,0.7325,0.22
 2026-09-01 09:31,logreg_diff13,0.7315,0.0153,0.7315,0.0155,0.7337,0.7335,0.13
 2026-09-01 09:31,final_logreg_diff13_holdout(src=csv:fallback),0.7315,0.0153,0.7315,0.0155,0.7337,0.7335,0.77
+2026-09-02 11:31,final_logreg_diff13_holdout(src=csv:fallback),0.7315,0.0153,0.7315,0.0155,0.7337,0.7335,0.92

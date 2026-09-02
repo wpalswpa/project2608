@@ -4,7 +4,7 @@
   "time_point_min": 10,
   "target": "blueWins (블루팀 승리 확률)",
   "feature_set": "diff13 (블루-레드 차이, 양수=블루 우세)",
-  "trained_at": "2026-09-01 09:31",
+  "trained_at": "2026-09-02 11:31",
   "data_source": "csv:fallback",
   "sklearn_version": "1.9.0",
   "seed": 42,
@@ -93,6 +93,26 @@
       "train_min": -72.0,
       "train_max": 64.0,
       "train_mean": -0.786
+    }
+  },
+  "provenance": {
+    "data_hash": "82b2e2327909",
+    "split_hash": "570ca964/9a14d580",
+    "n_train": 7903,
+    "n_test": 1976,
+    "git_commit": "b1f2709",
+    "cv": {
+      "cv_accuracy": 0.7315,
+      "cv_std": 0.0153,
+      "train_minus_cv": 0.0022,
+      "stable": true,
+      "not_overfit": true
+    },
+    "confusion_matrix": {
+      "TN": 746,
+      "FP": 244,
+      "FN": 271,
+      "TP": 715
     }
   }
 }
