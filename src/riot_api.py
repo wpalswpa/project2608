@@ -64,6 +64,30 @@ def _get(url: str) -> dict:
     raise RiotApiError("요청 한도 초과가 계속됩니다. 잠시 후 다시 시도하세요.")
 
 
+def key_works(timeout: int = 6) -> bool:
+    """지금 설정된 키가 실제로 통하는가 — 키가 있는지가 아니라 살아있는지 본다.
+
+    개발용 키는 24시간마다 죽는다. 키가 '있다'는 것만 보고 화면에서 소환사 검색을
+    권하면, 죽은 키일 때 사용자가 검색하고 나서야 실패를 본다. 발표 시연에서
+    서비스가 고장 난 것처럼 보이므로, 서버 기동 때 한 번 확인해 둔다.
+
+    실패해도 예외를 올리지 않는다 — 이 확인 때문에 서버가 못 뜨면 안 된다.
+    """
+    key = os.environ.get("RIOT_API_KEY")
+    if not key:
+        return False
+    try:
+        # 가장 가벼운 호출: 서버 상태 조회 (계정 조회와 달리 대상이 필요 없다)
+        req = urllib.request.Request(
+            "https://kr.api.riotgames.com/lol/status/v4/platform-data",
+            headers={"X-Riot-Token": key,
+                     "User-Agent": "Mozilla/5.0 (team-project; LoL win-prediction; educational)"})
+        with urllib.request.urlopen(req, timeout=timeout):
+            return True
+    except Exception:
+        return False
+
+
 def get_puuid(game_name: str, tag_line: str) -> str:
     g = urllib.parse.quote(game_name)
     t = urllib.parse.quote(tag_line)

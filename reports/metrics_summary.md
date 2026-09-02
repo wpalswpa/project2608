@@ -124,7 +124,7 @@ DB는 `gameId` 순으로 읽는데 CSV는 정렬 없이 읽어서 같은 시드�
 훨씬 빠릅니다. 킬·어시스트·미니언 상자에서 화살표가 골드로 모이고, 골드가 승리로 이어지는
 도식입니다. "왜 마이너스냐"는 질문에 수식 없이 답할 수 있습니다.
 
-**근거**: `docs/data_analysis.md` 3장 (효과크기 표) · `reports/figures/fig5_gold_flow.png`
+**근거**: `docs/data_analysis.md` 2장 (효과크기 표) · `reports/figures/fig5_gold_flow.png`
 
 ### ④ "왜 로지스틱 회귀인가요? 더 좋은 모델도 많은데."
 

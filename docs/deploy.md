@@ -29,6 +29,21 @@ venv311/bin/python predict.py --demo    # 51.2% / 94.6% / 16.8%
 ./check_project.sh start && ./check_project.sh test
 ```
 
+## Riot API 키 — 발표 당일 아침에 갱신할 것
+
+**개발용 키는 24시간마다 죽는다.** 소환사 검색 기능에만 쓰이고, 없어도 나머지는 전부 동작한다.
+
+```bash
+# developer.riotgames.com 에서 REGENERATE 한 뒤
+echo 'RIOT_API_KEY=RGAPI-...' >> .env
+./check_project.sh restart
+curl -s localhost:9524/api/health | grep riot_ready      # true 여야 한다
+```
+
+서버는 기동할 때 키가 **있는지가 아니라 실제로 통하는지** 확인한다(`riot_api.key_works()`).
+죽은 키면 `riot_ready=false` 가 되고 화면은 소환사 검색을 아예 권하지 않는다 —
+되지 않는 기능을 눌러보게 만들지 않기 위해서다.
+
 `artifacts/model.joblib`·`schema.json` 은 저장소에 들어 있어 따로 올릴 필요가 없다. 원본 CSV 는 서비스에 필요 없다(학습을 다시 할 때만 `data/README.md`).
 
 ## 매일 / 누가 push 한 뒤

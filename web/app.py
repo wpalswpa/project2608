@@ -26,8 +26,10 @@ from lolwin.predict import DEMOS
 
 # Riot API 연동은 선택 기능 — 키가 없어도 나머지는 정상 동작해야 한다
 try:
-    from riot_api import RiotApiError, analyze_recent
-    RIOT_READY = bool(os.environ.get("RIOT_API_KEY"))
+    from riot_api import RiotApiError, analyze_recent, key_works
+    # 키가 '있는지' 가 아니라 '지금 통하는지' 를 본다. 개발용 키는 24시간마다 죽는데,
+    # 죽은 키로 화면이 소환사 검색을 권하면 시연 중에 고장 난 것처럼 보인다.
+    RIOT_READY = key_works()
 except Exception:
     RIOT_READY = False
 
