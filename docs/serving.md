@@ -103,6 +103,8 @@
 | `GET /api/report` | 구간별 정확도·승리요인·시점 비교 |
 | `GET /api/match-types` | 경기 유형 4가지 프로파일 |
 | `POST /api/predict/batch` | 여러 건 한 번에 |
+| `GET /api/matches` | **시험셋 실제 경기 복기** — 예측 vs 실제, 필터(`band`·`correct`)·페이징(`limit`·`offset`·`seed`)·번호 조회(`id`) |
+| `POST /api/summoner` | Riot ID 로 최근 솔로랭크 경기를 10분 시점 복기 (`RIOT_API_KEY` 필요, 없으면 503) |
 | `GET /figures/<이름>` | `reports/` 의 그림 (사본을 두지 않는다) |
 
 ## 6. 구현 구조 — 누가 계산하나
