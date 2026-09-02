@@ -1,6 +1,6 @@
-# 페이즈 3 — 군집화와 데이터 축소 (비평 반영: "군집화와 데이터 축소를 고려하세요")
+# 보충 검증 — 군집화·데이터 축소·추가 모델 (비평 반영: "군집화와 데이터 축소를 고려하세요")
 #
-# 실행: 프로젝트 폴더에서  python src/phase3_cluster_reduce.py
+# 실행: 프로젝트 폴더에서  python src/supplement_checks.py
 #
 # 페이즈 2에서 "정보가 성장 축 하나에 몰려 있다"고 결론냈다. 그렇다면 두 가지가 궁금해진다.
 #   A. 데이터 축소 — 정말 축 몇 개면 되나? PCA 주성분 k개만으로 다시 학습해 잰다.
@@ -58,7 +58,7 @@ def part_a(X_tr, y_tr, X_te, y_te):
         a = accuracy_score(y_te, pipe.predict(X_te))
         rows.append({"주성분수": k, "교차검증": round(s, 4), "홀드아웃": round(a, 4)})
     df = pd.DataFrame(rows)
-    df.to_csv("reports/tables/phase3_pca_reduction.csv", index=False, encoding="utf-8-sig")
+    df.to_csv("reports/tables/supplement_pca_reduction.csv", index=False, encoding="utf-8-sig")
 
     full_cv, full_ho = 0.7315, 0.7394  # 원본 13개 (finalize_model 실측)
     print("[A] 데이터 축소 — 주성분 k개만으로")
@@ -83,7 +83,7 @@ def part_a(X_tr, y_tr, X_te, y_te):
     ax.set_title("13개 지표의 정보는 사실상 축 하나 — 주성분 1개로도 0.73 에 붙는다",
                  fontsize=12.5, pad=12)
     fig.tight_layout()
-    fig.savefig("reports/figures/phase3_pca_reduction.png", dpi=130, bbox_inches="tight")
+    fig.savefig("reports/figures/supplement_pca_reduction.png", dpi=130, bbox_inches="tight")
     return df
 
 
@@ -127,7 +127,7 @@ def part_b():
                  "비고": f"잡음 {noise:,}판({noise/len(Z):.0%}) — 밀도 경계가 없어 부적합"})
 
     df = pd.DataFrame(rows)
-    df.to_csv("reports/tables/phase3_cluster_models.csv", index=False, encoding="utf-8-sig")
+    df.to_csv("reports/tables/supplement_cluster_models.csv", index=False, encoding="utf-8-sig")
 
     print(f"{NL}[B] 군집 모델 비교 (중립 5피처 · 학습셋)")
     for _, r in df.iterrows():
@@ -150,7 +150,7 @@ def part_b():
     ax.legend(fontsize=9)
     ax.set_title("군집 모델 4종 비교 — 어느 모델로 묶어도 되는 건 아니다", fontsize=12.5, pad=12)
     fig.tight_layout()
-    fig.savefig("reports/figures/phase3_cluster_models.png", dpi=130, bbox_inches="tight")
+    fig.savefig("reports/figures/supplement_cluster_models.png", dpi=130, bbox_inches="tight")
     return df
 
 
@@ -175,7 +175,7 @@ def part_c(X_tr, y_tr, X_te, y_te):
             "극단확률비중": round(float(((p < 0.05) | (p > 0.95)).mean()), 3),
         })
     df = pd.DataFrame(rows)
-    df.to_csv("reports/tables/phase3_nb_vs_lr.csv", index=False, encoding="utf-8-sig")
+    df.to_csv("reports/tables/supplement_nb_vs_lr.csv", index=False, encoding="utf-8-sig")
     print(NL + "[C] 나이브베이즈 추가학습 — 확률 품질 비교")
     for _, r in df.iterrows():
         print(f"    {r['모델']:<12} 정확도 {r['정확도']:.4f} · AUC {r['AUC']:.4f}"
@@ -196,7 +196,7 @@ def part_c(X_tr, y_tr, X_te, y_te):
     fig.suptitle("정확도는 비슷한데 확률의 얼굴이 다르다 — NB 는 3판 중 2판에 극단 확신을 건다",
                  fontsize=12.5, fontweight="bold", y=1.02)
     fig.tight_layout()
-    fig.savefig("reports/figures/phase3_nb_proba.png", dpi=130, bbox_inches="tight")
+    fig.savefig("reports/figures/supplement_nb_proba.png", dpi=130, bbox_inches="tight")
     return df
 
 
@@ -204,15 +204,15 @@ def main():
     os.makedirs("reports/figures", exist_ok=True)
     os.makedirs("reports/tables", exist_ok=True)
     print("=" * 66)
-    print("페이즈 3 — 군집화와 데이터 축소")
+    print("보충 검증 — 군집화 · 데이터 축소 · 추가 모델")
     print("=" * 66)
     X_tr, y_tr, X_te, y_te, _ = load_data()
     part_a(X_tr, y_tr, X_te, y_te)
     part_b()
     part_c(X_tr, y_tr, X_te, y_te)
-    print(f"{NL}[저장] reports/figures/phase3_pca_reduction.png · phase3_cluster_models.png")
-    print("       reports/figures/phase3_nb_proba.png · tables/phase3_nb_vs_lr.csv")
-    print("       reports/tables/phase3_pca_reduction.csv · phase3_cluster_models.csv")
+    print(f"{NL}[저장] reports/figures/supplement_pca_reduction.png · supplement_cluster_models.png")
+    print("       reports/figures/supplement_nb_proba.png · tables/supplement_nb_vs_lr.csv")
+    print("       reports/tables/supplement_pca_reduction.csv · supplement_cluster_models.csv")
 
 
 if __name__ == "__main__":
