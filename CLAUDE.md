@@ -18,7 +18,8 @@
 | 대상 | 이유 |
 |---|---|
 | `specs/002-ml-prediction-service/` | 팀 서버 정본. 서버에서 `git pull` 로 갱신된다 |
-| `docs/_archive/` · `**/_server_backup_*` | 계획 시점 보존용 스냅샷. 링크가 깨져 있는 게 정상 |
+| `**/_server_backup_*` | 계획 시점 보존용 스냅샷. 링크가 깨져 있는 게 정상 |
+| docs/_archive/ (로컬 전용 — .gitignore 로 제외, clone 에는 없음) | 옛 문서 백업. 없어도 동작에 지장 없음 |
 | `artifacts/model.joblib` · `schema.json` | 재학습 없이는 바꾸지 않는다 (바꾸면 골든 정답지도 다시) |
 
 ## 무엇을 고치든 통과해야 하는 것
