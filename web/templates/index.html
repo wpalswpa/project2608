@@ -1,308 +1,501 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LoL 승패 예측·설명 서비스</title>
+<title>LoL 10분 승패 예측 · 4조</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <style>
-  /* 수업 수준의 단순한 스타일 — 프레임워크 없이 CSS만 */
-  body { font-family: 'Malgun Gothic', sans-serif; max-width: 720px; margin: 24px auto; padding: 0 16px; background: #f7f8fa; color: #222; }
-  h1 { font-size: 22px; }  .sub { color: #666; font-size: 14px; margin-top: -8px; }
-  fieldset { border: 1px solid #ddd; border-radius: 8px; background: #fff; margin: 12px 0; padding: 12px 16px; }
-  legend { font-weight: bold; padding: 0 6px; }
-  label { display: inline-block; width: 190px; font-size: 14px; }
-  input[type=number] { width: 100px; padding: 4px; }
-  select { padding: 4px; }
-  .row { margin: 6px 0; }
-  button { padding: 8px 14px; border: 1px solid #888; border-radius: 6px; background: #fff; cursor: pointer; margin-right: 6px; }
-  button.primary { background: #2b6cb0; color: #fff; border-color: #2b6cb0; font-weight: bold; }
-  /* 결과 표시 */
-  #result { display: none; }
-  .gauge { height: 28px; border-radius: 6px; overflow: hidden; display: flex; border: 1px solid #ccc; }
-  .gauge .blue { background: #3182ce; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-  .gauge .red  { background: #e53e3e; flex: 1; }
-  .factor { font-size: 14px; margin: 4px 0; }
-  .plus  { color: #2b6cb0; }  .minus { color: #c53030; }
-  .warn { color: #b7791f; font-size: 13px; margin: 4px 0; }
-  .meta { color: #888; font-size: 12px; margin-top: 10px; }
-  /* 1단계 체험 — 슬라이더 */
-  .step { font-size: 12px; color: #fff; background: #2b6cb0; border-radius: 10px; padding: 2px 9px; margin-right: 6px; }
-  .who { color: #666; font-size: 13px; margin: 2px 0 10px; }
-  .slider-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
-  .slider-row label { width: 108px; font-size: 14px; }
-  .slider-row input[type=range] { flex: 1; }
-  .slider-row .val { width: 78px; text-align: right; font-weight: bold; font-variant-numeric: tabular-nums; }
-  #liveBox { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px; margin-top: 10px; }
-  #livePct { font-size: 30px; font-weight: bold; color: #2b6cb0; }
-  #liveNote { font-size: 13px; color: #666; }
+/* ─────────────────────────────────────────────────────────────
+   팔레트는 LoL 클라이언트 색값. 임의 배색이 아니라 게이머가 아는 색이다.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --navy:#0A1428; --navy-2:#0F1E38; --panel:#10203B;
+  --gold:#C8AA6E; --gold-dim:#785A28; --gold-lite:#F0E6D2;
+  --blue:#0AC8B9;              /* 블루 팀 */
+  --red:#E84057;               /* 레드 팀 */
+  --ink:#F0E6D2; --muted:#A09B8C; --line:#1E3050;
+  --ok:#0AC8B9; --warn:#C8AA6E; --bad:#E84057;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--navy);
+  color:var(--ink);
+  font-family:"Noto Sans KR",system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.7;
+  /* 배경을 단색으로 두지 않는다 — 청/적 광원 + 헥사곤 격자로 깊이감 */
+  background-image:
+    radial-gradient(900px 500px at 12% -10%, rgba(10,200,185,.10), transparent 60%),
+    radial-gradient(900px 500px at 88% -10%, rgba(232,64,87,.09), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='96'%3E%3Cpath d='M28 0l28 16v32L28 64 0 48V16z' fill='none' stroke='%23C8AA6E' stroke-opacity='.05'/%3E%3C/svg%3E");
+  background-attachment:fixed;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px 72px}
+
+/* Hextech 패널 — clip-path 로 모서리를 깎은 이중 골드 테두리 */
+.panel{
+  position:relative; background:var(--panel);
+  border:1px solid var(--gold-dim);
+  clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);
+  padding:22px 24px; margin-bottom:18px;
+}
+.panel::after{
+  content:""; position:absolute; inset:4px; pointer-events:none;
+  border:1px solid rgba(200,170,110,.22);
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+}
+h1,h2,h3,.num{font-family:"Cinzel","Noto Serif KR",serif;letter-spacing:.02em}
+h2{font-size:19px;margin:0 0 4px;color:var(--gold)}
+h3{font-size:15px;margin:0 0 8px;color:var(--gold)}
+.sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+/* 골드 마름모 구분선 */
+.rule{display:flex;align-items:center;gap:10px;margin:18px 0}
+.rule::before,.rule::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
+.rule i{width:7px;height:7px;background:var(--gold);transform:rotate(45deg)}
+
+/* ── 히어로 ── */
+header{position:relative;overflow:hidden;margin-bottom:22px;border-bottom:1px solid var(--line)}
+.hero-art{
+  position:absolute;inset:0;
+  background-position:center 22%;background-size:cover;
+  opacity:.20; filter:saturate(.75);
+}
+header::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,20,40,.55),var(--navy))}
+.hero-in{position:relative;z-index:2;padding:40px 0 26px}
+h1{font-size:clamp(24px,4.4vw,38px);margin:0 0 8px;color:var(--gold-lite);text-wrap:balance}
+.eyebrow{font-family:"Cinzel",serif;font-size:12px;letter-spacing:.28em;color:var(--gold);margin:0 0 10px}
+.meta{color:var(--muted);font-size:12.5px;margin:8px 0 0}
+
+/* ── 대치 게이지 ── */
+.gauge-wrap{margin:6px 0 4px}
+.gauge{position:relative;height:38px;background:#0B1A30;border:1px solid var(--line);overflow:hidden}
+.gauge .b,.gauge .r{position:absolute;top:0;bottom:0;transition:width .45s cubic-bezier(.3,.8,.3,1)}
+.gauge .b{left:0;background:linear-gradient(90deg,rgba(10,200,185,.35),var(--blue))}
+.gauge .r{right:0;background:linear-gradient(270deg,rgba(232,64,87,.35),var(--red))}
+.gauge .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--gold);z-index:3}
+.gauge .tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(240,230,210,.18);z-index:2}
+.gauge-lab{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px}
+.pct{font-family:"Cinzel",serif;font-size:34px;font-weight:700;font-variant-numeric:tabular-nums}
+.pct.blue{color:var(--blue)} .pct.red{color:var(--red)}
+
+/* ── 승리요인 막대 (0 중심 좌우) ── */
+.factor{display:grid;grid-template-columns:150px 1fr 92px;gap:10px;align-items:center;margin-bottom:7px;font-size:13.5px}
+.fbar{position:relative;height:20px;background:#0B1A30;border:1px solid var(--line)}
+.fbar span{position:absolute;top:0;bottom:0}
+.fbar .zero{left:50%;width:1px;background:rgba(240,230,210,.28)}
+.fval{text-align:right;font-variant-numeric:tabular-nums;font-size:12.5px}
+
+/* ── 배지 ── */
+.badge{display:inline-block;padding:3px 10px;font-size:12px;border:1px solid;white-space:nowrap}
+.badge.ok{color:var(--ok);border-color:rgba(10,200,185,.5);background:rgba(10,200,185,.08)}
+.badge.warn{color:var(--warn);border-color:rgba(200,170,110,.5);background:rgba(200,170,110,.08)}
+.badge.bad{color:var(--bad);border-color:rgba(232,64,87,.5);background:rgba(232,64,87,.08)}
+
+/* ── 입력 ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:3px}
+input[type=number]{
+  width:100%;padding:8px 10px;background:#0B1A30;color:var(--ink);
+  border:1px solid var(--line);font-family:inherit;font-size:14px;
+  font-variant-numeric:tabular-nums;
+}
+input[type=number]:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+input.out-of-range{border-color:var(--red);background:rgba(232,64,87,.08)}
+.hint{font-size:11px;color:#6B7A8F;margin-top:2px}
+button{
+  font-family:"Cinzel","Noto Sans KR",serif;font-weight:600;cursor:pointer;
+  padding:10px 18px;background:linear-gradient(180deg,#1E3A5F,#132844);
+  color:var(--gold-lite);border:1px solid var(--gold-dim);font-size:14px;
+}
+button:hover:not(:disabled){border-color:var(--gold);color:#fff}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:linear-gradient(180deg,#C8AA6E,#785A28);color:#0A1428;border-color:var(--gold)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(10,20,40,.3);border-top-color:#0A1428;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ── 탭 ── */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);padding:8px 14px;font-size:13.5px}
+.tabs button[aria-selected=true]{color:var(--gold);border-bottom-color:var(--gold)}
+
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--muted);font-weight:500;font-size:12px}
+td{font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+.msg{padding:10px 14px;border-left:3px solid var(--red);background:rgba(232,64,87,.08);font-size:13.5px}
+.note{font-size:12.5px;color:var(--muted);border-left:2px solid var(--gold-dim);padding-left:12px;margin-top:12px}
+footer{color:#6B7A8F;font-size:11.5px;text-align:center;padding:24px 20px;border-top:1px solid var(--line)}
+.champ{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.champ img{width:38px;height:38px;border:1px solid var(--gold-dim)}
+@media (max-width:640px){
+  .factor{grid-template-columns:110px 1fr 74px;font-size:12.5px}
+  .grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<h1>LoL 승패 예측·설명 서비스</h1>
-<p class="sub">10분 시점의 두 팀 차이(블루 − 레드)를 넣으면, 블루팀 승리 확률과 <b>왜</b>를 알려줍니다.</p>
-<p class="meta" id="svc">{% if domain %}공개 주소 https://{{ domain }} · {% endif %}백엔드 {% if backend_ok is defined and not backend_ok %}<span style="color:#c53030">연결 안 됨 — 서버에서 ./check_project.sh status 확인</span>{% else %}연결됨{% endif %} · 예측은 서버의 predict.py 한 곳에서만 계산됩니다</p>
 
-<fieldset>
-  <legend><span class="step">1단계</span>직접 움직여 보기</legend>
-  <p class="who">게임을 몰라도 됩니다. 막대를 끌면 승률이 바로 바뀝니다.</p>
-
-  <div class="slider-row">
-    <label for="sGold">골드(돈) 차이</label>
-    <input type="range" id="sGold" min="-6000" max="6000" step="100" value="0" oninput="onSlide()">
-    <span class="val" id="vGold">0</span>
+<header>
+  <div class="hero-art" id="heroArt" aria-hidden="true"></div>
+  <div class="hero-in wrap">
+    <p class="eyebrow">SUMMONER'S RIFT · 10 MIN</p>
+    <h1>경기는 언제 승부가 결정되는가</h1>
+    <p class="sub" style="margin:0">10분 시점의 숫자 13개로 승패를 예측하고, <b style="color:var(--gold-lite)">왜 그렇게 판단했는지</b>와
+    <b style="color:var(--gold-lite)">지금 믿어도 되는지</b>까지 함께 보여줍니다.</p>
+    <p class="meta" id="svc">{% if domain %}공개 주소 https://{{ domain }} · {% endif %}백엔드 {% if backend_ok is defined and not backend_ok %}<span style="color:var(--red)">연결 안 됨 — 서버에서 ./check_project.sh status 확인</span>{% else %}연결됨{% endif %} · 예측은 서버 한 곳(lolwin)에서만 계산됩니다</p>
   </div>
-  <div class="slider-row">
-    <label for="sExp">경험치 차이</label>
-    <input type="range" id="sExp" min="-5000" max="5000" step="100" value="0" oninput="onSlide()">
-    <span class="val" id="vExp">0</span>
-  </div>
-  <div class="slider-row">
-    <label for="sDragon">드래곤</label>
-    <input type="range" id="sDragon" min="-1" max="1" step="1" value="0" oninput="onSlide()">
-    <span class="val" id="vDragon">없음</span>
-  </div>
+</header>
 
-  <div id="liveBox">
-    <span id="liveHead">파란 팀 승리 확률</span> <span id="livePct">50.0%</span>
-    <div class="gauge" style="margin:8px 0"><div class="blue" id="liveGauge" style="width:50%">50%</div><div class="red"></div></div>
-    <div id="liveNote">막대를 움직여 보세요. 돈 차이가 가장 크게 작용합니다.</div>
-  </div>
+<div class="wrap">
 
-  <p style="margin-top:12px">
-    <button onclick="fillDemo('close')">팽팽한 접전</button>
-    <button onclick="fillDemo('blue')">블루 크게 우세</button>
-    <button onclick="fillDemo('red')">레드 우세</button>
-    <small style="color:#888">← 실제 경기 예시로 채우기</small>
-  </p>
-</fieldset>
+  <!-- ── 결과 ── -->
+  <section class="panel" aria-live="polite">
+    <h2>예측 결과</h2>
+    <p class="sub" id="resultSub">아래에서 경기 상황을 넣고 <b>예측하기</b>를 누르세요.</p>
 
-<fieldset>
-  <legend><span class="step">2단계</span>내 경기로 확인하기</legend>
-  <p class="who">소환사명을 넣으면 최근 5경기의 10분 시점 승률을 보여줍니다. "이 판은 10분에 30%였는데 뒤집었네" 같은 걸 볼 수 있습니다.</p>
-  {% if riot_ready %}
-  <div class="row">
-    <input type="text" id="riotId" placeholder="게임명#태그 (예: Hide on bush#KR1)" style="width:280px;padding:6px">
-    <button class="primary" onclick="loadSummoner()">최근 5경기 분석</button>
-  </div>
-  <p class="warn" style="color:#555;margin:6px 0 0">
-    ※ 끝난 솔로랭크 경기의 <b>10분 시점</b>을 복기합니다. 진행 중 경기의 실시간 수치는
-    라이엇이 API로 제공하지 않아 불가능합니다. 최신 패치 경기라 예측은 참고용입니다(모델은 시즌10 학습).
-  </p>
-  <div id="summonerResult"></div>
-  {% else %}
-  <p class="warn">서버에 RIOT_API_KEY 가 없어 꺼져 있습니다.
-    터미널에서 <code>$env:RIOT_API_KEY='RGAPI-...'</code> 설정 후 서버를 다시 켜면 활성화됩니다.
-    (키 발급: developer.riotgames.com, 24시간마다 갱신)</p>
-  {% endif %}
-</fieldset>
+    <div class="gauge-wrap">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px">
+        <div><div class="pct blue" id="pctBlue">—</div><div style="font-size:12px;color:var(--muted)">블루 팀</div></div>
+        <div id="verdict" style="text-align:center;font-size:14px;color:var(--gold)"></div>
+        <div style="text-align:right"><div class="pct red" id="pctRed">—</div><div style="font-size:12px;color:var(--muted)">레드 팀</div></div>
+      </div>
+      <div class="gauge">
+        <div class="b" id="gaugeB" style="width:50%"></div>
+        <div class="r" id="gaugeR" style="width:50%"></div>
+        <div class="tick" style="left:25%"></div>
+        <div class="tick" style="left:75%"></div>
+        <div class="mid"></div>
+      </div>
+      <div class="gauge-lab"><span>레드 우세</span><span>25%</span><span>팽팽</span><span>75%</span><span>블루 우세</span></div>
+    </div>
 
-<details>
-<summary><b>3단계 — 숫자를 직접 넣어 보기</b> (선택)</summary>
-<fieldset>
-  <legend>핵심 입력 (승리요인 상위 3개)</legend>
-  <div class="row"><label for="GoldDiff">골드 차이 (돈)</label><input type="number" id="GoldDiff" value="0" step="100"> <small>학습 범위 약 ±10,000</small></div>
-  <div class="row"><label for="ExpDiff">경험치 차이</label><input type="number" id="ExpDiff" value="0" step="100"></div>
-  <div class="row"><label for="DragonsDiff">드래곤 차이</label>
-    <select id="DragonsDiff"><option value="-1">레드가 잡음 (−1)</option><option value="0" selected>없음 (0)</option><option value="1">블루가 잡음 (+1)</option></select></div>
-</fieldset>
+    <div id="confidence" style="margin-top:14px"></div>
 
-<details>
-  <summary>세부 입력 10개 (기본값 0으로 두어도 됩니다)</summary>
-  <fieldset>
-    <div class="row"><label for="FirstBlood">첫 킬을 블루가?</label><select id="FirstBlood"><option value="1">예</option><option value="0" selected>아니오</option></select></div>
-    <div class="row"><label for="KillsDiff">킬 차이</label><input type="number" id="KillsDiff" value="0"></div>
-    <div class="row"><label for="AssistsDiff">어시스트 차이</label><input type="number" id="AssistsDiff" value="0"></div>
-    <div class="row"><label for="HeraldsDiff">전령 차이</label><input type="number" id="HeraldsDiff" value="0" min="-1" max="1"></div>
-    <div class="row"><label for="TowersDestroyedDiff">타워 파괴 차이</label><input type="number" id="TowersDestroyedDiff" value="0"></div>
-    <div class="row"><label for="AvgLevelDiff">평균 레벨 차이</label><input type="number" id="AvgLevelDiff" value="0" step="0.1"></div>
-    <div class="row"><label for="TotalMinionsKilledDiff">미니언(CS) 차이</label><input type="number" id="TotalMinionsKilledDiff" value="0"></div>
-    <div class="row"><label for="TotalJungleMinionsKilledDiff">정글 몬스터 차이</label><input type="number" id="TotalJungleMinionsKilledDiff" value="0"></div>
-    <div class="row"><label for="WardsPlacedDiff">와드 설치 차이</label><input type="number" id="WardsPlacedDiff" value="0"></div>
-    <div class="row"><label for="WardsDestroyedDiff">와드 제거 차이</label><input type="number" id="WardsDestroyedDiff" value="0"></div>
-  </fieldset>
-</details>
+    <div class="rule"><i></i></div>
+    <h3>이 판단의 근거 — 상위 5개 요인</h3>
+    <div id="factors"><p class="sub">예측을 실행하면 표시됩니다.</p></div>
+    <div id="killNote"></div>
+    <div id="warnBox"></div>
+  </section>
 
-<p><button class="primary" onclick="doPredict()">승률 예측하기</button></p>
-</details>
+  <!-- ── 입력 ── -->
+  <section class="panel">
+    <h2>경기 상황 입력</h2>
+    <p class="sub">전부 <b>블루 − 레드</b> 차이값입니다. 양수면 블루가 앞선 것.</p>
+    <div class="btns" style="margin:0 0 14px">
+      <button type="button" data-demo="close">팽팽한 접전</button>
+      <button type="button" data-demo="blue">블루 크게 우세</button>
+      <button type="button" data-demo="red">레드 우세</button>
+    </div>
+    <div class="grid" id="form"></div>
+    <div class="btns">
+      <button type="button" class="primary" id="run">예측하기</button>
+      <button type="button" id="reset">모두 0으로</button>
+      <span class="sub" style="margin:0" id="runMsg"></span>
+    </div>
+  </section>
 
-<fieldset id="result">
-  <legend>결과</legend>
-  <h2 id="headline"></h2>
-  <div class="gauge"><div class="blue" id="gaugeBlue"></div><div class="red"></div></div>
-  <h3>이 판을 움직인 요인</h3>
-  <div id="factors"></div>
-  <p class="warn" style="color:#555">
-    ※ 기여도는 <b>다른 항목을 통제한 뒤</b>의 값입니다. 예를 들어 킬 차이가 음수로 나오는 것은
-    "킬을 하면 진다"가 아니라, 킬로 번 돈이 이미 <b>골드 차이에 반영</b>돼 있어
-    골드를 본 뒤에는 킬이 더 보탤 정보가 없다는 뜻입니다.
-  </p>
-  <div id="warnings"></div>
-  <p class="meta" id="meta"></p>
-</fieldset>
+  <!-- ── 소환사 조회 ── -->
+  <section class="panel">
+    <h2>내 최근 경기 복기</h2>
+    {% if riot_ready %}
+    <p class="sub">Riot ID 를 넣으면 최근 솔로랭크 경기의 <b>10분 시점</b>을 다시 계산합니다. (끝난 경기만 가능)</p>
+    <div class="btns" style="margin:0">
+      <input type="text" id="riotId" placeholder="예: Hide on bush#KR1"
+             style="flex:1;min-width:220px;padding:9px 12px;background:#0B1A30;color:var(--ink);border:1px solid var(--line);font-family:inherit">
+      <button type="button" id="lookup">불러오기</button>
+    </div>
+    <div id="summoner" style="margin-top:12px"></div>
+    {% else %}
+    <p class="sub">서버에 <code>RIOT_API_KEY</code> 가 없어 이 기능은 꺼져 있습니다.
+    <code>.env</code> 에 키를 넣고 <code>./check_project.sh restart</code> 하면 켜집니다.</p>
+    {% endif %}
+  </section>
 
-<details id="reportBox">
-  <summary>왜 이 모델인가 · 모델 성적표 · 승리요인 순위 · 경기 유형</summary>
-  <fieldset>
-    <p style="margin:4px 0 8px;font-size:14px">
-      후보 8종을 같은 조건에서 비교한 결과입니다. <b>점수는 7개가 비슷하지만</b>,
-      연습과 검증을 나란히 보면 누가 외웠는지 드러납니다.
-      점수가 비슷할 때는 <b>이유를 설명할 수 있는 모델</b>이 맞다는 것이 저희 판단입니다.
-    </p>
-    <img src="/figures/06_model_choice.png" alt="왜 이 모델인가 — 후보 8종 비교"
-         style="width:100%;border:1px solid #ddd;border-radius:6px;background:#fff">
-    <div id="report" style="margin-top:12px">불러오는 중...</div>
-  </fieldset>
-</details>
+  <!-- ── 리포트 ── -->
+  <section class="panel">
+    <h2>모델 성적표</h2>
+    <p class="sub">발표에 쓰는 수치와 그 근거입니다.</p>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true"  data-tab="perf">성적표</button>
+      <button role="tab" aria-selected="false" data-tab="factors">승리요인</button>
+      <button role="tab" aria-selected="false" data-tab="errors">언제 틀리나</button>
+      <button role="tab" aria-selected="false" data-tab="types">경기 유형</button>
+    </div>
+    <div id="report"><p class="sub">불러오는 중…</p></div>
+  </section>
+
+  <section class="panel">
+    <h2>왜 이 모델인가</h2>
+    <p class="sub">후보 8종을 같은 조건(5조각 교차검증 · 시드 42)에서 비교한 결과입니다.</p>
+    <img src="/figures/06_model_choice.png" alt="모델 8종 비교 — 점수·과적합·설명 가능성"
+         style="width:100%;border:1px solid var(--gold-dim)">
+    <p class="note">점수는 상위 7개가 비슷합니다. 갈린 것은 <b>외웠는가</b>와 <b>이유를 설명할 수 있는가</b>였고,
+    두 조건을 다 통과한 것은 로지스틱 회귀뿐이었습니다.</p>
+  </section>
+
+</div>
+
+<footer>
+  4조 · LoL 10분 승패 예측 — 비영리 교육 프로젝트<br>
+  isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially
+  involved in producing or managing Riot Games properties. Riot Games and all associated properties are
+  trademarks or registered trademarks of Riot Games, Inc.<br>
+  챔피언 이미지 © Riot Games — 공식 Data Dragon CDN
+</footer>
 
 <script>
+"use strict";
+/* 서버 계약: 13개 피처 ID 와 순서는 lolwin/features.py 가 정본. 여기서 바꾸면 안 된다. */
 const FEATURES = ["FirstBlood","KillsDiff","GoldDiff","ExpDiff","WardsPlacedDiff",
   "WardsDestroyedDiff","AssistsDiff","DragonsDiff","HeraldsDiff",
   "TowersDestroyedDiff","AvgLevelDiff","TotalMinionsKilledDiff","TotalJungleMinionsKilledDiff"];
 
-// predict.py 의 데모 3종과 같은 값 (화면 채우기용일 뿐, 예측은 서버가 함)
+const KO = {FirstBlood:"첫 킬 (블루=1)",KillsDiff:"킬 차이",GoldDiff:"골드 차이",ExpDiff:"경험치 차이",
+  WardsPlacedDiff:"와드 설치 차이",WardsDestroyedDiff:"와드 제거 차이",AssistsDiff:"어시스트 차이",
+  DragonsDiff:"드래곤 차이",HeraldsDiff:"전령 차이",TowersDestroyedDiff:"타워 차이",
+  AvgLevelDiff:"평균 레벨 차이",TotalMinionsKilledDiff:"미니언(CS) 차이",
+  TotalJungleMinionsKilledDiff:"정글 몹 차이"};
+
 const DEMOS = {
   close: {FirstBlood:1,KillsDiff:0,GoldDiff:150,ExpDiff:-100,WardsPlacedDiff:2,WardsDestroyedDiff:0,AssistsDiff:1,DragonsDiff:0,HeraldsDiff:0,TowersDestroyedDiff:0,AvgLevelDiff:0,TotalMinionsKilledDiff:5,TotalJungleMinionsKilledDiff:-2},
   blue:  {FirstBlood:1,KillsDiff:5,GoldDiff:4500,ExpDiff:3000,WardsPlacedDiff:5,WardsDestroyedDiff:2,AssistsDiff:6,DragonsDiff:1,HeraldsDiff:1,TowersDestroyedDiff:1,AvgLevelDiff:1.2,TotalMinionsKilledDiff:30,TotalJungleMinionsKilledDiff:10},
   red:   {FirstBlood:0,KillsDiff:-3,GoldDiff:-2200,ExpDiff:-1500,WardsPlacedDiff:-1,WardsDestroyedDiff:-1,AssistsDiff:-4,DragonsDiff:-1,HeraldsDiff:0,TowersDestroyedDiff:0,AvgLevelDiff:-0.6,TotalMinionsKilledDiff:-15,TotalJungleMinionsKilledDiff:-5},
 };
 
-// ---- 1단계: 슬라이더를 움직이면 바로 예측 (연타 방지로 살짝 늦춰 호출) ----
-let slideTimer = null;
-function onSlide() {
-  const g = +document.getElementById("sGold").value;
-  const e = +document.getElementById("sExp").value;
-  const d = +document.getElementById("sDragon").value;
-  document.getElementById("vGold").textContent = (g > 0 ? "+" : "") + g.toLocaleString();
-  document.getElementById("vExp").textContent = (e > 0 ? "+" : "") + e.toLocaleString();
-  document.getElementById("vDragon").textContent = d > 0 ? "블루 +1" : (d < 0 ? "레드 −1" : "없음");
-  clearTimeout(slideTimer);
-  slideTimer = setTimeout(() => livePredict(g, e, d), 120);
+/* 골드차 구간별 실측 적중률 — reports/tables/day4_error_analysis.csv 의 값.
+   모델의 한계를 화면이 먼저 말해 주기 위해 쓴다 (model_card.md 와 같은 철학). */
+const CONF = [
+  {max:1000,  acc:.615, cls:"bad",  txt:"팽팽한 경기입니다 — 이 구간 적중률은 61.5%로, <b>자주 틀립니다.</b>"},
+  {max:2500,  acc:.741, cls:"warn", txt:"조금 벌어진 경기 — 이 구간 적중률 74.1%."},
+  {max:4200,  acc:.859, cls:"ok",   txt:"많이 벌어진 경기 — 이 구간 적중률 85.9%."},
+  {max:1/0,   acc:.947, cls:"ok",   txt:"사실상 결판난 경기 — 이 구간 적중률 94.7%."},
+];
+
+const $ = s => document.querySelector(s);
+let schema = null;          // /api/schema — 입력 허용 범위
+let seq = 0;                // 늦게 온 응답이 화면을 덮어쓰지 않게 하는 순번
+
+/* ── 배경 일러스트: Riot 공식 Data Dragon CDN ── */
+(async () => {
+  try{
+    const vs = await (await fetch("https://ddragon.leagueoflegends.com/api/versions.json")).json();
+    const v = vs[0];
+    $("#heroArt").style.backgroundImage =
+      `url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ashe_0.jpg)`;
+    const names = ["Ashe","Garen","LeeSin","Lux","Yasuo","Thresh"];
+    document.querySelectorAll("[data-champ]").forEach((el,i) => {
+      el.src = `https://ddragon.leagueoflegends.com/cdn/${v}/img/champion/${names[i%names.length]}.png`;
+    });
+  }catch(e){ /* CDN 이 막혀도 화면은 그대로 동작해야 한다 */ }
+})();
+
+/* ── 입력 폼 만들기 ── */
+function buildForm(){
+  $("#form").innerHTML = FEATURES.map(f => `
+    <div>
+      <label for="in-${f}">${KO[f]}</label>
+      <input type="number" id="in-${f}" data-f="${f}" value="0" step="${f==="AvgLevelDiff"?"0.1":"1"}">
+      <div class="hint" id="hint-${f}"></div>
+    </div>`).join("");
+  FEATURES.forEach(f => $(`#in-${f}`).addEventListener("input", () => checkRange(f)));
 }
 
-async function livePredict(g, e, d) {
-  const payload = {};
-  for (const f of FEATURES) payload[f] = 0;          // 나머지 지표는 0 (평균 상태)
-  payload.GoldDiff = g; payload.ExpDiff = e; payload.DragonsDiff = d;
-  const res = await fetch("/api/predict", {
-    method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(payload)});
-  const r = await res.json();
-  if (r.error) return;
-  const pct = (r.win_prob_blue * 100).toFixed(1);
-  document.getElementById("livePct").textContent = pct + "%";
-  const bar = document.getElementById("liveGauge");
-  bar.style.width = pct + "%"; bar.textContent = pct + "%";
-  // 접전 구간이면 신뢰도 경고 — 모델의 한계를 화면에서도 알린다
-  const close = Math.abs(g) < 1000;
-  document.getElementById("liveNote").innerHTML = close
-    ? '<span style="color:#b7791f">지금은 <b>팽팽한 구간</b>입니다. 이 구간에서 모델의 적중률은 62%로 떨어집니다 — 아직 승부가 안 갈렸다는 뜻입니다.</span>'
-    : (Math.abs(g) >= 4200
-        ? '<span style="color:#2f855a">이미 <b>크게 벌어진</b> 경기입니다. 이 구간의 적중률은 95%입니다.</span>'
-        : '한쪽이 앞서고 있습니다. 이 구간의 적중률은 74~86% 입니다.');
+/* 학습 범위 밖이면 입력칸을 붉게 — 서버 경고와 별개로 즉시 알려준다 */
+function checkRange(f){
+  if(!schema) return;
+  const spec = schema.features[f], el = $(`#in-${f}`), v = parseFloat(el.value);
+  if(!spec || isNaN(v)) return;
+  el.classList.toggle("out-of-range", v < spec.train_min || v > spec.train_max);
 }
 
-function fillDemo(name) {
-  for (const f of FEATURES) document.getElementById(f).value = DEMOS[name][f];
-  const d = DEMOS[name];
-  document.getElementById("sGold").value = Math.max(-6000, Math.min(6000, d.GoldDiff));
-  document.getElementById("sExp").value = Math.max(-5000, Math.min(5000, d.ExpDiff));
-  document.getElementById("sDragon").value = d.DragonsDiff;
-  onSlide();
-  doPredict();
+async function loadSchema(){
+  try{
+    schema = await (await fetch("/api/schema")).json();
+    FEATURES.forEach(f => {
+      const s = schema.features[f];
+      if(s) $(`#hint-${f}`).textContent = `학습 범위 ${s.train_min} ~ ${s.train_max}`;
+    });
+  }catch(e){ /* 스키마를 못 받아도 예측 자체는 가능하다 */ }
 }
 
-async function loadSummoner() {
-  const box = document.getElementById("summonerResult");
-  const riotId = document.getElementById("riotId").value.trim();
-  if (!riotId) { alert("게임명#태그 를 입력하세요"); return; }
-  box.innerHTML = "<p>불러오는 중... (경기당 2번씩 API를 호출해서 몇 초 걸립니다)</p>";
-  const res = await fetch("/api/summoner", {
-    method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({riot_id: riotId})});
-  const r = await res.json();
-  if (r.error) { box.innerHTML = `<p class="warn">⚠ ${r.error}</p>`; return; }
-  if (!r.games.length) { box.innerHTML = "<p>분석 가능한 최근 솔로랭크 경기가 없습니다.</p>"; return; }
+function readForm(){
+  const p = {};
+  FEATURES.forEach(f => p[f] = parseFloat($(`#in-${f}`).value) || 0);
+  return p;
+}
+function fillForm(vals){
+  FEATURES.forEach(f => { $(`#in-${f}`).value = vals[f] ?? 0; checkRange(f); });
+}
 
-  box.innerHTML = r.games.map((g, i) => {
-    const pct = (g.win_prob_blue * 100).toFixed(1);
-    const mark = g.model_correct
-      ? '<span style="color:#2f855a;font-weight:bold">적중</span>'
-      : '<span style="color:#c53030;font-weight:bold">빗나감</span>';
-    const factors = g.top_factors.map(tf =>
-      `${tf.contribution > 0 ? "▲" : "▼"} ${tf.name} ${tf.value >= 0 ? "+" : ""}${tf.value}`).join(" · ");
-    return `<div style="border:1px solid #ddd;border-radius:6px;padding:8px 12px;margin:8px 0;background:#fafafa">
-      <b>${g.champion}</b> (${g.my_side}팀 · ${g.duration_min}분 · 패치 ${g.game_version})<br>
-      10분 시점 블루 승률 <b>${pct}%</b> → ${g.pred_label} | 실제: <b>${g.actual}</b> (${mark})<br>
-      <small>${factors}</small><br>
-      <button onclick='applyGame(${JSON.stringify(g.features)})' style="margin-top:4px;font-size:12px">
-        이 경기를 입력 폼에 넣기</button>
+/* ── 예측 ── */
+async function predict(){
+  const my = ++seq;                      // 이 요청의 순번
+  const btn = $("#run");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>계산 중';
+  $("#runMsg").textContent = "";
+  try{
+    const res = await fetch("/api/predict", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(readForm())
+    });
+    const data = await res.json();
+    if(my !== seq) return;               // 더 새로운 요청이 있으면 이 응답은 버린다
+    if(!res.ok){ showError(data.error || "예측에 실패했습니다"); return; }
+    render(data);
+  }catch(e){
+    if(my === seq) showError("백엔드에 연결할 수 없습니다. 서버 상태를 확인하세요.");
+  }finally{
+    if(my === seq){ btn.disabled = false; btn.textContent = "예측하기"; }
+  }
+}
+
+function showError(msg){
+  $("#warnBox").innerHTML = `<div class="msg" style="margin-top:12px">${msg}</div>`;
+}
+
+function render(d){
+  const pb = d.win_prob_blue, pr = 1 - pb;
+  $("#pctBlue").textContent = (pb*100).toFixed(1) + "%";
+  $("#pctRed").textContent  = (pr*100).toFixed(1) + "%";
+  $("#gaugeB").style.width = (pb*100) + "%";
+  $("#gaugeR").style.width = (pr*100) + "%";
+  $("#verdict").innerHTML = `<b style="color:${d.pred? "var(--blue)":"var(--red)"}">${d.pred_label}</b>`;
+  $("#resultSub").innerHTML = `모델 ${d.meta.version} · ${d.meta.time_point_min}분 시점 · 홀드아웃 정확도 ${d.meta.holdout_accuracy}`;
+
+  /* 신뢰도 배지 — 골드차가 작을수록 못 맞힌다는 사실을 먼저 알린다 */
+  const gold = Math.abs(parseFloat($("#in-GoldDiff").value) || 0);
+  const c = CONF.find(x => gold < x.max);
+  $("#confidence").innerHTML =
+    `<span class="badge ${c.cls}">이 구간 실측 적중률 ${(c.acc*100).toFixed(1)}%</span>
+     <span class="sub" style="margin-left:8px">${c.txt}</span>`;
+
+  /* 승리요인 — 0을 중심으로 좌우 막대 */
+  const mx = Math.max(...d.top_factors.map(f => Math.abs(f.contribution)), .001);
+  $("#factors").innerHTML = d.top_factors.map(f => {
+    const w = Math.abs(f.contribution) / mx * 50;          // 반폭 최대 50%
+    const pos = f.contribution > 0;
+    return `<div class="factor">
+      <div>${f.name}</div>
+      <div class="fbar">
+        <span class="zero"></span>
+        <span style="${pos?`left:50%;width:${w}%;background:var(--blue)`:`right:50%;width:${w}%;background:var(--red)`}"></span>
+      </div>
+      <div class="fval" style="color:${pos?"var(--blue)":"var(--red)"}">${f.contribution>0?"+":""}${f.contribution.toFixed(3)}</div>
     </div>`;
   }).join("");
+
+  /* 킬이 음수로 잡힐 때만 페이즈 2 해설을 띄운다 */
+  const kill = d.top_factors.find(f => f.feature === "KillsDiff");
+  $("#killNote").innerHTML = (kill && kill.contribution < 0)
+    ? `<p class="note"><b>킬이 마이너스로 나온 이유</b> — 킬을 하면 돈을 받으므로 킬의 가치가 이미 골드 차이에 들어가 있습니다(상관 +0.92).
+       골드를 빼고 다시 학습하면 킬 계수는 <b style="color:var(--blue)">+0.508</b>로 뒤집힙니다. "킬을 하면 진다"는 뜻이 아닙니다.</p>` : "";
+
+  $("#warnBox").innerHTML = d.warnings.length
+    ? `<div class="msg" style="margin-top:12px">${d.warnings.join("<br>")}</div>` : "";
 }
 
-function applyGame(features) {
-  for (const f of FEATURES)
-    document.getElementById(f).value = Math.round(features[f] * 10) / 10;
-  doPredict();
-  document.getElementById("result").scrollIntoView({behavior: "smooth"});
+/* ── 리포트 탭 ── */
+let reportData = null, tab = "perf";
+async function loadReport(){
+  try{
+    const [rep, types] = await Promise.all([
+      fetch("/api/report").then(r => r.json()),
+      fetch("/api/match-types").then(r => r.json()),
+    ]);
+    reportData = {rep, types};
+    drawReport();
+  }catch(e){ $("#report").innerHTML = `<div class="msg">리포트를 불러오지 못했습니다.</div>`; }
+}
+const table = (head, rows) =>
+  `<div class="scroll"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
+   <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+
+function drawReport(){
+  if(!reportData) return;
+  const {rep, types} = reportData, p = rep.performance || {}, names = rep.feature_names || {};
+  let html = "";
+  if(tab === "perf"){
+    const r = p.repeat_seeds || {};
+    html = table(["지표","값","뜻"], [
+      ["정확도", (p.accuracy ?? "—"), "100판 중 74판 적중"],
+      ["F1", (p.f1 ?? "—"), "정밀도·재현율의 균형"],
+      ["AUC", (p.auc ?? "—"), "커트라인을 바꿔도 유지되는 성능"],
+      ["Brier", (p.brier ?? "—"), "확률 자체의 정확함 (낮을수록 좋음)"],
+      ["반복 평균", `${r.mean ?? "—"} ± ${r.std ?? "—"}`, `분할을 ${r.n ?? "—"}번 바꿔 재학습한 평균`],
+    ]) + `<p class="note">분할 하나의 점수만 말하면 운일 수 있어, <b>반복 평균과 함께</b> 제시합니다.</p>`;
+  }
+  if(tab === "factors"){
+    const wf = (rep.win_factors || []).slice(0,6);
+    html = table(["요인","표준화 계수","계수 순위","permutation","perm 순위"],
+      wf.map(w => [names[w.name] || w.name, w.coef_std, w.coef_rank, w.perm_importance, w.perm_rank]))
+      + `<p class="note">성격이 다른 두 방법(계수 · permutation)이 <b>같은 1-2-3위</b>를 냈습니다.
+         계수는 "다른 지표를 통제한 뒤 남은 몫"이라 음수가 나올 수 있습니다.</p>`;
+  }
+  if(tab === "errors"){
+    const bins = rep.errors?.bins || [];
+    html = table(["10분 골드차","경기 수","정확도","비중"],
+      bins.map(b => [b["구간"], b["경기수"], b["정확도"], b["비중_%"] + "%"]))
+      + `<p class="note">가장 약한 구간은 <b>${rep.errors?.weakest_bin ?? "—"}</b>입니다.
+         모델이 부족해서가 아니라 <b>그 시점 정보에 아직 승패의 단서가 없기 때문</b>입니다.</p>`;
+  }
+  if(tab === "types"){
+    const t = types.types || [];
+    html = table(["유형","경기 수","비중","10분 리드팀 최종 승률"],
+      t.map(x => [x.label, x.count, x.share_pct + "%", (x.lead_team_win_rate*100).toFixed(0) + "%"]))
+      + `<p class="note">${types.note ?? ""} 승패 정보를 지운 지표 5개로 묶었습니다 —
+         <b>일방적 경기만</b> 10분에 이미 결판나 있습니다.</p>`;
+  }
+  $("#report").innerHTML = html;
 }
 
-async function doPredict() {
-  const payload = {};
-  for (const f of FEATURES) payload[f] = Number(document.getElementById(f).value);
-  const res = await fetch("/api/predict", {
-    method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(payload)});
-  const r = await res.json();
-  if (r.error) { alert(r.error); return; }
-
-  const pct = (r.win_prob_blue * 100).toFixed(1);
-  document.getElementById("headline").textContent = `블루팀 승리 확률 ${pct}% — ${r.pred_label}`;
-  const bar = document.getElementById("gaugeBlue");
-  bar.style.width = pct + "%";
-  bar.textContent = pct + "%";
-
-  document.getElementById("factors").innerHTML = r.top_factors.map(tf =>
-    `<div class="factor ${tf.contribution > 0 ? "plus" : "minus"}">` +
-    `${tf.contribution > 0 ? "▲" : "▼"} ${tf.name} = ${tf.value} (${tf.direction}, 기여 ${tf.contribution >= 0 ? "+" : ""}${tf.contribution.toFixed(3)})</div>`).join("");
-
-  document.getElementById("warnings").innerHTML =
-    r.warnings.map(w => `<div class="warn">⚠ ${w}</div>`).join("");
-
-  document.getElementById("meta").textContent =
-    `${r.meta.model} v${r.meta.version} · ${r.meta.time_point_min}분 시점 모델 · 홀드아웃 정확도 ${r.meta.holdout_accuracy}` +
-    ` · 접전(골드차 1,000 미만)에서는 정확도가 낮으니 참고용으로만 보세요`;
-  document.getElementById("result").style.display = "block";
+/* ── 소환사 조회 ── */
+async function lookup(){
+  const id = $("#riotId").value.trim();
+  if(!id){ $("#summoner").innerHTML = `<div class="msg">Riot ID 를 입력하세요 (예: Hide on bush#KR1)</div>`; return; }
+  const btn = $("#lookup");
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>조회 중';
+  try{
+    const res = await fetch("/api/summoner", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({riot_id:id})
+    });
+    const d = await res.json();
+    if(!res.ok){ $("#summoner").innerHTML = `<div class="msg">${d.error}</div>`; return; }
+    const games = d.games || d.matches || [];
+    $("#summoner").innerHTML = games.length
+      ? table(["경기","10분 골드차","예측 확률","실제 결과","적중"],
+          games.map(g => [g.champion ?? g.match_id ?? "—", g.GoldDiff ?? g.gold_diff ?? "—",
+            ((g.win_prob_blue ?? g.win_prob ?? 0)*100).toFixed(1)+"%",
+            (g.win ?? g.actual) ? "승" : "패",
+            (g.correct ?? "") === true ? "○" : (g.correct === false ? "✕" : "—")]))
+      : `<p class="sub">최근 솔로랭크 경기를 찾지 못했습니다.</p>`;
+  }catch(e){ $("#summoner").innerHTML = `<div class="msg">조회에 실패했습니다.</div>`; }
+  finally{ btn.disabled = false; btn.textContent = "불러오기"; }
 }
 
-// ----- 서버 리포트 (/api/report, /api/match-types) — 숫자는 전부 서버 산출물, 화면은 표시만 -----
-function table(rows, cols) {
-  if (!rows || !rows.length) return "<p class=\"meta\">자료 없음</p>";
-  cols = cols || Object.keys(rows[0]);
-  const fmt = v => typeof v === "number" ? (Number.isInteger(v) ? v.toLocaleString() : v.toFixed(4).replace(/0+$/, "").replace(/\.$/, "")) : v;
-  return `<table style="border-collapse:collapse;font-size:13px;margin:6px 0"><tr>${cols.map(c => `<th style="border-bottom:1px solid #ccc;padding:3px 8px;text-align:left">${c}</th>`).join("")}</tr>` +
-    rows.map(r => `<tr>${cols.map(c => `<td style="padding:3px 8px">${fmt(r[c])}</td>`).join("")}</tr>`).join("") + "</table>";
-}
-async function loadReport() {
-  const box = document.getElementById("report");
-  try {
-    const [r, m] = await Promise.all([fetch("/api/report").then(x => x.json()), fetch("/api/match-types").then(x => x.json())]);
-    const perf = [];
-    for (const [k, v] of Object.entries(r.performance || {})) {
-      if (v && typeof v === "object") for (const [k2, v2] of Object.entries(v)) perf.push({항목: `${k}.${k2}`, 값: v2});
-      else perf.push({항목: k, 값: v});
-    }
-    const wf = (r.win_factors || []).slice(0, 5).map(w => ({요인: (r.feature_names || {})[w.name] || w.name, 표준화계수: w.coef_std, 계수순위: w.coef_rank, permutation: w.perm_importance, perm순위: w.perm_rank}));
-    const bins = (r.errors?.bins || []);
-    const types = (m.types || []).map(t => ({유형: t.label, 경기수: t.count, "비중%": t.share_pct, "리드팀 최종승률": t.lead_team_win_rate, 평균골드차: t.centroid["일방성_골드차"], 평균킬: t.centroid["난타전_총킬"], 평균와드: t.centroid["시야전_총와드"]}));
-    box.innerHTML =
-      `<h3>성적표</h3>${table(perf)}` +
-      `<h3>승리요인 상위 5 (두 방법 교차)</h3>${table(wf)}<p class="meta">계수는 골드를 통제한 뒤의 값 — 킬이 음수여도 "킬하면 진다"가 아닙니다.</p>` +
-      `<h3>언제 틀리나 — 골드차 구간별</h3>${table(bins)}<p class="meta">가장 약한 구간: ${r.errors?.weakest_bin || "-"}. 접전은 모델이 아니라 10분 정보의 한계입니다.</p>` +
-      `<h3>경기 유형 (k=${m.k})</h3>${table(types)}<p class="meta">${m.note || ""}</p>`;
-  } catch (e) { box.innerHTML = `<p class="warn">리포트를 불러오지 못했습니다: ${e}</p>`; }
-}
-document.addEventListener("DOMContentLoaded", () => { loadReport(); onSlide(); });
+/* ── 이벤트 연결 ── */
+buildForm();
+loadSchema().then(() => fillForm(DEMOS.close));
+loadReport();
+$("#run").addEventListener("click", predict);
+$("#reset").addEventListener("click", () => fillForm(Object.fromEntries(FEATURES.map(f => [f,0]))));
+document.querySelectorAll("[data-demo]").forEach(b =>
+  b.addEventListener("click", () => { fillForm(DEMOS[b.dataset.demo]); predict(); }));
+document.querySelectorAll("[data-tab]").forEach(b =>
+  b.addEventListener("click", () => {
+    tab = b.dataset.tab;
+    document.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-selected", x === b));
+    drawReport();
+  }));
+if($("#lookup")) $("#lookup").addEventListener("click", lookup);
 </script>
 </body>
 </html>
