@@ -148,7 +148,7 @@ Pipeline
 | `my_win_prob` | 0~1 실수 | 내가 레드면 `1 - win_prob_blue` — 화면이 뒤집지 않게 |
 | `my_won` | bool | 〃 |
 | `band` | 구간 이름 문자열 | 경계 정본은 `lolwin/features.py` — 화면에 숫자를 적지 않기 위해 |
-| `verdict` | `굴렸다` · `역전승` · `역전패` · `초반 붕괴` | 10분 유불리 x 실제 결과 |
+| `verdict` | `리드 굳힘` · `역전승` · `역전패` · `초반 붕괴` | 10분 유불리 x 실제 결과 |
 
 `summary` 에 `n` · `avg_win_prob_10min` · 판정별 건수 · `model_correct` 가 들어 있어
 첫 화면 요약 타일이 세지 않아도 된다.

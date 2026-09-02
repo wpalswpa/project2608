@@ -78,7 +78,7 @@ def test_gold_per_unit_matches_training_data():
 
 def test_verdict_advice_covers_all_four():
     """네 갈래 판정 전부 처방이 있어야 한다."""
-    for v in ("굴렸다", "역전승", "역전패", "초반 붕괴"):
+    for v in ("리드 굳힘", "역전승", "역전패", "초반 붕괴"):
         a = verdict_advice(v)
         assert a["headline"] and a["detail"], f"{v} 처방이 비어 있습니다"
 

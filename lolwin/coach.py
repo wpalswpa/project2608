@@ -59,7 +59,7 @@ VERDICT_ADVICE = {
     "역전승": ("불리해도 살아나는 힘이 있습니다.",
                "10분에 밀렸는데 이겼습니다. 후반 집중력은 강점이니, "
                "초반 손해만 줄이면 훨씬 편해집니다."),
-    "굴렸다": ("앞서서 시작해 그대로 이겼습니다.",
+    "리드 굳힘": ("앞서서 시작해 그대로 이겼습니다.",
                "가장 이상적인 형태입니다. 이 판의 초반을 표준으로 삼으세요."),
 }
 
@@ -76,7 +76,7 @@ def verdict_of(win_prob: float, won: bool) -> str:
     """
     ahead = win_prob >= 0.5
     if ahead and won:
-        return "굴렸다"
+        return "리드 굳힘"
     if ahead and not won:
         return "역전패"
     if not ahead and won:
