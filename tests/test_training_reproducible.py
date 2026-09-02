@@ -60,9 +60,15 @@ def test_retraining_reproduces_shipped_model():
         ("스케일러 평균", new.named_steps["scaler"].mean_, old.named_steps["scaler"].mean_),
         ("스케일러 표준편차", new.named_steps["scaler"].scale_, old.named_steps["scaler"].scale_),
     ]
-    bad = [name for name, a, b in pairs if not np.array_equal(a, b)]
+    # 비트 단위 일치를 요구하면 안 된다 — 같은 코드·같은 데이터라도 BLAS 구현과 CPU 가
+    # 다르면 마지막 자리가 달라진다(실측: 맥에서 계수 차이 3.6e-14). 그건 다른 모델이
+    # 아니라 같은 모델이다. 반대로 학습 경로가 진짜 바뀌면 차이가 이보다 훨씬 크므로,
+    # atol 을 아주 좁게 두면 검사의 힘은 유지된다.
+    TOL = 1e-9
+    bad = [f"{name} (최대 차이 {float(np.max(np.abs(np.asarray(x) - np.asarray(y)))):.2e})"
+           for name, x, y in pairs if not np.allclose(x, y, rtol=0, atol=TOL)]
     assert not bad, (f"재학습 결과가 서비스 중인 모델과 다릅니다: {', '.join(bad)}. "
-                     "학습 경로나 데이터가 바뀌었습니다.")
+                     f"학습 경로나 데이터가 바뀌었습니다 (허용 오차 {TOL:g}).")
 
 
 def test_schema_matches_shipped():

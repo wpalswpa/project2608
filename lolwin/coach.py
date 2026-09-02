@@ -64,6 +64,26 @@ VERDICT_ADVICE = {
 }
 
 
+def verdict_of(win_prob: float, won: bool) -> str:
+    """10분 시점 유불리 x 실제 결과 = 네 갈래 판정.
+
+    이 서비스의 존재 이유다. 다른 전적 사이트는 "무슨 일이 있었나"(KDA·CS)를 보여주지만,
+    10분 시점 모델이 있어야 **언제 갈렸나**를 말할 수 있다.
+    '역전패'는 10분에 유리했는데 진 경기라 복기 가치가 가장 높다.
+
+    win_prob 는 **판단 주체 기준** 확률이다 — 소환사 조회면 그 사람 팀 기준,
+    샘플 경기면 블루 기준. 판정 규칙 자체는 같으므로 여기 한 곳에만 둔다.
+    """
+    ahead = win_prob >= 0.5
+    if ahead and won:
+        return "굴렸다"
+    if ahead and not won:
+        return "역전패"
+    if not ahead and won:
+        return "역전승"
+    return "초반 붕괴"
+
+
 def _apply(features: dict, name: str, delta: float) -> dict:
     """지표 하나를 delta 만큼 올리고, 따라오는 골드도 함께 올린 상태를 만든다."""
     out = dict(features)

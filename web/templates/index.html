@@ -6,196 +6,278 @@
 <title>LOL.EX — 10분에 이미 끝났나</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-/* 팔레트는 LoL 클라이언트 색값 — 시청자가 이미 아는 색을 쓴다 */
+/* ── 테마 ────────────────────────────────────────────────────────
+   경기 20판을 세로로 훑는 화면이라 기본은 밝은 쪽이다. 어두운 배경에
+   발광 효과를 얹으면 잔상이 남아 스캔이 안 된다.
+   숫자는 전부 고정폭(Mono) — 자릿수가 세로로 맞아야 눈이 비교한다. */
 :root{
-  --navy:#0A1428; --panel:#10203B; --panel-2:#0B1A30; --card:#0D1B33;
-  --gold:#C8AA6E; --gold-dim:#785A28; --gold-lite:#F0E6D2;
-  --blue:#0AC8B9; --red:#E84057;
-  --ink:#F0E6D2; --muted:#A09B8C; --line:#1E3050;
+  --bg:#F4F5F7; --panel:#FFFFFF; --panel-2:#FAFBFC;
+  --line:#E3E6EA; --line-2:#D0D5DB;
+  --ink:#1C2127; --muted:#6B7684; --faint:#98A2B3;
+  --blue:#2F6FE4; --blue-bg:#EDF3FE;
+  --red:#D64A5A;  --red-bg:#FDEEF0;
+  --gold:#B8860B;
+  --shadow:0 1px 2px rgba(16,24,40,.05);
+}
+:root[data-theme="dark"]{
+  --bg:#0F1419; --panel:#171C22; --panel-2:#1C222A;
+  --line:#262E38; --line-2:#333D49;
+  --ink:#E4E7EB; --muted:#9AA5B1; --faint:#6B7684;
+  --blue:#4A8BF5; --blue-bg:#16243B;
+  --red:#E8697A;  --red-bg:#3A1D22;
+  --gold:#D4A843;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{background:var(--navy);color:var(--ink);font-family:"Noto Sans KR",system-ui,sans-serif;
-  font-size:15px;line-height:1.65;
-  background-image:radial-gradient(900px 480px at 15% -8%,rgba(10,200,185,.09),transparent 60%),
-    radial-gradient(900px 480px at 85% -8%,rgba(232,64,87,.08),transparent 60%);
-  background-attachment:fixed}
-.wrap{max-width:1080px;margin:0 auto;padding:0 18px 64px}
-.logo{font-family:"Cinzel",serif;font-weight:700}
-.logo .dot{color:var(--gold)}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,sans-serif;
+  font-size:14px; line-height:1.6;
+  transition:background .2s,color .2s;
+}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px 60px}
 
-/* ── 상단 고정 바: 로고 + 검색 (op.gg 처럼 검색이 곧 입구) ── */
-.top{position:sticky;top:0;z-index:20;background:rgba(10,20,40,.94);border-bottom:1px solid var(--line);
-  backdrop-filter:blur(6px)}
-.top-in{max-width:1080px;margin:0 auto;padding:10px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-.top .logo{font-size:20px;color:var(--gold-lite);white-space:nowrap}
-.searchbar{display:flex;flex:1;min-width:250px}
-.searchbar input{flex:1;padding:9px 13px;background:#081426;color:var(--ink);
-  border:1px solid var(--line);border-right:none;font-family:inherit;font-size:14px}
-.searchbar input:focus{outline:none;border-color:var(--gold)}
-.top .stat{font-size:12px;color:var(--muted);white-space:nowrap}
-.top .stat b{color:var(--gold-lite);font-variant-numeric:tabular-nums}
+/* ── 히어로: 챔피언 배경을 옅게 깔되 글자는 또렷하게 ── */
+header{position:relative;overflow:hidden;border-bottom:1px solid var(--line);background:var(--panel)}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 22%;
+  opacity:.14;filter:saturate(.85)}
+:root[data-theme="dark"] .hero-bg{opacity:.20}
+header::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 30%,var(--panel) 96%)}
+.hero-in{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:26px 20px 22px}
+.brand{font-weight:700;font-size:22px;letter-spacing:-.01em}
+.brand .dot{color:var(--gold)}
+.tag{color:var(--muted);font-size:13px;margin:2px 0 16px}
+.searchrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.searchrow input{flex:1;min-width:250px;max-width:440px;padding:10px 13px;
+  background:var(--panel);color:var(--ink);border:1px solid var(--line-2);border-radius:6px;
+  font-family:inherit;font-size:14px}
+.searchrow input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+button{font-family:inherit;font-weight:600;font-size:13.5px;cursor:pointer;
+  padding:10px 16px;border-radius:6px;border:1px solid var(--line-2);
+  background:var(--panel);color:var(--ink);transition:.12s}
+button:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
+.icon-btn{padding:9px 11px;line-height:1}
 
-button{font-family:inherit;font-weight:600;cursor:pointer;padding:9px 15px;
-  background:linear-gradient(180deg,#1E3A5F,#132844);color:var(--gold-lite);
-  border:1px solid var(--gold-dim);font-size:13.5px}
-button:hover:not(:disabled){border-color:var(--gold);color:#fff}
-button:disabled{opacity:.45;cursor:not-allowed}
-button.primary{background:linear-gradient(180deg,#C8AA6E,#785A28);color:#0A1428;border-color:var(--gold)}
+/* ── 감독 브리핑 ── */
+.brief{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--gold);
+  border-radius:8px;padding:15px 18px;margin-top:18px;box-shadow:var(--shadow)}
+.brief .who{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--gold);
+  text-transform:uppercase;margin-bottom:5px}
+.brief h2{font-size:17px;margin:0 0 5px;font-weight:700}
+.brief p{margin:0;color:var(--muted);font-size:13.5px}
 
-/* ── 필터 칩 ── */
-.filters{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 4px;align-items:center}
+/* ── 요약 타일 ── */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;
+  box-shadow:var(--shadow)}
+.tile .k{font-size:11.5px;color:var(--muted);margin-bottom:3px}
+.tile .v{font-size:22px;font-weight:700;line-height:1.15}
+.tile .s{font-size:11px;color:var(--faint);margin-top:2px}
+.tile.warn{border-color:var(--red);background:var(--red-bg)}
+.tile.warn .v{color:var(--red)}
+
+/* ── 필터 ── */
+.filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:18px 0 10px}
 .filters .lab{font-size:12px;color:var(--muted);margin-right:2px}
-.chip{padding:6px 13px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);
-  font-size:13px;cursor:pointer}
-.chip[aria-pressed=true]{border-color:var(--gold);color:var(--gold-lite);background:rgba(200,170,110,.1)}
+.chip{padding:6px 12px;border-radius:20px;border:1px solid var(--line-2);background:var(--panel);
+  color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit}
+.chip[aria-pressed="true"]{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);font-weight:600}
 
-/* ── 경기 카드 ── */
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:12px}
-.card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);padding:13px 15px}
-.card.hit{border-left-color:var(--blue)}
-.card.miss{border-left-color:var(--red)}
-.card-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:9px}
-.mid{font-size:11.5px;color:#6B7A8F;font-variant-numeric:tabular-nums}
-.verdict{font-size:12px;font-weight:700}
-.verdict.hit{color:var(--blue)} .verdict.miss{color:var(--red)}
-.band{font-size:11px;padding:2px 7px;border:1px solid var(--gold-dim);color:var(--gold);white-space:nowrap}
-.pbar{position:relative;height:22px;background:#081426;border:1px solid var(--line);overflow:hidden;margin-bottom:4px}
-.pbar .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(10,200,185,.3),var(--blue));transition:width .4s}
-.pbar .mid50{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(240,230,210,.35);z-index:2}
-.pbar .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;
-  padding:0 8px;font-size:11.5px;z-index:3;font-variant-numeric:tabular-nums}
-.row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:7px}
-.row b{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:500}
-.why{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
-.why span{color:var(--gold-lite)}
-.empty{padding:34px;text-align:center;color:var(--muted);border:1px dashed var(--line)}
-.more{display:flex;justify-content:center;margin-top:16px}
+/* ── 전적 행: 가로로 길게 ── */
+.rows{display:flex;flex-direction:column;gap:7px}
+.row{position:relative;display:grid;
+  grid-template-columns:6px 56px minmax(150px,200px) minmax(260px,1fr) 116px 84px 36px;
+  align-items:center;gap:14px;
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:12px 16px 12px 0;box-shadow:var(--shadow);overflow:hidden}
+/* grid 자식은 기본 min-width 가 auto 라 내용이 줄바꿈 대신 칸을 밀어낸다.
+   이 한 줄이 없으면 "샘플 경 기" 처럼 글자가 깨져 보인다. */
+.row > *{min-width:0}
+/* 챔피언 일러스트를 행 배경에 아주 옅게 — 장식이지 데이터가 아니다 */
+.row .rowart{position:absolute;inset:0;background-size:cover;background-position:center 25%;
+  opacity:.07;pointer-events:none}
+:root[data-theme="dark"] .row .rowart{opacity:.11}
+.row > *:not(.rowart){position:relative;z-index:1}
+.row .edge{position:absolute;left:0;top:0;bottom:0;width:6px;z-index:2}
+.row.win  .edge{background:var(--blue)}
+.row.lose .edge{background:var(--red)}
+.row .champ{width:56px;height:56px;border-radius:10px;object-fit:cover;
+  border:1px solid var(--line);background:var(--panel-2);margin-left:16px;display:block}
+.row .champ-ph{width:56px;height:56px;border-radius:10px;margin-left:16px;
+  border:1px solid var(--line);background:var(--panel-2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;overflow:hidden}
+.champ-ph b{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--ink);line-height:1}
+.champ-ph span{font-size:9px;color:var(--faint);letter-spacing:.04em}
+.who{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ── 접는 영역·폼·표 ── */
-details{border:1px solid var(--line);background:var(--panel-2);margin-top:14px}
-summary{cursor:pointer;padding:11px 15px;font-size:13.5px;color:var(--gold);list-style:none}
-summary::-webkit-details-marker{display:none}
-summary::before{content:"\25B8  ";color:var(--gold-dim)}
-details[open] summary::before{content:"\25BE  "}
-.din{padding:2px 15px 15px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
-label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
-input[type=number]{width:100%;padding:7px 9px;background:#081426;color:var(--ink);border:1px solid var(--line);
-  font-family:inherit;font-size:14px;font-variant-numeric:tabular-nums}
-input[type=number]:focus{outline:2px solid var(--gold);outline-offset:1px}
-input.oor{border-color:var(--red);background:rgba(232,64,87,.08)}
-.hint{font-size:11px;color:#6B7A8F;margin-top:2px}
+/* 10분 게이지 */
+.gauge-wrap{min-width:0}
+.gauge{position:relative;height:20px;border-radius:4px;overflow:hidden;
+  background:var(--red-bg);border:1px solid var(--line)}
+.gauge .fill{position:absolute;left:0;top:0;bottom:0;background:var(--blue);opacity:.85;
+  transition:width .35s}
+.gauge .mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-2);z-index:2}
+.gauge .lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;
+  padding:0 8px;font-size:11px;font-weight:600;z-index:3;pointer-events:none}
+.gauge{height:22px}
+.gauge .lbl .l{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.gauge .lbl .r{color:var(--red)}
+.gauge-sub{font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:12px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.verdict{font-size:12.5px;font-weight:700;padding:6px 8px;border-radius:6px;text-align:center;
+  border:1px solid transparent;white-space:nowrap}
+.v-굴렸다{color:var(--blue);background:var(--blue-bg);border-color:var(--blue)}
+.v-역전승{color:var(--blue);background:var(--blue-bg)}
+.v-역전패{color:var(--red);background:var(--red-bg);border-color:var(--red)}
+.v-초반\.붕괴{color:var(--red);background:var(--red-bg)}
+.result{font-size:13px;font-weight:600;text-align:center}
+.result small{display:block;font-weight:400;font-size:11px;color:var(--muted);margin-top:1px}
+.expand{background:none;border:none;color:var(--muted);font-size:15px;padding:6px}
+.expand:hover{color:var(--blue);border:none}
+
+/* 펼친 근거 + 코칭 */
+.detail{grid-column:1/-1;border-top:1px solid var(--line);margin-top:8px;padding:12px 14px 4px 19px;
+  display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.detail h4{margin:0 0 8px;font-size:12px;font-weight:700;color:var(--muted);
+  letter-spacing:.06em;text-transform:uppercase}
+.fac{display:grid;grid-template-columns:98px 1fr 58px;gap:8px;align-items:center;
+  font-size:12.5px;margin-bottom:5px}
+.fbar{position:relative;height:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:3px}
+.fbar .z{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-2)}
+.fbar i{position:absolute;top:0;bottom:0;border-radius:2px}
+.coach li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;
+  border-bottom:1px dashed var(--line);font-size:13px}
+.coach ul{list-style:none;margin:0;padding:0}
+.coach .gain{font-weight:700;color:var(--blue)}
+.coach .after{color:var(--muted);font-size:12px}
+.warnbox{grid-column:1/-1;margin-top:6px;padding:8px 11px;border-radius:6px;
+  background:var(--red-bg);color:var(--red);font-size:12.5px}
+
+.note{font-size:12.5px;color:var(--muted);border-left:2px solid var(--line-2);padding-left:11px;margin:10px 0 0}
+.msg{padding:10px 13px;border-radius:6px;background:var(--red-bg);color:var(--red);font-size:13px;margin-top:10px}
+.empty{padding:34px;text-align:center;color:var(--muted);border:1px dashed var(--line-2);border-radius:8px}
+.more{display:flex;justify-content:center;margin-top:14px}
+h3.sec{font-size:15px;margin:26px 0 4px;font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin:0 0 10px}
+details.box{border:1px solid var(--line);border-radius:8px;background:var(--panel);margin-top:10px}
+details.box summary{cursor:pointer;padding:11px 15px;font-size:13.5px;font-weight:600;list-style:none}
+details.box summary::-webkit-details-marker{display:none}
+details.box summary::before{content:"▸ ";color:var(--faint)}
+details.box[open] summary::before{content:"▾ "}
+.din{padding:0 15px 15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px}
+label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:2px}
+input[type=number]{width:100%;padding:7px 9px;background:var(--panel);color:var(--ink);
+  border:1px solid var(--line-2);border-radius:5px;font-family:"IBM Plex Mono",monospace;font-size:13px}
 table{border-collapse:collapse;width:100%;font-size:12.5px}
 th,td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:left}
 th{color:var(--muted);font-weight:500;font-size:11.5px}
-td{font-variant-numeric:tabular-nums}
 .scroll{overflow-x:auto}
-.msg{padding:9px 13px;border-left:3px solid var(--red);background:rgba(232,64,87,.08);font-size:13px;margin-top:9px}
-.note{font-size:12.5px;color:var(--muted);border-left:2px solid var(--gold-dim);padding-left:11px;margin-top:10px}
-h2{font-family:"Cinzel","Noto Sans KR",serif;font-size:17px;color:var(--gold);margin:26px 0 2px}
-.sub{color:var(--muted);font-size:13px;margin:0 0 10px}
-footer{color:#6B7A8F;font-size:11.5px;text-align:center;padding:24px 18px;border-top:1px solid var(--line);margin-top:30px}
-.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(240,230,210,.25);
-  border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+footer{color:var(--faint);font-size:11.5px;text-align:center;padding:26px 20px;
+  border-top:1px solid var(--line);margin-top:34px;position:relative;overflow:hidden}
+.foot-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;opacity:.06}
+:root[data-theme="dark"] .foot-bg{opacity:.10}
+footer > *{position:relative;z-index:2}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--line-2);
+  border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;
+  vertical-align:-2px;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
+@media (max-width:900px){
+  .row{grid-template-columns:5px 44px 1fr 88px 34px;row-gap:8px}
+  .row .gauge-wrap{grid-column:2/-1}
+  .row .result{display:none}
+  .detail{grid-template-columns:1fr}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 
-<div class="top">
-  <div class="top-in">
-    <span class="logo">LOL<span class="dot">.</span>EX</span>
-    <div class="searchbar">
-      <input type="text" id="q"
-        placeholder="{% if riot_ready %}소환사 검색 (예: Hide on bush#KR1) 또는 경기 번호{% else %}경기 번호로 찾기 (예: 7758){% endif %}">
-      <button id="find">검색</button>
+<header>
+  <div class="hero-bg" id="heroBg" aria-hidden="true"></div>
+  <div class="hero-in">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div class="brand">LOL<span class="dot">.</span>EX</div>
+        <div class="tag">전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>무엇을 했어야 했는지</b> 알려줍니다.</div>
+      </div>
+      <button class="icon-btn" id="themeBtn" title="밝게/어둡게" aria-label="테마 전환">🌙</button>
     </div>
-    <span class="stat" id="topStat">불러오는 중…</span>
+    <div class="searchrow">
+      <input type="text" id="q" value="Hide on bush#KR1"
+             placeholder="소환사명#태그 (예: Hide on bush#KR1) 또는 경기 번호">
+      <button class="primary" id="find">분석</button>
+      <button id="sample">샘플 경기 보기</button>
+    </div>
   </div>
-</div>
+</header>
 
 <div class="wrap">
 
-  <!-- ── 소환사 복기 결과 (검색해야 나타남) ── -->
-  <div id="summonerSec" hidden>
-    <h2>내 최근 경기 — 10분 시점 복기</h2>
-    <p class="sub" id="summonerSub"></p>
-    <div class="cards" id="summonerCards"></div>
-  </div>
+  <div id="brief"></div>
+  <div class="tiles" id="tiles"></div>
 
-  <!-- ── 실제 경기 복기 = 메인 ── -->
-  <h2>10분에 이미 끝났나</h2>
-  <p class="sub">실제 경기 <b id="totalN">—</b>판을 <b>10분 시점 기록만 보고</b> 다시 판정했습니다.
-  학습에 한 번도 쓰지 않은 경기이고, <b>틀린 판도 그대로</b> 보여줍니다.</p>
-
-  <div class="filters" id="bandChips"><span class="lab">골드 격차</span></div>
-  <div class="filters" style="margin-top:2px">
-    <span class="lab">판정</span>
-    <button class="chip" data-correct=""  aria-pressed="true">전체</button>
-    <button class="chip" data-correct="1" aria-pressed="false">맞힌 경기</button>
-    <button class="chip" data-correct="0" aria-pressed="false">빗나간 경기</button>
-    <button id="shuffle" style="margin-left:auto">다른 경기 보기</button>
-  </div>
-
-  <p class="sub" id="filterStat" style="margin-top:10px"></p>
-  <div class="cards" id="cards"></div>
+  <div class="filters" id="filters"></div>
+  <p class="sub" id="stat" style="margin:0 0 8px"></p>
+  <div class="rows" id="rows"></div>
   <div class="more"><button id="more" style="display:none">더 보기</button></div>
 
-  <!-- ── 직접 입력 (고급) ── -->
-  <h2>직접 넣어보기</h2>
-  <p class="sub">가상의 경기 상황을 만들어 모델 반응을 볼 수 있습니다.</p>
-  <details>
-    <summary>지표 13개 직접 입력</summary>
+  <h3 class="sec">이 판정을 믿어도 되나</h3>
+  <p class="sub">모델이 어디서 강하고 어디서 약한지 그대로 공개합니다. 숫자는 전부 서버 실측입니다.</p>
+  <details class="box" open>
+    <summary>구간별 실측 적중률 · 승리요인 · 경기 유형</summary>
+    <div class="din"><div id="report"><p class="sub">불러오는 중…</p></div></div>
+  </details>
+  <details class="box">
+    <summary>왜 이 모델인가 — 후보 8종 비교</summary>
     <div class="din">
-      <p class="sub">전부 <b>블루 - 레드</b> 차이값. 양수면 블루가 앞선 것입니다.</p>
-      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px">
-        <button data-demo="close">팽팽한 접전</button>
-        <button data-demo="blue">블루 크게 우세</button>
-        <button data-demo="red">레드 우세</button>
-      </div>
+      <img src="/figures/06_model_choice.png" alt="모델 8종 비교"
+           style="width:100%;border:1px solid var(--line);border-radius:6px">
+      <p class="note">점수는 상위 7개가 비슷했습니다. 갈린 것은 <b>외웠는가</b>와
+      <b>이유를 설명할 수 있는가</b>였고, 둘 다 통과한 것은 로지스틱 회귀뿐입니다.
+      <b>가중치를 읽을 수 있어야 "무엇을 했어야 했나"가 나옵니다.</b></p>
+    </div>
+  </details>
+  <details class="box">
+    <summary>가상의 경기 상황 직접 넣어보기</summary>
+    <div class="din">
+      <p class="sub">전부 <b>블루 − 레드</b> 차이값. 양수면 블루가 앞선 것입니다.</p>
       <div class="grid" id="form"></div>
       <div style="display:flex;gap:7px;margin-top:11px">
-        <button class="primary" id="run">이 상황 판정</button>
+        <button class="primary" id="run">판정 + 코칭</button>
         <button id="reset">모두 0으로</button>
       </div>
       <div id="manual"></div>
     </div>
   </details>
 
-  <!-- ── 신뢰도·근거 ── -->
-  <h2>이 판정을 믿어도 되나</h2>
-  <p class="sub">모델이 어디서 강하고 어디서 약한지 그대로 공개합니다. 숫자는 전부 서버 실측입니다.</p>
-  <details open>
-    <summary>구간별 실측 적중률 · 승리요인 · 경기 유형</summary>
-    <div class="din"><div id="report"><p class="sub">불러오는 중…</p></div></div>
-  </details>
-  <details>
-    <summary>왜 이 모델인가 — 후보 8종 비교</summary>
-    <div class="din">
-      <img src="/figures/06_model_choice.png" alt="모델 8종 비교 — 점수·과적합·설명 가능성"
-           style="width:100%;border:1px solid var(--gold-dim)">
-      <p class="note">점수는 상위 7개가 비슷했습니다. 갈린 것은 <b>외웠는가</b>와
-      <b>이유를 설명할 수 있는가</b>였고, 둘 다 통과한 것은 로지스틱 회귀뿐이었습니다.</p>
-    </div>
-  </details>
-
 </div>
 
 <footer>
-  <span class="logo">LOL<span class="dot">.</span>EX</span> · 4조 — 10분 시점 승패 판정과 그 근거 · 비영리 교육 프로젝트<br>
+  <div class="foot-bg" id="footBg" aria-hidden="true"></div>
+  <b>LOL<span style="color:var(--gold)">.</span>EX</b> · 4조 — 10분 시점 승패 판정과 그 근거 · 비영리 교육 프로젝트<br>
   isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially
   involved in producing or managing Riot Games properties. Riot Games and all associated properties are
   trademarks or registered trademarks of Riot Games, Inc.<br>
-  <span>{% if domain %}https://{{ domain }} · {% endif %}백엔드 {% if backend_ok is defined and not backend_ok %}연결 안 됨{% else %}연결됨{% endif %} · 예측은 서버 한 곳(lolwin)에서만 계산</span>
+  챔피언 이미지 © Riot Games — 공식 Data Dragon CDN
+  <span id="svc">{% if domain %}· https://{{ domain }}{% endif %}</span>
 </footer>
 
 <script>
 "use strict";
-/* 13개 피처 ID·순서는 lolwin/features.py 가 정본. 여기서 바꾸면 서버와 어긋난다. */
+/* 13개 피처 ID·순서는 lolwin/features.py 가 정본 */
 const FEATURES = ["FirstBlood","KillsDiff","GoldDiff","ExpDiff","WardsPlacedDiff",
   "WardsDestroyedDiff","AssistsDiff","DragonsDiff","HeraldsDiff",
   "TowersDestroyedDiff","AvgLevelDiff","TotalMinionsKilledDiff","TotalJungleMinionsKilledDiff"];
@@ -204,256 +286,352 @@ const KO = {FirstBlood:"첫 킬 (블루=1)",KillsDiff:"킬 차이",GoldDiff:"골
   DragonsDiff:"드래곤 차이",HeraldsDiff:"전령 차이",TowersDestroyedDiff:"타워 차이",
   AvgLevelDiff:"평균 레벨 차이",TotalMinionsKilledDiff:"미니언(CS) 차이",
   TotalJungleMinionsKilledDiff:"정글 몹 차이"};
-const DEMOS = {
-  close:{FirstBlood:1,KillsDiff:0,GoldDiff:150,ExpDiff:-100,WardsPlacedDiff:2,WardsDestroyedDiff:0,AssistsDiff:1,DragonsDiff:0,HeraldsDiff:0,TowersDestroyedDiff:0,AvgLevelDiff:0,TotalMinionsKilledDiff:5,TotalJungleMinionsKilledDiff:-2},
-  blue:{FirstBlood:1,KillsDiff:5,GoldDiff:4500,ExpDiff:3000,WardsPlacedDiff:5,WardsDestroyedDiff:2,AssistsDiff:6,DragonsDiff:1,HeraldsDiff:1,TowersDestroyedDiff:1,AvgLevelDiff:1.2,TotalMinionsKilledDiff:30,TotalJungleMinionsKilledDiff:10},
-  red:{FirstBlood:0,KillsDiff:-3,GoldDiff:-2200,ExpDiff:-1500,WardsPlacedDiff:-1,WardsDestroyedDiff:-1,AssistsDiff:-4,DragonsDiff:-1,HeraldsDiff:0,TowersDestroyedDiff:0,AvgLevelDiff:-0.6,TotalMinionsKilledDiff:-15,TotalJungleMinionsKilledDiff:-5},
-};
 const RIOT_READY = {% if riot_ready %}true{% else %}false{% endif %};
+const DDRAGON = "https://ddragon.leagueoflegends.com/cdn";
+const DDV = "14.24.1";                       /* 초상화 버전 — 없으면 이미지가 안 뜬다 */
+/* 행 배경 장식용. 시험셋 경기에는 챔피언 정보가 없으므로 "이 판의 챔피언" 인 척하지 않는다 —
+   투명도 7% 로 깔리는 배경일 뿐이다. 소환사 조회에서는 실제 챔피언 초상이 왼쪽에 뜬다. */
+const ART = ["Ashe","Garen","Lux","Yasuo","Ahri","Jinx","Leona","Ezreal","Thresh","Riven"];
+/* 같은 경기는 늘 같은 배경이 나오게 — 새로고침마다 바뀌면 산만하다 */
+const hashOf = str => { let h = 0; for(let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return h; };
+
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pct = v => (v * 100).toFixed(1) + "%";
 
 let schema = null, seq = 0;
-let band = "", correct = "", offset = 0, shuffleSeed = 1, loading = false;
+let mode = "sample", band = "", correct = "", offset = 0, shuffleSeed = 1, loading = false;
+let confBins = [];
 
-/* ── 경기 카드 한 장 (시험셋 복기용) ── */
-function cardHTML(m){
-  const pct = (m.win_prob_blue*100).toFixed(1);
-  const why = m.top_factors.map(f =>
-    `<span>${esc(f.name)}</span> ${f.contribution>0?"+":""}${f.contribution.toFixed(2)}`).join(" · ");
-  return `<div class="card ${m.correct?"hit":"miss"}">
-    <div class="card-top">
-      <span class="mid">경기 #${m.id}</span>
-      <span class="band">${esc(m.band)}</span>
-      <span class="verdict ${m.correct?"hit":"miss"}">${m.correct?"적중":"빗나감"}</span>
-    </div>
-    <div class="pbar"><div class="fill" style="width:${pct}%"></div><div class="mid50"></div>
-      <div class="txt"><span style="color:var(--blue)">블루 ${pct}%</span>
-        <span style="color:var(--red)">레드 ${(100-pct).toFixed(1)}%</span></div></div>
-    <div class="row"><span>10분 골드차</span><b>${m.gold_diff>0?"+":""}${m.gold_diff.toLocaleString()}</b></div>
-    <div class="row"><span>킬 / 드래곤 / 경험치</span><b>${m.kills_diff>0?"+":""}${m.kills_diff} / ${m.dragons_diff>0?"+":""}${m.dragons_diff} / ${m.exp_diff>0?"+":""}${m.exp_diff.toLocaleString()}</b></div>
-    <div class="row"><span>실제 결과</span>
-      <b style="color:${m.actual?"var(--blue)":"var(--red)"}">${m.actual?"블루 승":"레드 승"}</b></div>
-    <div class="why">근거 · ${why}</div>
-  </div>`;
+/* ── 테마 — 저장해 두고 다음에도 유지 ── */
+(function initTheme(){
+  let t = null;
+  try { t = localStorage.getItem("lolex-theme"); } catch(e) {}
+  if(!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  applyTheme(t);
+})();
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  const b = $("#themeBtn");
+  if(b) b.textContent = t === "dark" ? "☀️" : "🌙";
+  try { localStorage.setItem("lolex-theme", t); } catch(e) {}
 }
 
-/* ── 시험셋 목록 ── */
-async function loadMatches(append){
+/* ── 배경: Riot 공식 Data Dragon. 막혀도 화면은 그대로 동작해야 한다 ── */
+(function bg(){
+  try{
+    const splash = n => `${DDRAGON}/img/champion/splash/${n}_0.jpg`;
+    $("#heroBg").style.backgroundImage = `url(${splash("Ashe")})`;
+    $("#footBg").style.backgroundImage = `url(${splash("Baron")})`;   /* 없으면 조용히 비어 있음 */
+  }catch(e){}
+})();
+
+/* ── 전적 행 ─────────────────────────────────────────────────
+   소환사 경기와 샘플 경기를 같은 모양으로 그린다. 서버가 두 경로 모두
+   verdict·band·features 를 주므로 화면은 계산하지 않는다. */
+function normalize(x, isSummoner){
+  return isSummoner ? {
+    key: x.match_id, champion: x.champion, side: x.my_side,
+    win_prob: x.my_win_prob, won: x.my_won, verdict: x.verdict, band: x.band,
+    gold: x.features.GoldDiff, kills: x.features.KillsDiff, dragons: x.features.DragonsDiff,
+    factors: x.top_factors, features: x.features, warnings: x.warnings || [],
+    sub: `${x.duration_min}분 · ${x.game_version || ""}`,
+  } : {
+    key: "m" + x.id, champion: null, side: "블루",
+    win_prob: x.win_prob_blue, won: !!x.actual, verdict: x.verdict, band: x.band,
+    gold: x.gold_diff, kills: x.kills_diff, dragons: x.dragons_diff,
+    factors: x.top_factors, features: x.features, warnings: [],
+    sub: "시험셋 · 학습에 안 쓴 경기",
+  };
+}
+
+function rowHTML(g){
+  const p = g.win_prob, w = (p * 100).toFixed(1);
+  const num = g.key.replace(/^m/, "");
+  const art = g.champion || ART[Math.abs(hashOf(g.key)) % ART.length];
+  const portrait = g.champion
+    ? `<img class="champ" src="${DDRAGON}/${DDV}/img/champion/${esc(g.champion)}.png"
+            alt="${esc(g.champion)}" loading="lazy">`
+    : `<div class="champ-ph"><b>${esc(num)}</b><span>경기</span></div>`;
+  return `<article class="row ${g.won ? "win" : "lose"}" data-key="${esc(g.key)}">
+    <span class="rowart" style="background-image:url(${DDRAGON}/img/champion/splash/${art}_0.jpg)"></span>
+    <span class="edge"></span>
+    ${portrait}
+    <div class="who">${esc(g.champion || "경기 #" + num)}
+      <small>${esc(g.side)}팀 · ${esc(g.sub)}</small></div>
+    <div class="gauge-wrap">
+      <div class="gauge">
+        <div class="fill" style="width:${w}%"></div><div class="mid"></div>
+        <div class="lbl"><span class="l num">10분 ${w}%</span><span class="r num">${(100 - w).toFixed(1)}%</span></div>
+      </div>
+      <div class="gauge-sub">
+        <span>골드 <b class="num">${g.gold > 0 ? "+" : ""}${Math.round(g.gold).toLocaleString()}</b></span>
+        <span>킬 <b class="num">${g.kills > 0 ? "+" : ""}${g.kills}</b></span>
+        <span>드래곤 <b class="num">${g.dragons > 0 ? "+" : ""}${g.dragons}</b></span>
+        <span style="color:var(--faint)">${esc(g.band || "")}</span>
+      </div>
+    </div>
+    <div class="verdict v-${esc((g.verdict || "").replace(/\s/g, "."))}">${esc(g.verdict || "")}</div>
+    <div class="result" style="color:${g.won ? "var(--blue)" : "var(--red)"}">${g.won ? "승리" : "패배"}
+      <small>실제 결과</small></div>
+    <button class="expand" aria-expanded="false" title="왜 이렇게 판정했나">＋</button>
+  </article>`;
+}
+
+/* 펼치면 근거 + 감독 코칭을 그 자리에서 불러온다 (미리 20판 부르지 않는다) */
+async function toggleDetail(rowEl, g){
+  const open = rowEl.querySelector(".detail");
+  const btn = rowEl.querySelector(".expand");
+  if(open){ open.remove(); btn.textContent = "＋"; btn.setAttribute("aria-expanded", "false"); return; }
+  btn.textContent = "−"; btn.setAttribute("aria-expanded", "true");
+  rowEl.insertAdjacentHTML("beforeend",
+    `<div class="detail"><p class="sub"><span class="spin"></span>코칭을 계산하는 중…</p></div>`);
+
+  const mx = Math.max(...g.factors.map(f => Math.abs(f.contribution)), .001);
+  const facs = g.factors.map(f => {
+    const wd = Math.abs(f.contribution) / mx * 50, pos = f.contribution > 0;
+    return `<div class="fac"><span>${esc(f.name)}</span>
+      <div class="fbar"><span class="z"></span>
+        <i style="${pos ? `left:50%;width:${wd}%;background:var(--blue)` : `right:50%;width:${wd}%;background:var(--red)`}"></i>
+      </div>
+      <span class="num" style="text-align:right;color:${pos ? "var(--blue)" : "var(--red)"}">${f.contribution > 0 ? "+" : ""}${f.contribution.toFixed(2)}</span>
+    </div>`;
+  }).join("");
+
+  let coachHTML = `<p class="sub">코칭을 불러오지 못했습니다.</p>`, adviceHTML = "";
+  try{
+    const body = Object.assign({}, g.features, {verdict: g.verdict});
+    const c = await (await fetch("/api/coach", {method:"POST",
+      headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)})).json();
+    coachHTML = `<ul>` + c.actions.map(a =>
+      `<li><span>${esc(a.action)}</span>
+        <span><b class="gain num">+${(a.gain*100).toFixed(1)}%p</b>
+        <span class="after num">→ ${pct(a.win_prob_after)}</span></span></li>`).join("") + `</ul>`;
+    if(c.verdict_advice && c.verdict_advice.headline)
+      adviceHTML = `<p class="note" style="margin-top:9px"><b>${esc(c.verdict_advice.headline)}</b>
+        ${esc(c.verdict_advice.detail).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")}</p>`;
+  }catch(e){}
+
+  const kill = g.factors.find(f => f.feature === "KillsDiff" || f.name === "킬 차이");
+  const killNote = (kill && kill.contribution < 0)
+    ? `<p class="note" style="margin-top:8px"><b>킬이 마이너스인 이유</b> — 킬을 하면 돈을 받으므로
+       킬의 가치가 이미 골드에 들어가 있습니다(상관 +0.92). "킬하면 진다"는 뜻이 아닙니다.</p>` : "";
+
+  rowEl.querySelector(".detail").innerHTML =
+    `<div><h4>이 판을 가른 것</h4>${facs}${killNote}</div>
+     <div class="coach"><h4>이렇게 했다면 — 10분 승률 ${pct(g.win_prob)} 기준</h4>${coachHTML}${adviceHTML}</div>` +
+    (g.warnings.length ? `<div class="warnbox">${g.warnings.map(esc).join("<br>")}</div>` : "");
+}
+
+/* ── 감독 브리핑 + 요약 타일 ── */
+function renderSummary(sum, label){
+  if(!sum){ $("#brief").innerHTML = ""; $("#tiles").innerHTML = ""; return; }
+  const worst = sum["역전패"] >= sum["초반 붕괴"] ? "역전패" : "초반 붕괴";
+  const msg = worst === "역전패"
+    ? ["이긴 판을 닫지 못하고 있습니다.",
+       `10분에 앞서고도 진 경기가 <b>${sum["역전패"]}판</b>입니다. 라인전이 문제가 아니라 <b>리드를 굴리는 법</b>이 문제입니다.`]
+    : ["라인전에서 이미 지고 시작합니다.",
+       `10분에 밀린 채 그대로 진 경기가 <b>${sum["초반 붕괴"]}판</b>입니다. 후반 운영보다 <b>10분까지 버티는 것</b>이 먼저입니다.`];
+  $("#brief").innerHTML = `<div class="brief"><div class="who">COACH · ${esc(label)}</div>
+    <h2>${msg[0]}</h2><p>${msg[1]}</p></div>`;
+  const t = (k, v, s, warn) =>
+    `<div class="tile${warn ? " warn" : ""}"><div class="k">${k}</div>
+     <div class="v num">${v}</div><div class="s">${s}</div></div>`;
+  $("#tiles").innerHTML =
+    t("10분 평균 승률", sum.avg_win_prob_10min != null ? pct(sum.avg_win_prob_10min) : "—", `${sum.n}판 기준`) +
+    t("역전패", sum["역전패"], "앞서고도 짐 — 복기 1순위", sum["역전패"] > 0) +
+    t("초반 붕괴", sum["초반 붕괴"], "밀린 채 그대로 짐") +
+    t("역전승", sum["역전승"], "불리했는데 이김") +
+    t("굴렸다", sum["굴렸다"], "앞서서 그대로 이김");
+}
+
+/* ── 샘플 경기 ── */
+async function loadSample(append){
   if(loading) return;
-  loading = true;
+  loading = true; mode = "sample";
   const my = ++seq;
   $("#more").disabled = true;
-  if(!append){ offset = 0; $("#cards").innerHTML = `<p class="sub"><span class="spin"></span>불러오는 중…</p>`; }
+  if(!append){ offset = 0; $("#rows").innerHTML = `<p class="sub"><span class="spin"></span>불러오는 중…</p>`; }
   try{
-    const qs = new URLSearchParams({limit:"12", offset:String(offset), seed:String(shuffleSeed)});
+    const qs = new URLSearchParams({limit:"10", offset:String(offset), seed:String(shuffleSeed)});
     if(band) qs.set("band", band);
     if(correct !== "") qs.set("correct", correct);
     const d = await (await fetch("/api/matches?" + qs)).json();
     if(my !== seq) return;
-    const html = d.matches.map(cardHTML).join("");
-    if(append) $("#cards").insertAdjacentHTML("beforeend", html);
-    else $("#cards").innerHTML = html || `<div class="empty">조건에 맞는 경기가 없습니다.</div>`;
+    const rows = d.matches.map(m => normalize(m, false));
+    const html = rows.map(rowHTML).join("");
+    if(append) $("#rows").insertAdjacentHTML("beforeend", html);
+    else { $("#rows").innerHTML = html || `<div class="empty">조건에 맞는 경기가 없습니다.</div>`;
+           renderSummary(d.summary, `샘플 ${d.total.toLocaleString()}판 · 블루 팀 기준`); }
+    rows.forEach(g => bind(g));
     offset += d.returned;
-    $("#filterStat").innerHTML = d.total
+    $("#stat").innerHTML = d.total
       ? `이 조건 <b>${d.total.toLocaleString()}판</b> 중 <b>${offset}판</b> 표시` +
-        (d.accuracy != null ? ` · 이 조건 실측 적중률 <b>${(d.accuracy*100).toFixed(1)}%</b>` : "")
-      : "";
+        (d.accuracy != null ? ` · 실측 적중률 <b class="num">${pct(d.accuracy)}</b>` : "") : "";
     $("#more").style.display = offset < d.total ? "" : "none";
-  }catch(e){
-    if(my === seq) $("#cards").innerHTML = `<div class="msg">경기를 불러오지 못했습니다.</div>`;
-  }finally{ loading = false; $("#more").disabled = false; }
+  }catch(e){ if(my === seq) $("#rows").innerHTML = `<div class="msg">경기를 불러오지 못했습니다.</div>`; }
+  finally{ loading = false; $("#more").disabled = false; }
 }
 
-/* ── 검색: 소환사(#포함) / 경기 번호(숫자) ── */
-async function doSearch(){
-  const q = $("#q").value.trim();
-  if(!q) return;
-  if(q.includes("#")) return searchSummoner(q);
-  if(/^\d+$/.test(q)) return searchById(q);
-  $("#summonerSec").hidden = false;
-  $("#summonerCards").innerHTML = "";
-  $("#summonerSub").innerHTML = RIOT_READY
-    ? `<span class="msg" style="display:block">소환사는 <b>이름#태그</b>(예: Hide on bush#KR1), 경기는 <b>숫자</b>로 검색합니다.</span>`
-    : `<span class="msg" style="display:block">지금은 경기 번호(숫자) 검색만 됩니다 — 서버에 Riot API 키가 없습니다.</span>`;
-}
-
-async function searchById(id){
-  $("#summonerSec").hidden = false;
-  $("#summonerSub").textContent = "";
-  $("#summonerCards").innerHTML = `<p class="sub"><span class="spin"></span>경기 #${esc(id)} 찾는 중…</p>`;
-  try{
-    const d = await (await fetch("/api/matches?id=" + encodeURIComponent(id))).json();
-    $("#summonerCards").innerHTML = d.matches && d.matches.length
-      ? d.matches.map(cardHTML).join("")
-      : `<div class="empty">경기 #${esc(id)} 는 시험셋에 없습니다.</div>`;
-    if(d.matches && d.matches.length) $("#summonerSub").innerHTML = `시험셋에서 찾은 경기 <b>#${esc(id)}</b>`;
-  }catch(e){ $("#summonerCards").innerHTML = `<div class="msg">조회에 실패했습니다.</div>`; }
-}
-
-/* ── 소환사 복기 (Riot API) ── */
-function summonerCardHTML(g){
-  const pct = (g.win_prob_blue*100).toFixed(1);
-  const blueWon = g.actual === "블루 승리";
-  const why = (g.top_factors||[]).map(f =>
-    `<span>${esc(f.name)}</span> ${f.contribution>0?"+":""}${f.contribution.toFixed(2)}`).join(" · ");
-  return `<div class="card ${g.model_correct?"hit":"miss"}">
-    <div class="card-top">
-      <span class="mid">${esc(g.champion)} · ${esc(g.my_side)}팀 · ${g.duration_min}분 경기</span>
-      <span class="verdict ${g.model_correct?"hit":"miss"}">${g.model_correct?"적중":"빗나감"}</span>
-    </div>
-    <div class="pbar"><div class="fill" style="width:${pct}%"></div><div class="mid50"></div>
-      <div class="txt"><span style="color:var(--blue)">블루 ${pct}%</span>
-        <span style="color:var(--red)">레드 ${(100-pct).toFixed(1)}%</span></div></div>
-    <div class="row"><span>10분 골드차</span><b>${g.features.GoldDiff>0?"+":""}${Math.round(g.features.GoldDiff).toLocaleString()}</b></div>
-    <div class="row"><span>실제 결과</span>
-      <b style="color:${blueWon?"var(--blue)":"var(--red)"}">${esc(g.actual)}</b></div>
-    <div class="why">근거 · ${why}</div>
-    ${(g.warnings||[]).length ? `<div class="msg">${g.warnings.map(esc).join("<br>")}</div>` : ""}
-  </div>`;
-}
-
-async function searchSummoner(riotId){
-  $("#summonerSec").hidden = false;
-  $("#summonerSub").textContent = "";
-  $("#summonerCards").innerHTML =
-    `<p class="sub"><span class="spin"></span>${esc(riotId)} 의 최근 경기를 10분 시점으로 되감는 중… (타임라인 분석이라 수십 초 걸립니다)</p>`;
+/* ── 소환사 ── */
+async function loadSummoner(riotId){
+  const my = ++seq;
+  mode = "summoner";
+  $("#rows").innerHTML = `<p class="sub"><span class="spin"></span>${esc(riotId)} 의 최근 경기를 10분 시점으로 되감는 중… (타임라인 분석이라 수십 초 걸립니다)</p>`;
+  $("#more").style.display = "none"; $("#stat").textContent = "";
   try{
     const res = await fetch("/api/summoner", {method:"POST",
       headers:{"Content-Type":"application/json"}, body: JSON.stringify({riot_id: riotId})});
     const d = await res.json();
-    if(!res.ok){ $("#summonerCards").innerHTML = `<div class="msg">${esc(d.error||"조회 실패")}</div>`; return; }
-    const games = d.games || [];
-    const hits = games.filter(g => g.model_correct).length;
-    $("#summonerSub").innerHTML = games.length
-      ? `<b>${esc(d.riot_id)}</b> · ${esc(d.queue||"")} 최근 ${games.length}판 — 10분 판정 ${hits}판 적중`
-      : "";
-    $("#summonerCards").innerHTML = games.length
-      ? games.map(summonerCardHTML).join("")
+    if(my !== seq) return;
+    if(!res.ok){
+      $("#rows").innerHTML = `<div class="msg">${esc(d.error || "조회 실패")}</div>` +
+        `<p class="note">아래 <b>샘플 경기 보기</b>로 전체 기능을 그대로 확인할 수 있습니다.</p>`;
+      renderSummary(null); return;
+    }
+    const rows = (d.games || []).map(g => normalize(g, true));
+    $("#rows").innerHTML = rows.length ? rows.map(rowHTML).join("")
       : `<div class="empty">최근 솔로랭크 경기를 찾지 못했습니다.</div>`;
-  }catch(e){ $("#summonerCards").innerHTML = `<div class="msg">조회에 실패했습니다.</div>`; }
+    rows.forEach(g => bind(g));
+    renderSummary(d.summary, esc(d.riot_id));
+    $("#stat").innerHTML = rows.length
+      ? `최근 <b>${rows.length}판</b> · 10분 판정이 실제 결과와 맞은 경기 <b>${d.summary.model_correct}판</b>` : "";
+  }catch(e){ if(my === seq) $("#rows").innerHTML = `<div class="msg">조회에 실패했습니다.</div>`; }
 }
 
-/* ── 직접 입력 ── */
-function buildForm(){
-  $("#form").innerHTML = FEATURES.map(f =>
-    `<div><label for="in-${f}">${KO[f]}</label>` +
-    `<input type="number" id="in-${f}" value="0" step="${f==="AvgLevelDiff"?"0.1":"1"}">` +
-    `<div class="hint" id="hint-${f}"></div></div>`).join("");
-  FEATURES.forEach(f => $("#in-"+f).addEventListener("input", () => checkRange(f)));
-}
-function checkRange(f){
-  if(!schema) return;
-  const sp = schema.features[f], el = $("#in-"+f), v = parseFloat(el.value);
-  if(!sp || isNaN(v)) return;
-  el.classList.toggle("oor", v < sp.train_min || v > sp.train_max);
-}
-const readForm = () => Object.fromEntries(FEATURES.map(f => [f, parseFloat($("#in-"+f).value) || 0]));
-const fillForm = v => FEATURES.forEach(f => { $("#in-"+f).value = v[f] != null ? v[f] : 0; checkRange(f); });
-
-async function runManual(){
-  const btn = $("#run");
-  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>판정 중';
-  try{
-    const res = await fetch("/api/predict", {method:"POST",
-      headers:{"Content-Type":"application/json"}, body: JSON.stringify(readForm())});
-    const d = await res.json();
-    if(!res.ok){ $("#manual").innerHTML = `<div class="msg">${esc(d.error||"실패")}</div>`; return; }
-    const pct = (d.win_prob_blue*100).toFixed(1);
-    const why = d.top_factors.slice(0,3).map(f =>
-      `<span>${esc(f.name)}</span> ${f.contribution>0?"+":""}${f.contribution.toFixed(2)}`).join(" · ");
-    const kill = d.top_factors.find(f => f.feature === "KillsDiff");
-    $("#manual").innerHTML = `<div class="card" style="margin-top:12px;border-left-color:var(--gold)">
-      <div class="pbar"><div class="fill" style="width:${pct}%"></div><div class="mid50"></div>
-        <div class="txt"><span style="color:var(--blue)">블루 ${pct}%</span>
-          <span style="color:var(--red)">레드 ${(100-pct).toFixed(1)}%</span></div></div>
-      <div class="row"><span>판정</span><b>${esc(d.pred_label)}</b></div>
-      <div class="why">근거 · ${why}</div></div>` +
-      (kill && kill.contribution < 0 ? `<p class="note"><b>킬이 마이너스인 이유</b> — 킬을 하면 돈을 받으므로
-        킬의 가치가 이미 골드 차이에 들어가 있습니다(상관 +0.92). 골드를 빼고 다시 학습하면
-        킬 계수는 <b style="color:var(--blue)">+0.508</b>로 뒤집힙니다.</p>` : "") +
-      (d.warnings.length ? `<div class="msg">${d.warnings.map(esc).join("<br>")}</div>` : "");
-  }catch(e){ $("#manual").innerHTML = `<div class="msg">백엔드에 연결할 수 없습니다.</div>`; }
-  finally{ btn.disabled = false; btn.textContent = "이 상황 판정"; }
+function bind(g){
+  const el = document.querySelector(`[data-key="${CSS.escape(g.key)}"]`);
+  if(!el) return;
+  el.querySelector(".expand").addEventListener("click", () => toggleDetail(el, g));
 }
 
-/* ── 리포트 (숫자는 전부 서버 실측 — 화면에 상수로 적지 않는다) ── */
-const table = (head, rows) =>
-  '<div class="scroll"><table><thead><tr>' + head.map(h => `<th>${h}</th>`).join("") +
+/* ── 검색: #포함이면 소환사, 숫자면 경기번호 ── */
+async function doSearch(){
+  const q = $("#q").value.trim();
+  if(!q) return;
+  if(q.includes("#")) return loadSummoner(q);
+  if(/^\d+$/.test(q)){
+    $("#rows").innerHTML = `<p class="sub"><span class="spin"></span>경기 #${esc(q)} 찾는 중…</p>`;
+    try{
+      const d = await (await fetch("/api/matches?id=" + encodeURIComponent(q))).json();
+      const rows = (d.matches || []).map(m => normalize(m, false));
+      $("#rows").innerHTML = rows.length ? rows.map(rowHTML).join("")
+        : `<div class="empty">경기 #${esc(q)} 는 시험셋에 없습니다.</div>`;
+      rows.forEach(g => bind(g));
+      renderSummary(null); $("#stat").textContent = ""; $("#more").style.display = "none";
+    }catch(e){ $("#rows").innerHTML = `<div class="msg">조회에 실패했습니다.</div>`; }
+    return;
+  }
+  $("#rows").innerHTML = `<div class="msg">소환사는 <b>이름#태그</b>, 경기는 <b>숫자</b>로 검색합니다.</div>`;
+}
+
+/* ── 리포트 · 필터 칩 ── */
+const table = (h, rows) =>
+  '<div class="scroll"><table><thead><tr>' + h.map(x => `<th>${x}</th>`).join("") +
   '</tr></thead><tbody>' + rows.map(r => "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>").join("") +
   "</tbody></table></div>";
 
 async function loadReport(){
   try{
     const [rep, types] = await Promise.all([
-      fetch("/api/report").then(r => r.json()),
-      fetch("/api/match-types").then(r => r.json())]);
+      fetch("/api/report").then(r => r.json()), fetch("/api/match-types").then(r => r.json())]);
     const p = rep.performance || {}, r = p.repeat_seeds || {}, names = rep.feature_names || {};
-    const bins = (rep.errors && rep.errors.bins) || [];
-    $("#topStat").innerHTML = `전체 적중률 <b>${p.accuracy}</b> · 반복 <b>${r.mean} ± ${r.std}</b>`;
+    confBins = (rep.errors && rep.errors.bins) || [];
 
-    /* 골드 격차 필터 칩 — 구간 이름을 서버 bins 에서 만든다 (하드코딩 금지) */
-    const chipWrap = $("#bandChips");
-    const all = document.createElement("button");
-    all.className = "chip"; all.textContent = "전체";
-    all.dataset.band = ""; all.setAttribute("aria-pressed", "true");
-    chipWrap.appendChild(all);
-    bins.forEach(b => {
-      const c = document.createElement("button");
-      c.className = "chip"; c.textContent = b["구간"];
-      c.dataset.band = b["구간"]; c.setAttribute("aria-pressed", "false");
-      chipWrap.appendChild(c);
-    });
-    chipWrap.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => {
-      band = c.dataset.band;
-      chipWrap.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === c));
-      loadMatches(false);
+    /* 필터 칩 — 구간 이름을 서버 bins 에서 만든다 (화면에 숫자 0) */
+    const f = $("#filters");
+    f.innerHTML = `<span class="lab">골드 격차</span>`;
+    const mk = (label, attr, val, on) => {
+      const b = document.createElement("button");
+      b.className = "chip"; b.textContent = label;
+      b.dataset[attr] = val; b.setAttribute("aria-pressed", on ? "true" : "false");
+      return b;
+    };
+    f.appendChild(mk("전체", "band", "", true));
+    confBins.forEach(b => f.appendChild(mk(b["구간"], "band", b["구간"], false)));
+    const lab2 = document.createElement("span");
+    lab2.className = "lab"; lab2.style.marginLeft = "10px"; lab2.textContent = "판정";
+    f.appendChild(lab2);
+    f.appendChild(mk("전체", "correct", "", true));
+    f.appendChild(mk("맞힌 경기", "correct", "1", false));
+    f.appendChild(mk("빗나간 경기", "correct", "0", false));
+    const sh = document.createElement("button");
+    sh.textContent = "다른 경기"; sh.style.marginLeft = "auto";
+    sh.addEventListener("click", () => { shuffleSeed = (Date.now() % 99999) || 1; loadSample(false); });
+    f.appendChild(sh);
+    f.querySelectorAll("[data-band]").forEach(b => b.addEventListener("click", () => {
+      band = b.dataset.band;
+      f.querySelectorAll("[data-band]").forEach(x => x.setAttribute("aria-pressed", x === b));
+      loadSample(false);
+    }));
+    f.querySelectorAll("[data-correct]").forEach(b => b.addEventListener("click", () => {
+      correct = b.dataset.correct;
+      f.querySelectorAll("[data-correct]").forEach(x => x.setAttribute("aria-pressed", x === b));
+      loadSample(false);
     }));
 
     $("#report").innerHTML =
-      `<p class="sub" style="margin-bottom:6px"><b>골드 격차가 작을수록 못 맞힙니다.</b>
-       모델 탓이 아니라 10분 정보에 아직 단서가 없기 때문입니다. 위 필터로 직접 확인해 보세요.</p>` +
+      `<p class="sub"><b>골드 격차가 작을수록 못 맞힙니다.</b> 모델 탓이 아니라
+       10분 정보에 아직 단서가 없기 때문입니다. 위 필터로 직접 확인해 보세요.</p>` +
       table(["10분 골드차","경기 수","적중률","비중"],
-        bins.map(b => [esc(b["구간"]), b["경기수"], b["정확도"], b["비중_%"] + "%"])) +
+        confBins.map(b => [esc(b["구간"]), b["경기수"], b["정확도"], b["비중_%"] + "%"])) +
       `<p class="sub" style="margin:14px 0 6px"><b>무엇이 승패를 갈랐나</b> — 성격이 다른 두 방법이 같은 1-2-3위를 냈습니다.</p>` +
       table(["요인","표준화 계수","permutation"],
         (rep.win_factors || []).slice(0,5).map(w => [esc(names[w.name] || w.name), w.coef_std, w.perm_importance])) +
-      `<p class="sub" style="margin:14px 0 6px"><b>경기 성격별로 나눠보면</b> — 승패 정보를 지운 지표 5개로 묶었습니다.</p>` +
+      `<p class="sub" style="margin:14px 0 6px"><b>경기 성격별로 나눠보면</b></p>` +
       table(["유형","경기 수","비중","10분 리드팀 최종 승률"],
         (types.types || []).map(x => [esc(x.label), x.count, x.share_pct + "%", (x.lead_team_win_rate*100).toFixed(0) + "%"])) +
-      `<p class="note">일방적 경기만 10분에 이미 결판나 있습니다. ${esc(types.note || "")}</p>`;
+      `<p class="note">전체 적중률 <b class="num">${p.accuracy}</b> · 분할을 ${r.n}번 바꿔 재학습한 평균
+       <b class="num">${r.mean} ± ${r.std}</b>. 일방적 경기만 10분에 이미 결판나 있습니다.</p>`;
   }catch(e){ $("#report").innerHTML = `<div class="msg">리포트를 불러오지 못했습니다.</div>`; }
 }
 
-async function loadSchema(){
-  try{
-    schema = await (await fetch("/api/schema")).json();
-    FEATURES.forEach(f => { const s = schema.features[f];
-      if(s) $("#hint-"+f).textContent = `학습 범위 ${s.train_min} ~ ${s.train_max}`; });
-  }catch(e){}
+/* ── 직접 입력 ── */
+function buildForm(){
+  $("#form").innerHTML = FEATURES.map(f =>
+    `<div><label for="in-${f}">${KO[f]}</label>
+     <input type="number" id="in-${f}" value="0" step="${f === "AvgLevelDiff" ? "0.1" : "1"}"></div>`).join("");
 }
-async function loadTotal(){
+const readForm = () => Object.fromEntries(FEATURES.map(f => [f, parseFloat($("#in-"+f).value) || 0]));
+
+async function runManual(){
+  const btn = $("#run");
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>계산 중';
   try{
-    const d = await (await fetch("/api/matches?limit=1")).json();
-    $("#totalN").textContent = d.total.toLocaleString();
-  }catch(e){}
+    const body = readForm();
+    const [pr, co] = await Promise.all([
+      fetch("/api/predict", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)}).then(r => r.json()),
+      fetch("/api/coach",   {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)}).then(r => r.json()),
+    ]);
+    if(pr.error){ $("#manual").innerHTML = `<div class="msg">${esc(pr.error)}</div>`; return; }
+    $("#manual").innerHTML = `<div class="brief" style="margin-top:12px">
+      <div class="who">COACH</div>
+      <h2>10분 승률 <span class="num">${pct(pr.win_prob_blue)}</span> — ${esc(pr.pred_label)}</h2>
+      <div class="coach" style="margin-top:8px"><ul>` +
+      (co.actions || []).map(a => `<li><span>${esc(a.action)}</span>
+        <span><b class="gain num">+${(a.gain*100).toFixed(1)}%p</b>
+        <span class="after num">→ ${pct(a.win_prob_after)}</span></span></li>`).join("") +
+      `</ul></div></div>` +
+      (pr.warnings && pr.warnings.length ? `<div class="msg">${pr.warnings.map(esc).join("<br>")}</div>` : "");
+  }catch(e){ $("#manual").innerHTML = `<div class="msg">계산에 실패했습니다.</div>`; }
+  finally{ btn.disabled = false; btn.textContent = "판정 + 코칭"; }
 }
 
 /* ── 연결 ── */
-buildForm(); loadSchema(); loadReport(); loadTotal(); loadMatches(false);
+buildForm();
+loadReport().then(() => {
+  /* 첫 화면: 키가 살아 있으면 대표 표본(페이커)을 바로 조회, 아니면 샘플 경기 */
+  if(RIOT_READY) loadSummoner($("#q").value.trim());
+  else loadSample(false);
+});
+$("#themeBtn").addEventListener("click", () =>
+  applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));
 $("#find").addEventListener("click", doSearch);
 $("#q").addEventListener("keydown", e => { if(e.key === "Enter") doSearch(); });
-$("#more").addEventListener("click", () => loadMatches(true));
-$("#shuffle").addEventListener("click", () => { shuffleSeed = (Date.now() % 100000) || 1; loadMatches(false); });
-document.querySelectorAll("[data-correct]").forEach(b => b.addEventListener("click", () => {
-  correct = b.dataset.correct;
-  document.querySelectorAll("[data-correct]").forEach(x => x.setAttribute("aria-pressed", x === b));
-  loadMatches(false);
-}));
-document.querySelectorAll("[data-demo]").forEach(b =>
-  b.addEventListener("click", () => { fillForm(DEMOS[b.dataset.demo]); runManual(); }));
+$("#sample").addEventListener("click", () => loadSample(false));
+$("#more").addEventListener("click", () => loadSample(true));
 $("#run").addEventListener("click", runManual);
-$("#reset").addEventListener("click", () => fillForm(Object.fromEntries(FEATURES.map(f => [f, 0]))));
+$("#reset").addEventListener("click", () => { FEATURES.forEach(f => $("#in-"+f).value = 0); $("#manual").innerHTML = ""; });
 </script>
 </body>
 </html>

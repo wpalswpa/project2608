@@ -188,29 +188,13 @@ def timeline_to_diff13(timeline: dict, blue_ids: set, red_ids: set) -> dict:
     }
 
 
-def verdict_of(my_win_prob: float, my_won: bool) -> str:
-    """10분 시점 유불리 x 실제 결과 = 네 갈래 판정.
-
-    이 서비스의 존재 이유다. 다른 전적 사이트는 "무슨 일이 있었나"(KDA·CS)를 보여주지만,
-    우리는 10분 시점 모델이 있어 **언제 갈렸나**를 말할 수 있다.
-    특히 '역전패'는 10분에 유리했는데 진 경기라 복기 가치가 가장 높다.
-    """
-    ahead = my_win_prob >= 0.5
-    if ahead and my_won:
-        return "굴렸다"           # 유리하게 시작해 그대로 이김
-    if ahead and not my_won:
-        return "역전패"           # 유리했는데 짐 — 복기 1순위
-    if not ahead and my_won:
-        return "역전승"           # 불리했는데 이김
-    return "초반 붕괴"            # 불리하게 시작해 그대로 짐 — 라인전 문제
-
-
 def analyze_recent(riot_id: str, count: int = 5) -> dict:
     """소환사의 최근 솔로랭크 경기들을 10분 시점에서 복기한다.
 
     riot_id: "게임명#태그" (예: "Hide on bush#KR1")
     반환: {"riot_id": ..., "games": [경기별 {예측, 실제, 피처, 정보}]}
     """
+    from lolwin.coach import verdict_of           # 판정 정본 (샘플 경기와 공유)
     from lolwin.features import gold_bin_bounds   # 구간 경계 정본
     from predict import predict          # 예측은 단일 진실만 사용
 

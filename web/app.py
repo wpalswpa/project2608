@@ -179,6 +179,7 @@ def _build_matches():
     1,976판을 매 요청마다 예측하면 느리므로 한 번만 계산한다.
     (13개 피처 * 1,976행이라 메모리 부담은 없다)
     """
+    from lolwin.coach import verdict_of
     from lolwin.data import load
     from lolwin.features import DIFF13, KOREAN, gold_bin_bounds
 
@@ -202,6 +203,8 @@ def _build_matches():
             "pred": r["pred"],
             "actual": actual,
             "correct": r["pred"] == actual,
+            # 샘플 경기는 '블루 팀 관점'으로 판정한다 (소환사 경기는 그 사람 팀 관점)
+            "verdict": verdict_of(r["win_prob_blue"], bool(actual)),
             # 근거 3개면 카드에 충분하다 (5개는 카드가 길어진다)
             "top_factors": [{"name": f["name"], "contribution": f["contribution"]}
                             for f in r["top_factors"][:3]],
@@ -285,9 +288,19 @@ def api_matches():
 
     page = rows[offset:offset + limit]
     hit = sum(1 for m in rows if m["correct"])
+    from collections import Counter
+    vc = Counter(m["verdict"] for m in rows)
     return jsonify({
         "total": len(rows),
         "accuracy": round(hit / len(rows), 4) if rows else None,
+        "summary": {
+            "n": len(rows),
+            "avg_win_prob_10min": (round(sum(m["win_prob_blue"] for m in rows) / len(rows), 4)
+                                   if rows else None),
+            "역전패": vc.get("역전패", 0), "초반 붕괴": vc.get("초반 붕괴", 0),
+            "역전승": vc.get("역전승", 0), "굴렸다": vc.get("굴렸다", 0),
+            "model_correct": hit,
+        },
         "offset": offset,
         "returned": len(page),
         "matches": page,
@@ -299,8 +312,14 @@ def api_matches():
 def api_summoner():
     """Riot ID 로 최근 솔로랭크 경기들을 10분 시점에서 복기한다 (끝난 경기만 가능)."""
     if not RIOT_READY:
-        return jsonify({"error": "서버에 RIOT_API_KEY 가 설정되어 있지 않습니다. "
-                                 ".env 에 RIOT_API_KEY=RGAPI-... 를 넣고 ./check_project.sh restart 하세요."}), 503
+        # 키가 아예 없는 것과, 있는데 만료된 것은 다른 상황이다.
+        # 뭉뚱그리면 "넣으라"는 안내를 받고 이미 넣은 사람이 혼란스러워진다.
+        if os.environ.get("RIOT_API_KEY"):
+            return jsonify({"error": "Riot API 키가 만료되어 소환사 조회를 일시 중단했습니다. "
+                                     "(개발용 키는 24시간마다 만료됩니다) "
+                                     "샘플 경기로는 모든 기능을 그대로 확인할 수 있습니다."}), 503
+        return jsonify({"error": "서버에 Riot API 키가 없어 소환사 조회를 쓸 수 없습니다. "
+                                 "샘플 경기로는 모든 기능을 그대로 확인할 수 있습니다."}), 503
     try:
         riot_id = (request.get_json() or {}).get("riot_id", "").strip()
         return jsonify(analyze_recent(riot_id, count=5))
