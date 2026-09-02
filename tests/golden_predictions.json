@@ -1,0 +1,2212 @@
+{
+ "생성기준": {
+  "seed": 20260902,
+  "건수": 50,
+  "model_version": "1.0",
+  "trained_at": "2026-09-01 09:31",
+  "sklearn_version": "1.9.0"
+ },
+ "설명": "리팩터링 전후로 예측이 완전히 같은지 확인하는 정답지. 모델을 재학습했다면 이 파일도 다시 만들어야 한다.",
+ "cases": [
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": 4,
+    "GoldDiff": -6772,
+    "ExpDiff": 7497,
+    "WardsPlacedDiff": 85,
+    "WardsDestroyedDiff": 1,
+    "AssistsDiff": 3,
+    "DragonsDiff": 1,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 2,
+    "AvgLevelDiff": 0.69,
+    "TotalMinionsKilledDiff": -65,
+    "TotalJungleMinionsKilledDiff": 31
+   },
+   "expected": {
+    "win_prob_blue": 0.1705,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -3.4018
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.7993
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.3901
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.3273
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 1,
+    "GoldDiff": 1387,
+    "ExpDiff": -971,
+    "WardsPlacedDiff": -153,
+    "WardsDestroyedDiff": 23,
+    "AssistsDiff": -10,
+    "DragonsDiff": 1,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": -0.66,
+    "TotalMinionsKilledDiff": -115,
+    "TotalJungleMinionsKilledDiff": 27
+   },
+   "expected": {
+    "win_prob_blue": 0.7869,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 0.6832
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.5817
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.226
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.194
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 3,
+    "GoldDiff": -1054,
+    "ExpDiff": 5836,
+    "WardsPlacedDiff": 97,
+    "WardsDestroyedDiff": 6,
+    "AssistsDiff": -15,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": -1.81,
+    "TotalMinionsKilledDiff": -54,
+    "TotalJungleMinionsKilledDiff": -7
+   },
+   "expected": {
+    "win_prob_blue": 0.7254,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.402
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": -0.539
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.2713
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.2042
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.194
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -6,
+    "GoldDiff": 10958,
+    "ExpDiff": -6522,
+    "WardsPlacedDiff": 101,
+    "WardsDestroyedDiff": -19,
+    "AssistsDiff": 11,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 3,
+    "AvgLevelDiff": 0.69,
+    "TotalMinionsKilledDiff": 22,
+    "TotalJungleMinionsKilledDiff": 43
+   },
+   "expected": {
+    "win_prob_blue": 0.9453,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 5.4752
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.5536
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.1537
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -6,
+    "GoldDiff": 2836,
+    "ExpDiff": -2477,
+    "WardsPlacedDiff": 143,
+    "WardsDestroyedDiff": 11,
+    "AssistsDiff": 0,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": -2.05,
+    "TotalMinionsKilledDiff": 16,
+    "TotalJungleMinionsKilledDiff": 21
+   },
+   "expected": {
+    "win_prob_blue": 0.6576,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 1.4087
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.194
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.1537
+     },
+     {
+      "feature": "WardsPlacedDiff",
+      "contribution": -0.0881
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 1,
+    "GoldDiff": 183,
+    "ExpDiff": 4129,
+    "WardsPlacedDiff": -19,
+    "WardsDestroyedDiff": 20,
+    "AssistsDiff": 1,
+    "DragonsDiff": 1,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": -2,
+    "AvgLevelDiff": -0.05,
+    "TotalMinionsKilledDiff": -119,
+    "TotalJungleMinionsKilledDiff": 23
+   },
+   "expected": {
+    "win_prob_blue": 0.9089,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": 0.9938
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.602
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.3944
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     },
+     {
+      "feature": "HeraldsDiff",
+      "contribution": -0.0877
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -7,
+    "GoldDiff": -2543,
+    "ExpDiff": 2463,
+    "WardsPlacedDiff": 79,
+    "WardsDestroyedDiff": -15,
+    "AssistsDiff": -7,
+    "DragonsDiff": 0,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 2,
+    "AvgLevelDiff": 2.01,
+    "TotalMinionsKilledDiff": -108,
+    "TotalJungleMinionsKilledDiff": 15
+   },
+   "expected": {
+    "win_prob_blue": 0.4099,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -1.2845
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 0.5953
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.5461
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.3901
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.1791
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": 0,
+    "GoldDiff": -2387,
+    "ExpDiff": -6106,
+    "WardsPlacedDiff": -258,
+    "WardsDestroyedDiff": -18,
+    "AssistsDiff": -16,
+    "DragonsDiff": 0,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": 0.87,
+    "TotalMinionsKilledDiff": 95,
+    "TotalJungleMinionsKilledDiff": -63
+   },
+   "expected": {
+    "win_prob_blue": 0.0453,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.4541
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": -1.2064
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.4869
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.2178
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.194
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 0,
+    "GoldDiff": -1205,
+    "ExpDiff": 5278,
+    "WardsPlacedDiff": -150,
+    "WardsDestroyedDiff": 1,
+    "AssistsDiff": -21,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": -1,
+    "AvgLevelDiff": -0.41,
+    "TotalMinionsKilledDiff": -22,
+    "TotalJungleMinionsKilledDiff": 4
+   },
+   "expected": {
+    "win_prob_blue": 0.7485,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.2686
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": -0.6146
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.2859
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.1983
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 10,
+    "GoldDiff": -4268,
+    "ExpDiff": 6826,
+    "WardsPlacedDiff": -117,
+    "WardsDestroyedDiff": -2,
+    "AssistsDiff": 4,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 0,
+    "AvgLevelDiff": -0.01,
+    "TotalMinionsKilledDiff": -109,
+    "TotalJungleMinionsKilledDiff": -45
+   },
+   "expected": {
+    "win_prob_blue": 0.371,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -2.1481
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.6388
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.5512
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.2524
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": -2,
+    "GoldDiff": -3129,
+    "ExpDiff": -2391,
+    "WardsPlacedDiff": 24,
+    "WardsDestroyedDiff": -10,
+    "AssistsDiff": -4,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": -1,
+    "AvgLevelDiff": -1.59,
+    "TotalMinionsKilledDiff": -51,
+    "TotalJungleMinionsKilledDiff": 20
+   },
+   "expected": {
+    "win_prob_blue": 0.2008,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -1.5779
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.5656
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.256
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.1983
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -6,
+    "GoldDiff": 1257,
+    "ExpDiff": -6991,
+    "WardsPlacedDiff": 82,
+    "WardsDestroyedDiff": 22,
+    "AssistsDiff": 15,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": -2,
+    "AvgLevelDiff": -2.07,
+    "TotalMinionsKilledDiff": -3,
+    "TotalJungleMinionsKilledDiff": 45
+   },
+   "expected": {
+    "win_prob_blue": 0.3593,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.6657
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": 0.6181
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.3944
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": -0.2041
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.1537
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -8,
+    "GoldDiff": -2111,
+    "ExpDiff": 5651,
+    "WardsPlacedDiff": 122,
+    "WardsDestroyedDiff": 16,
+    "AssistsDiff": -12,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 2,
+    "AvgLevelDiff": -1.28,
+    "TotalMinionsKilledDiff": -68,
+    "TotalJungleMinionsKilledDiff": -67
+   },
+   "expected": {
+    "win_prob_blue": 0.5758,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.3578
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": -1.0682
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.3901
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.3425
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 7,
+    "GoldDiff": 3691,
+    "ExpDiff": -1176,
+    "WardsPlacedDiff": -114,
+    "WardsDestroyedDiff": 14,
+    "AssistsDiff": -6,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": -1,
+    "AvgLevelDiff": 0.73,
+    "TotalMinionsKilledDiff": -76,
+    "TotalJungleMinionsKilledDiff": 36
+   },
+   "expected": {
+    "win_prob_blue": 0.8636,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 1.8368
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.3832
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.275
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.1983
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -11,
+    "GoldDiff": 2501,
+    "ExpDiff": 2501,
+    "WardsPlacedDiff": 118,
+    "WardsDestroyedDiff": 16,
+    "AssistsDiff": -17,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": -2,
+    "AvgLevelDiff": -0.08,
+    "TotalMinionsKilledDiff": -9,
+    "TotalJungleMinionsKilledDiff": -64
+   },
+   "expected": {
+    "win_prob_blue": 0.9436,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 1.241
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 0.6044
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.3944
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.2806
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.2314
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": -13,
+    "GoldDiff": 2793,
+    "ExpDiff": -6512,
+    "WardsPlacedDiff": 79,
+    "WardsDestroyedDiff": 22,
+    "AssistsDiff": 19,
+    "DragonsDiff": 0,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 0,
+    "AvgLevelDiff": 0.88,
+    "TotalMinionsKilledDiff": 57,
+    "TotalJungleMinionsKilledDiff": -41
+   },
+   "expected": {
+    "win_prob_blue": 0.3882,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.5512
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": 1.3871
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.3314
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.2935
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": -0.2585
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": 9,
+    "GoldDiff": -5129,
+    "ExpDiff": -1973,
+    "WardsPlacedDiff": 101,
+    "WardsDestroyedDiff": 20,
+    "AssistsDiff": -18,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": 2,
+    "AvgLevelDiff": 1.67,
+    "TotalMinionsKilledDiff": 65,
+    "TotalJungleMinionsKilledDiff": -63
+   },
+   "expected": {
+    "win_prob_blue": 0.0361,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -2.5792
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.4656
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.3901
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.3342
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -8,
+    "GoldDiff": 7290,
+    "ExpDiff": -8065,
+    "WardsPlacedDiff": 141,
+    "WardsDestroyedDiff": -21,
+    "AssistsDiff": 16,
+    "DragonsDiff": -1,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 3,
+    "AvgLevelDiff": 2.1,
+    "TotalMinionsKilledDiff": -71,
+    "TotalJungleMinionsKilledDiff": 1
+   },
+   "expected": {
+    "win_prob_blue": 0.7327,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 3.6387
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.9226
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.3578
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": 14,
+    "GoldDiff": 10286,
+    "ExpDiff": 961,
+    "WardsPlacedDiff": -102,
+    "WardsDestroyedDiff": 21,
+    "AssistsDiff": -21,
+    "DragonsDiff": 0,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 2,
+    "AvgLevelDiff": -1.64,
+    "TotalMinionsKilledDiff": -50,
+    "TotalJungleMinionsKilledDiff": -12
+   },
+   "expected": {
+    "win_prob_blue": 0.9947,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 5.1387
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.3901
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.3539
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.2859
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.2509
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 8,
+    "GoldDiff": -10685,
+    "ExpDiff": -6656,
+    "WardsPlacedDiff": -53,
+    "WardsDestroyedDiff": 20,
+    "AssistsDiff": -21,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": 1.07,
+    "TotalMinionsKilledDiff": -119,
+    "TotalJungleMinionsKilledDiff": -60
+   },
+   "expected": {
+    "win_prob_blue": 0.0019,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -5.361
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.5856
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.602
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.2859
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.2016
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": -17,
+    "GoldDiff": 474,
+    "ExpDiff": 8307,
+    "WardsPlacedDiff": -110,
+    "WardsDestroyedDiff": 4,
+    "AssistsDiff": 13,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": -1,
+    "AvgLevelDiff": -1.54,
+    "TotalMinionsKilledDiff": -1,
+    "TotalJungleMinionsKilledDiff": 43
+   },
+   "expected": {
+    "win_prob_blue": 0.9371,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.993
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.4329
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": 0.2261
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.1983
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": -0.1769
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 9,
+    "GoldDiff": -3022,
+    "ExpDiff": 1886,
+    "WardsPlacedDiff": 6,
+    "WardsDestroyedDiff": 0,
+    "AssistsDiff": 13,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": 0,
+    "AvgLevelDiff": 1.32,
+    "TotalMinionsKilledDiff": 81,
+    "TotalJungleMinionsKilledDiff": -19
+   },
+   "expected": {
+    "win_prob_blue": 0.1411,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -1.5243
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 0.4573
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.4157
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.227
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": -0.1769
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 1,
+    "GoldDiff": -7581,
+    "ExpDiff": 8035,
+    "WardsPlacedDiff": -36,
+    "WardsDestroyedDiff": -18,
+    "AssistsDiff": -23,
+    "DragonsDiff": 0,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": -1,
+    "AvgLevelDiff": 1.99,
+    "TotalMinionsKilledDiff": -97,
+    "TotalJungleMinionsKilledDiff": -72
+   },
+   "expected": {
+    "win_prob_blue": 0.2661,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -3.8069
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.9279
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.4901
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.3131
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.1983
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 12,
+    "GoldDiff": -2964,
+    "ExpDiff": 6733,
+    "WardsPlacedDiff": -197,
+    "WardsDestroyedDiff": 0,
+    "AssistsDiff": 0,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": -2,
+    "AvgLevelDiff": -1.12,
+    "TotalMinionsKilledDiff": 118,
+    "TotalJungleMinionsKilledDiff": 5
+   },
+   "expected": {
+    "win_prob_blue": 0.3693,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.6165
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": -1.4953
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.6039
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.3944
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.3032
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": 7,
+    "GoldDiff": 1226,
+    "ExpDiff": -623,
+    "WardsPlacedDiff": -201,
+    "WardsDestroyedDiff": -12,
+    "AssistsDiff": -13,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": 3,
+    "AvgLevelDiff": 0.77,
+    "TotalMinionsKilledDiff": -19,
+    "TotalJungleMinionsKilledDiff": 64
+   },
+   "expected": {
+    "win_prob_blue": 0.5479,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 0.6026
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.177
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.1763
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.1427
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 5,
+    "GoldDiff": -10820,
+    "ExpDiff": 4743,
+    "WardsPlacedDiff": -47,
+    "WardsDestroyedDiff": 17,
+    "AssistsDiff": 7,
+    "DragonsDiff": 1,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": -2,
+    "AvgLevelDiff": 1.42,
+    "TotalMinionsKilledDiff": -59,
+    "TotalJungleMinionsKilledDiff": -71
+   },
+   "expected": {
+    "win_prob_blue": 0.0289,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -5.4286
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.1406
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.3944
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.2967
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -12,
+    "GoldDiff": 6885,
+    "ExpDiff": 3972,
+    "WardsPlacedDiff": 128,
+    "WardsDestroyedDiff": -9,
+    "AssistsDiff": 13,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": -2.23,
+    "TotalMinionsKilledDiff": -65,
+    "TotalJungleMinionsKilledDiff": -52
+   },
+   "expected": {
+    "win_prob_blue": 0.9896,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 3.4359
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 0.9562
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.3273
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.306
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.194
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": -3,
+    "GoldDiff": 9292,
+    "ExpDiff": -85,
+    "WardsPlacedDiff": -77,
+    "WardsDestroyedDiff": 21,
+    "AssistsDiff": -10,
+    "DragonsDiff": 0,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 3,
+    "AvgLevelDiff": 1.89,
+    "TotalMinionsKilledDiff": -71,
+    "TotalJungleMinionsKilledDiff": 20
+   },
+   "expected": {
+    "win_prob_blue": 0.9905,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 4.6411
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.3578
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.1362
+     },
+     {
+      "feature": "HeraldsDiff",
+      "contribution": -0.0877
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -1,
+    "GoldDiff": 10889,
+    "ExpDiff": -3744,
+    "WardsPlacedDiff": 64,
+    "WardsDestroyedDiff": -8,
+    "AssistsDiff": -17,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 2,
+    "AvgLevelDiff": -2.29,
+    "TotalMinionsKilledDiff": 95,
+    "TotalJungleMinionsKilledDiff": 16
+   },
+   "expected": {
+    "win_prob_blue": 0.9848,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 5.4406
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.8892
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.4869
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.3901
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 4,
+    "GoldDiff": -5910,
+    "ExpDiff": -8871,
+    "WardsPlacedDiff": 112,
+    "WardsDestroyedDiff": 15,
+    "AssistsDiff": -24,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 0,
+    "AvgLevelDiff": -2.32,
+    "TotalMinionsKilledDiff": -4,
+    "TotalJungleMinionsKilledDiff": 7
+   },
+   "expected": {
+    "win_prob_blue": 0.0097,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -2.9702
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -2.1154
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.3267
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.1001
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": 2,
+    "GoldDiff": 9091,
+    "ExpDiff": -6466,
+    "WardsPlacedDiff": -6,
+    "WardsDestroyedDiff": -16,
+    "AssistsDiff": -5,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": -2,
+    "AvgLevelDiff": -1.53,
+    "TotalMinionsKilledDiff": 46,
+    "TotalJungleMinionsKilledDiff": -60
+   },
+   "expected": {
+    "win_prob_blue": 0.9692,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 4.5404
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.5402
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.3944
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.2376
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 5,
+    "GoldDiff": -4416,
+    "ExpDiff": -3209,
+    "WardsPlacedDiff": 127,
+    "WardsDestroyedDiff": -21,
+    "AssistsDiff": 15,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": 4,
+    "AvgLevelDiff": 0.19,
+    "TotalMinionsKilledDiff": -115,
+    "TotalJungleMinionsKilledDiff": -44
+   },
+   "expected": {
+    "win_prob_blue": 0.0266,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -2.2222
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.7823
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.7612
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.5817
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": -0.2041
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 16,
+    "GoldDiff": -5925,
+    "ExpDiff": -8377,
+    "WardsPlacedDiff": -48,
+    "WardsDestroyedDiff": 10,
+    "AssistsDiff": 13,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 0,
+    "AvgLevelDiff": 0.4,
+    "TotalMinionsKilledDiff": 125,
+    "TotalJungleMinionsKilledDiff": 27
+   },
+   "expected": {
+    "win_prob_blue": 0.0029,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -2.9778
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.9972
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.6395
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.4047
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": -15,
+    "GoldDiff": 11070,
+    "ExpDiff": -4966,
+    "WardsPlacedDiff": -178,
+    "WardsDestroyedDiff": 9,
+    "AssistsDiff": -11,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": -0.6,
+    "TotalMinionsKilledDiff": 29,
+    "TotalJungleMinionsKilledDiff": -24
+   },
+   "expected": {
+    "win_prob_blue": 0.9904,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 5.5313
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.1814
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.3821
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.194
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.1511
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": -12,
+    "GoldDiff": -7030,
+    "ExpDiff": -7811,
+    "WardsPlacedDiff": 106,
+    "WardsDestroyedDiff": 23,
+    "AssistsDiff": 22,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 3,
+    "AvgLevelDiff": 1.99,
+    "TotalMinionsKilledDiff": -26,
+    "TotalJungleMinionsKilledDiff": 39
+   },
+   "expected": {
+    "win_prob_blue": 0.0029,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -3.531
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.8618
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.306
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": -0.2994
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 5,
+    "GoldDiff": 8837,
+    "ExpDiff": 4770,
+    "WardsPlacedDiff": -202,
+    "WardsDestroyedDiff": 0,
+    "AssistsDiff": -6,
+    "DragonsDiff": -1,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": 0.47,
+    "TotalMinionsKilledDiff": 72,
+    "TotalJungleMinionsKilledDiff": 29
+   },
+   "expected": {
+    "win_prob_blue": 0.9907,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 4.4132
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.1471
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.3699
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.194
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -14,
+    "GoldDiff": -6767,
+    "ExpDiff": -5570,
+    "WardsPlacedDiff": 118,
+    "WardsDestroyedDiff": -18,
+    "AssistsDiff": -19,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": -2,
+    "AvgLevelDiff": -1.7,
+    "TotalMinionsKilledDiff": -111,
+    "TotalJungleMinionsKilledDiff": 57
+   },
+   "expected": {
+    "win_prob_blue": 0.0272,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -3.3993
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.3259
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.5613
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.3944
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.3568
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 0,
+    "GoldDiff": 7390,
+    "ExpDiff": -945,
+    "WardsPlacedDiff": -49,
+    "WardsDestroyedDiff": -19,
+    "AssistsDiff": -1,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 3,
+    "AvgLevelDiff": -0.72,
+    "TotalMinionsKilledDiff": 36,
+    "TotalJungleMinionsKilledDiff": 11
+   },
+   "expected": {
+    "win_prob_blue": 0.9117,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 3.6888
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.2198
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.1867
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -11,
+    "GoldDiff": -3950,
+    "ExpDiff": 4920,
+    "WardsPlacedDiff": -126,
+    "WardsDestroyedDiff": -8,
+    "AssistsDiff": -22,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": -2,
+    "AvgLevelDiff": 0.43,
+    "TotalMinionsKilledDiff": 6,
+    "TotalJungleMinionsKilledDiff": 36
+   },
+   "expected": {
+    "win_prob_blue": 0.6317,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -1.9889
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.1829
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.3944
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.2995
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": 10,
+    "GoldDiff": 5713,
+    "ExpDiff": -4509,
+    "WardsPlacedDiff": -130,
+    "WardsDestroyedDiff": 15,
+    "AssistsDiff": 6,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 3,
+    "AvgLevelDiff": 1.45,
+    "TotalMinionsKilledDiff": -44,
+    "TotalJungleMinionsKilledDiff": -43
+   },
+   "expected": {
+    "win_prob_blue": 0.8292,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 2.8491
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.0721
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.2524
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": -8,
+    "GoldDiff": -8493,
+    "ExpDiff": 7614,
+    "WardsPlacedDiff": -67,
+    "WardsDestroyedDiff": -6,
+    "AssistsDiff": 19,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 2,
+    "AvgLevelDiff": 1.86,
+    "TotalMinionsKilledDiff": -97,
+    "TotalJungleMinionsKilledDiff": 3
+   },
+   "expected": {
+    "win_prob_blue": 0.086,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -4.2635
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.8272
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.4901
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.3901
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": -0.2585
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 14,
+    "GoldDiff": -7825,
+    "ExpDiff": -5783,
+    "WardsPlacedDiff": 132,
+    "WardsDestroyedDiff": 22,
+    "AssistsDiff": -2,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": 4,
+    "AvgLevelDiff": 1.78,
+    "TotalMinionsKilledDiff": -62,
+    "TotalJungleMinionsKilledDiff": -9
+   },
+   "expected": {
+    "win_prob_blue": 0.0024,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -3.929
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.3768
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.7823
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.3539
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.312
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": 8,
+    "GoldDiff": -9136,
+    "ExpDiff": -5210,
+    "WardsPlacedDiff": 74,
+    "WardsDestroyedDiff": 10,
+    "AssistsDiff": 1,
+    "DragonsDiff": -1,
+    "HeraldsDiff": -1,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": 0.41,
+    "TotalMinionsKilledDiff": -92,
+    "TotalJungleMinionsKilledDiff": -51
+   },
+   "expected": {
+    "win_prob_blue": 0.0022,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -4.5854
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.2398
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.4646
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.2016
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": -16,
+    "GoldDiff": -6157,
+    "ExpDiff": -4343,
+    "WardsPlacedDiff": -20,
+    "WardsDestroyedDiff": 6,
+    "AssistsDiff": -1,
+    "DragonsDiff": 0,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": -0.07,
+    "TotalMinionsKilledDiff": -101,
+    "TotalJungleMinionsKilledDiff": -71
+   },
+   "expected": {
+    "win_prob_blue": 0.0328,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -3.0939
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -1.0324
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.5104
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.4075
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.194
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": 15,
+    "GoldDiff": 9486,
+    "ExpDiff": 2115,
+    "WardsPlacedDiff": 58,
+    "WardsDestroyedDiff": 4,
+    "AssistsDiff": 14,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 3,
+    "AvgLevelDiff": -1.11,
+    "TotalMinionsKilledDiff": -64,
+    "TotalJungleMinionsKilledDiff": -30
+   },
+   "expected": {
+    "win_prob_blue": 0.9912,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 4.7382
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 0.5121
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.3793
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.3222
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": 12,
+    "GoldDiff": -1458,
+    "ExpDiff": 7930,
+    "WardsPlacedDiff": -3,
+    "WardsDestroyedDiff": -11,
+    "AssistsDiff": -15,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 3,
+    "AvgLevelDiff": -1.23,
+    "TotalMinionsKilledDiff": -90,
+    "TotalJungleMinionsKilledDiff": 0
+   },
+   "expected": {
+    "win_prob_blue": 0.6327,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.9028
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": -0.7412
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.5862
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.4545
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": -0.3032
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -10,
+    "GoldDiff": -6603,
+    "ExpDiff": 2018,
+    "WardsPlacedDiff": 140,
+    "WardsDestroyedDiff": 14,
+    "AssistsDiff": -19,
+    "DragonsDiff": 1,
+    "HeraldsDiff": 1,
+    "TowersDestroyedDiff": -1,
+    "AvgLevelDiff": -1.38,
+    "TotalMinionsKilledDiff": 18,
+    "TotalJungleMinionsKilledDiff": 26
+   },
+   "expected": {
+    "win_prob_blue": 0.1367,
+    "pred": 0,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": -3.3172
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 0.4889
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": 0.3193
+     },
+     {
+      "feature": "AssistsDiff",
+      "contribution": 0.2587
+     },
+     {
+      "feature": "KillsDiff",
+      "contribution": 0.2552
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -4,
+    "GoldDiff": 8798,
+    "ExpDiff": -3616,
+    "WardsPlacedDiff": -28,
+    "WardsDestroyedDiff": -16,
+    "AssistsDiff": 3,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 2,
+    "AvgLevelDiff": 1.82,
+    "TotalMinionsKilledDiff": 37,
+    "TotalJungleMinionsKilledDiff": 30
+   },
+   "expected": {
+    "win_prob_blue": 0.9399,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 4.3937
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": -0.8586
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.3901
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.1918
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 0,
+    "KillsDiff": -2,
+    "GoldDiff": 3730,
+    "ExpDiff": 7113,
+    "WardsPlacedDiff": 41,
+    "WardsDestroyedDiff": -21,
+    "AssistsDiff": 12,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": 1,
+    "AvgLevelDiff": 1.57,
+    "TotalMinionsKilledDiff": -83,
+    "TotalJungleMinionsKilledDiff": 26
+   },
+   "expected": {
+    "win_prob_blue": 0.9637,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "GoldDiff",
+      "contribution": 1.8563
+     },
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.7074
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": 0.4189
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": -0.194
+     }
+    ],
+    "n_warnings": 0
+   }
+  },
+  {
+   "input": {
+    "FirstBlood": 1,
+    "KillsDiff": -7,
+    "GoldDiff": 932,
+    "ExpDiff": 4664,
+    "WardsPlacedDiff": 147,
+    "WardsDestroyedDiff": -20,
+    "AssistsDiff": -3,
+    "DragonsDiff": -1,
+    "HeraldsDiff": 0,
+    "TowersDestroyedDiff": -2,
+    "AvgLevelDiff": -2.52,
+    "TotalMinionsKilledDiff": 116,
+    "TotalJungleMinionsKilledDiff": 31
+   },
+   "expected": {
+    "win_prob_blue": 0.7568,
+    "pred": 1,
+    "top_factors": [
+     {
+      "feature": "ExpDiff",
+      "contribution": 1.1217
+     },
+     {
+      "feature": "TotalMinionsKilledDiff",
+      "contribution": -0.5937
+     },
+     {
+      "feature": "GoldDiff",
+      "contribution": 0.4554
+     },
+     {
+      "feature": "TowersDestroyedDiff",
+      "contribution": 0.3944
+     },
+     {
+      "feature": "DragonsDiff",
+      "contribution": -0.2891
+     }
+    ],
+    "n_warnings": 0
+   }
+  }
+ ]
+}
