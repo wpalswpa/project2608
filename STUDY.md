@@ -11,9 +11,9 @@
 | 알고 싶은 것 | 볼 파일 |
 |---|---|
 | 개념이 무엇이고 왜 하는가 | **이 파일** |
-| 우리가 실제로 뭘 했고 결과가 뭔가 | [README.md](../README.md) |
-| 그 숫자의 근거 파일이 어디인가 | [reports/metrics_summary.md](../reports/metrics_summary.md) |
-| 모델을 쓸 때 조심할 것 | [model_card.md](../model_card.md) |
+| 우리가 실제로 뭘 했고 결과가 뭔가 | [README.md](README.md) |
+| 그 숫자의 근거 파일이 어디인가 | [reports/metrics_summary.md](reports/metrics_summary.md) |
+| 모델을 쓸 때 조심할 것 | [model_card.md](model_card.md) |
 
 README를 읽다가 개념이 막히면 이 파일의 해당 번호로 오면 된다.
 

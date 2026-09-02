@@ -19,7 +19,7 @@ def read(p):
     return io.open(p, encoding="utf-8").read()
 
 
-DOCS = (["README.md", "model_card.md"]
+DOCS = (["README.md", "model_card.md", "STUDY.md"]
         + sorted(glob.glob("docs/*.md"))
         + sorted(glob.glob("reports/*.md")))   # 발표에 쓰는 문서도 점검 대상
 docs = {p: read(p) for p in DOCS}
