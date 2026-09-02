@@ -167,6 +167,36 @@ The source code is open: https://github.com/wpalswpa/project2608
 3. **LEAGUE-V4 문단** — 챔피언 집계를 안 할 생각이면 그 항목을 지운다.
    안 쓸 API 를 적으면 심사에서 되묻는다.
 
+## 제출한 뒤 — 어디서 결과를 보나
+
+**결과는 이메일이 아니라 포털 안 메시지로 온다.** Riot 공식 안내:
+> "We'll send approval and rejection notifications to you directly in your
+> **application messages on the Developer Portal**."
+
+메일함만 보고 있으면 승인 통보를 놓친다.
+
+| 볼 곳 | 무엇 |
+|---|---|
+| developer.riotgames.com 로그인 → **내 제품(앱) 목록** | 제출한 `LOL.EX` 와 현재 상태 |
+| 그 제품의 **메시지(application messages)** | 승인·거절 통보, 심사팀의 추가 질문 |
+| Support Site (support-developer.riotgames.com) | 상태를 물어볼 때 |
+
+**심사 기간은 공표된 값이 없다.** Riot 문서도 "프로젝트에 따라 다르다" 고만 한다.
+심사팀이 궁금한 것이 있으면 **먼저 메시지를 보낸다** — 그래서 메시지함을 주기적으로
+확인해야 한다. 답을 늦게 하면 심사가 그만큼 밀린다.
+
+### 기다리는 동안
+
+개발용 키는 그대로 쓸 수 있다. 24시간마다 죽으므로 필요할 때 갱신한다.
+
+```bash
+echo 'RIOT_API_KEY=RGAPI-...' > .env && ./check_project.sh restart
+curl -s localhost:9524/api/health | grep riot_ready     # true 여야 한다
+```
+
+죽은 키는 서버가 걸러내므로(`key_works()`), 갱신을 깜빡해도 화면이
+소환사 검색을 권하지 않는다 — 시연이 깨지지는 않는다.
+
 ## 심사에서 떨어지는 흔한 이유
 
 | 이유 | 이 신청서에서 어떻게 막았나 |
