@@ -27,17 +27,29 @@ plt.rcParams["axes.unicode_minus"] = False
 BLUE, RED, GRAY, GREEN = "#2f6fe4", "#c0392b", "#9aa5b1", "#2e7d32"
 NL = chr(10)
 
-# 8종 비교 실측값 — (이름, 검증점수, 연습점수, 격차, 채택여부)
-MODELS = [
-    ("로지스틱 회귀", 0.7280, 0.7319, 0.0039, True),
-    ("랜덤포레스트", 0.7248, 1.0000, 0.2752, False),
-    ("GaussianNB", 0.7238, 0.7253, 0.0015, False),
-    ("SVM (RBF)", 0.7223, 0.7614, 0.0391, False),
-    ("결정트리(d=4)", 0.7180, 0.7285, 0.0105, False),
-    ("KNN (k=25)", 0.7147, 0.7353, 0.0206, False),
-    ("HistGB", 0.7140, 0.8527, 0.1387, False),
-    ("찍기", 0.5009, 0.5009, 0.0000, False),
-]
+# 8종 비교 실측값은 하드코딩하지 않고 근거 파일에서 읽는다.
+# 예전에는 이 자리에 숫자가 손으로 적혀 있었고 그 값을 만든 코드가 없었다 —
+# 재학습하면 조용히 어긋나므로 src/model_compare.py 가 만든 CSV 를 읽는다.
+COMPARISON_CSV = "reports/tables/model_comparison.csv"
+
+
+def load_models():
+    """(이름, 검증점수, 연습점수, 격차, 채택여부) 목록. 검증점수 내림차순."""
+    import csv
+
+    if not os.path.exists(COMPARISON_CSV):
+        raise SystemExit(f"{COMPARISON_CSV} 가 없습니다 — 먼저 python src/model_compare.py 를 실행하세요")
+    rows = list(csv.DictReader(open(COMPARISON_CSV, encoding="utf-8-sig")))
+    out = [(r["모델"], float(r["검증정확도"]), float(r["연습정확도"]), float(r["격차"]),
+            r["판정"] == "통과" and r["모델"] == "로지스틱 회귀")
+           for r in rows]
+    # "찍기"는 비교 출발선이라 항상 맨 아래로 내린다
+    out.sort(key=lambda m: (m[0] == "찍기", -m[1]))
+    return out
+
+
+MODELS = load_models()
+BASELINE = next(m[1] for m in MODELS if m[0] == "찍기")   # 찍기 점수 — 기준선으로 쓴다
 SHOW = [m for m in MODELS if m[0] != "찍기"]
 
 
@@ -52,10 +64,11 @@ def draw_scores(ax):
                 fontweight="bold" if MODELS[i][4] else "normal")
     ax.set_yticks(y); ax.set_yticklabels(names, fontsize=10)
     ax.set_xlim(0.48, 0.79); ax.set_xlabel("검증 점수 (교차검증 정확도)")
-    ax.axvline(0.5009, color="#d0d5da", ls=":", lw=1.4)
-    ax.text(0.5009, y[0] + 0.75, "찍기 0.5009", fontsize=8.5, color="#888", ha="center")
+    ax.axvline(BASELINE, color="#d0d5da", ls=":", lw=1.4)
+    ax.text(BASELINE, y[0] + 0.75, f"찍기 {BASELINE:.4f}", fontsize=8.5, color="#888", ha="center")
+    top2 = MODELS[0][1] - MODELS[1][1]     # 1위와 2위의 점수 차
     ax.set_title("① 점수만 보면 — 위 7개가 다 비슷하다" + NL +
-                 "(로지스틱 1위지만 2위와 0.003 차이)", fontsize=12, pad=12)
+                 f"(로지스틱 1위지만 2위와 {top2:.3f} 차이)", fontsize=12, pad=12)
 
 
 def draw_train_vs_val(ax):
@@ -73,8 +86,10 @@ def draw_train_vs_val(ax):
     ax.set_xticks(x); ax.set_xticklabels([m[0] for m in SHOW], fontsize=8.5, rotation=18)
     ax.set_ylim(0.65, 1.06); ax.set_ylabel("정확도")
     ax.legend(fontsize=9, loc="upper right")
+    rf = next(m for m in SHOW if m[0] == "랜덤포레스트")
     ax.set_title("② 연습과 검증을 나란히 보면 — 누가 외웠는지 보인다" + NL +
-                 "랜덤포레스트는 연습 만점(1.0000)인데 검증에서 0.725", fontsize=12, pad=12)
+                 f"랜덤포레스트는 연습 만점({rf[2]:.4f})인데 검증에서 {rf[1]:.4f}",
+                 fontsize=12, pad=12)
 
 
 def draw_gap(ax):
@@ -87,19 +102,23 @@ def draw_gap(ax):
     ax.text(len(SHOW) - 0.4, 0.036, "허용 기준 0.03", fontsize=9, ha="right")
     ax.set_xticks(x); ax.set_xticklabels([m[0] for m in SHOW], fontsize=8.5, rotation=18)
     ax.set_ylabel("연습 − 검증 격차")
+    rf_gap = next(m[3] for m in SHOW if m[0] == "랜덤포레스트")
     ax.set_title("③ 격차로 판정 — 초록만 통과" + NL +
-                 "랜덤포레스트는 기준의 9배(0.2752)", fontsize=12, pad=12)
+                 f"랜덤포레스트는 기준의 {rf_gap/0.03:.0f}배({rf_gap:.4f})", fontsize=12, pad=12)
 
 
 def draw_decision(ax):
     ax.axis("off")
-    rows = [
-        ("모델", "점수", "안 외움", "이유 설명"),
-        ("로지스틱 회귀", "1위", "O", "O  가중치를 읽을 수 있다"),
-        ("랜덤포레스트", "2위", "X", "X  방향(+/−)을 못 말함"),
-        ("GaussianNB", "3위", "O", "X"),
-        ("SVM · KNN · 트리 · HistGB", "4위~", "일부 X", "X"),
-    ]
+    # 순위·과적합 여부는 CSV 에서, "이유 설명 가능"은 모델의 성질이라 여기서 정한다
+    EXPLAINS = {"로지스틱 회귀": "O  가중치를 읽을 수 있다"}
+    rank = {m[0]: i + 1 for i, m in enumerate(SHOW)}
+    rows = [("모델", "점수", "안 외움", "이유 설명")]
+    for m in SHOW[:3]:
+        rows.append((m[0], f"{rank[m[0]]}위", "O" if m[3] < 0.03 else "X",
+                     EXPLAINS.get(m[0], "X  방향(+/−)을 못 말함" if m[0] == "랜덤포레스트" else "X")))
+    rest = [m for m in SHOW[3:]]
+    rows.append((" · ".join(m[0].split(" (")[0] for m in rest), f"{rank[rest[0][0]]}위~",
+                 "일부 X" if any(m[3] >= 0.03 for m in rest) else "O", "X"))
     t = ax.table(cellText=rows[1:], colLabels=rows[0], cellLoc="left", colLoc="left",
                  loc="upper center", colWidths=[0.34, 0.13, 0.15, 0.38])
     t.auto_set_font_size(False); t.set_fontsize(10.5); t.scale(1, 1.9)

@@ -60,7 +60,12 @@ def part_a(X_tr, y_tr, X_te, y_te):
     df = pd.DataFrame(rows)
     df.to_csv("reports/tables/supplement_pca_reduction.csv", index=False, encoding="utf-8-sig")
 
-    full_cv, full_ho = 0.7315, 0.7394  # 원본 13개 (finalize_model 실측)
+    # 원본 13개의 성능은 하드코딩하지 않고 산출물에서 읽는다.
+    # 손으로 베껴 적으면 재학습 때 조용히 어긋난다(계수 수치로 이미 겪었다).
+    from lolwin.artifacts import load_schema
+    _s = load_schema()
+    full_cv = _s["provenance"]["cv"]["cv_accuracy"]
+    full_ho = _s["metrics_holdout"]["accuracy"]
     print("[A] 데이터 축소 — 주성분 k개만으로")
     for r in rows[:3] + [rows[-1]]:
         print(f"    k={r['주성분수']:>2} · CV {r['교차검증']:.4f} · 홀드아웃 {r['홀드아웃']:.4f}")
