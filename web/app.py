@@ -210,6 +210,27 @@ def _build_matches():
     return out
 
 
+@app.route("/api/coach", methods=["POST"])
+def api_coach():
+    """감독 — 이 경기 상태에서 무엇을 했다면 승률이 얼마나 올랐나.
+
+    진단(어디서 졌나)에서 멈추지 않고 처방까지 준다.
+    계산은 lolwin.coach 한 곳에서만 한다 — 화면은 문장만 만든다.
+    """
+    from lolwin.coach import advise, verdict_advice
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "JSON 본문이 필요합니다."}), 400
+    try:
+        out = advise({k: v for k, v in data.items() if k != "verdict"})
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    if data.get("verdict"):
+        out["verdict_advice"] = verdict_advice(data["verdict"])
+    return jsonify(out)
+
+
 @app.route("/api/matches")
 def api_matches():
     """실제 경기 복기 — 시험셋에서 조건에 맞는 경기를 돌려준다.
