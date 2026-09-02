@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # LoL 승패 예측·설명 서비스 — 시작/중지/재시작/상태/로그/테스트
 #
-#   ./check_project.sh start | stop | restart | status | logs | test | health | deploy
+#   ./check_project.sh start | stop | restart | status | logs | verify | test | health | deploy
+#   verify = 서버 없이 도는 검사(회귀·계약·재현성·문서) — 커밋 전에 이것부터
 #   deploy = git pull --ff-only → restart → test  (팀원이 main 에 push 한 뒤 팀 서버에 반영할 때)
 #
 # 포트·도메인 (DDBM 팀 배정): 프런트 F9504 · 백엔드 B9524 · p4.sumzip.com → 프런트
@@ -19,9 +20,18 @@ RUN="$ROOT/run"; LOG="$ROOT/logs"; mkdir -p "$RUN" "$LOG"
 # .env 가 있으면 읽는다 (DB_PASSWORD · RIOT_API_KEY 등). 값은 출력하지 않는다.
 if [ -f "$ROOT/.env" ]; then set -a; . "$ROOT/.env"; set +a; fi
 
-if   [ -x "$ROOT/venv311/bin/python" ]; then PY="$ROOT/venv311/bin/python"
-elif [ -x "$ROOT/venv/bin/python" ];    then PY="$ROOT/venv/bin/python"
-else PY="$(command -v python3)"; fi
+# 파이썬 찾기 — "있는지" 가 아니라 "실제로 도는지" 로 고른다.
+# 윈도우에는 python3 라는 이름의 마이크로소프트 스토어 안내 스텁이 있어서,
+# -x 만 보면 그걸 골라 놓고 모든 명령이 조용히 실패한다(실제로 겪었다).
+PY=""
+for cand in "$ROOT/venv311/bin/python" "$ROOT/venv311/Scripts/python.exe" \
+            "$ROOT/venv/bin/python" "$ROOT/venv/Scripts/python.exe" \
+            python3 python; do
+  if command -v "$cand" >/dev/null 2>&1 && "$cand" -c "import sys" >/dev/null 2>&1; then
+    PY="$cand"; break
+  fi
+done
+[ -n "$PY" ] || { echo "쓸 수 있는 python 을 못 찾았습니다 (python3 / python 확인)"; exit 1; }
 
 c_ok()  { printf "\033[32m%s\033[0m\n" "$*"; }
 c_bad() { printf "\033[31m%s\033[0m\n" "$*"; }
@@ -88,10 +98,26 @@ cmd_deploy() {
   git -C "$ROOT" pull --ff-only || { c_bad "git pull 실패 — 로컬 변경이 있으면 먼저 커밋/스태시"; return 1; }
   cmd_restart && cmd_test
 }
-cmd_test()   { echo "▶ 서빙 파리티"; "$PY" web/test_parity.py || return 1; echo; echo "▶ API 스모크"; "$PY" web/test_api.py; }
+# verify = 서버 없이 도는 검사 (라이브러리·문서). 커밋 전에 이것부터.
+cmd_verify() {
+  local fail=0
+  echo "▶ 예측 회귀 (골든 50건)";      "$PY" tests/test_regression.py          || fail=1; echo
+  echo "▶ 서빙 계약";                  "$PY" tests/test_contract.py            || fail=1; echo
+  echo "▶ 학습 재현성";                "$PY" tests/test_training_reproducible.py || fail=1; echo
+  echo "▶ 문서·수치 정합성";           "$PY" src/factcheck.py                  || fail=1
+  [ "$fail" = 0 ] || { c_bad "verify 실패 — 위 항목을 먼저 고칠 것"; return 1; }
+}
+
+# test = verify + 서버가 떠 있어야 도는 검사
+cmd_test() {
+  cmd_verify || return 1
+  echo; echo "▶ 서빙 파리티"; "$PY" web/test_parity.py || return 1
+  echo;    echo "▶ API 스모크"; "$PY" web/test_api.py
+}
 
 case "${1:-}" in
   start) cmd_start ;;  stop) cmd_stop ;;  restart) cmd_restart ;;  status) cmd_status ;;
-  logs) cmd_logs "${2:-40}" ;;  health) cmd_health ;;  test) cmd_test ;;  deploy) cmd_deploy ;;
+  logs) cmd_logs "${2:-40}" ;;  health) cmd_health ;;  test) cmd_test ;;
+  verify) cmd_verify ;;  deploy) cmd_deploy ;;
   *) echo "사용법: $0 {start|stop|restart|status|logs [n]|health|test|deploy}"; exit 2 ;;
 esac
