@@ -12,7 +12,7 @@ import sys
 import urllib.error
 import urllib.request
 
-from flask import Flask, Response, render_template, request
+from flask import Flask, Response, render_template, request, send_from_directory
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_PORT = int(os.environ.get("FRONTEND_PORT", 9504))
@@ -44,6 +44,22 @@ def index():
         except Exception:
             pass
     return render_template("index.html", riot_ready=riot_ready, domain=DOMAIN, backend_ok=(status == 200))
+
+
+@app.route("/figures/<path:name>")
+def figures(name):
+    """reports/ 의 그림을 그대로 내려준다.
+
+    web/static/ 에 사본을 두면 그림을 다시 만들 때마다 손으로 복사해야 하고,
+    깜빡하면 화면만 옛 그림이 남는다(실제로 그런 적이 있다).
+    사본을 없애고 원본을 직접 서빙하므로, git pull 만 하면 화면도 같이 최신이 된다.
+    send_from_directory 가 경로 탈출(../)을 막아 준다.
+    """
+    for sub in ("", "figures"):
+        d = os.path.join(ROOT, "reports", sub)
+        if os.path.isfile(os.path.join(d, name)):
+            return send_from_directory(d, name, max_age=60)
+    return ({"error": f"reports 에 {name} 이 없습니다"}, 404)
 
 
 @app.route("/healthz")

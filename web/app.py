@@ -46,9 +46,15 @@ def cors(resp):
 
 
 def _csv(name):
-    """reports/*.csv 를 dict 목록으로 (BOM 포함 파일 대응, 숫자는 숫자로)."""
-    path = os.path.join(REPORTS, name)
-    if not os.path.exists(path):
+    """reports 의 csv 를 dict 목록으로 (BOM 포함 파일 대응, 숫자는 숫자로).
+
+    표는 reports/tables/ 로 옮겨졌지만 예전 경로(reports/)에 있을 수도 있어 둘 다 찾는다.
+    한쪽만 보면 파일이 이동했을 때 API 가 조용히 빈 배열을 돌려준다(실제로 그런 적이 있다).
+    """
+    for path in (os.path.join(REPORTS, "tables", name), os.path.join(REPORTS, name)):
+        if os.path.exists(path):
+            break
+    else:
         return []
     with open(path, encoding="utf-8-sig", newline="") as f:
         rows = []
