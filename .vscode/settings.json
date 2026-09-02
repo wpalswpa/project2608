@@ -1,0 +1,30 @@
+{
+  // 3분마다 원격을 확인해, 새 커밋이 있으면 소스 제어 아이콘에 "↓ 개수" 로 알려준다.
+  // (알려주기만 한다 — 파일을 실제로 받으려면 Pull 을 눌러야 한다)
+  "git.autofetch": true,
+  "git.autofetchPeriod": 180,
+
+  // 브랜치가 뒤처지면 눈에 띄게
+  "git.showPushSuccessNotification": true,
+  "git.branchProtection": ["main"],
+
+  // 한글이 깨지지 않게 · 줄바꿈은 .gitattributes 의 LF 와 맞춘다 (윈도우·맥 혼용 팀)
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // 확인할 필요 없는 폴더는 탐색기·검색에서 숨긴다
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "venv": true,
+    "venv311": true,
+    "run": true,
+    "logs": true
+  },
+  "search.exclude": {
+    "docs/_archive": true,
+    "specs/**/_server_backup_*": true
+  }
+}
