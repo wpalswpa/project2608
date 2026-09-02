@@ -30,7 +30,7 @@ clone 한 뒤 반드시 `git checkout team` 부터. 개인 브랜치는 만들�
 
 | 사람 | 손대는 파일 |
 |---|---|
-| 임예은 | `web/frontend.py` · `web/static/` (화면 쪽) |
+| 임예은 | `web/frontend.py` · `web/templates/` (화면 쪽) |
 | 임의석 | `web/app.py` · `web/test_*.py` · `check_project.sh` (백엔드·배포 쪽) |
 
 > 바꿔도 되지만 **시작 전에 정해놓을 것.**
