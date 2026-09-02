@@ -339,8 +339,10 @@ VIF도 **골드가 23.4로 1위**입니다(10 이상이면 중복).
 pip install -r requirements.txt          # Python 3.11 · scikit-learn 1.9.0
 
 python src/day1_baseline.py              # 데이터 확인 · 분할 · 찍기 점수 0.5009
-python src/day2_features_cluster.py      # 중복 정리 · 차이 지표 13개 · 경기 유형
+python src/day2_features_cluster.py      # 중복 정리 · 차이 지표 13개 · 군집
+python src/day2b_game_types.py           # 경기 유형 4가지 (05_game_types.png)
 python src/finalize_model.py             # 최종 학습 · 채점 0.7394 · 모델 저장
+python src/model_choice_viz.py           # 왜 이 모델인가 (06_model_choice.png)
 python src/feature_reduction.py          # 페이즈 2 — 히트맵 확인 후 골드 빼고 재학습
 python src/timepoint_compare.py          # 10분 vs 15분 (보너스)
 python src/repeat_check.py               # 분할을 10번 바꿔 재학습

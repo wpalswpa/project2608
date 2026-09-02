@@ -103,6 +103,30 @@ else:
                     issues.append(f"[계수 확인] {p}:{ln} 킬 계수 {m.group(1)} "
                                   f"(실측 {with_gold:+.3f} · 골드 제외 시 {without_gold:+.3f})")
 
+# 6-3) 대표 정확도가 근거 파일(분할 10회 재학습)과 같은가
+#      이 값 하나가 문서 14곳에 적혀 있어, 근거가 바뀌면 어디를 고쳐야 하는지 알려준다.
+REPEAT_CSV = "reports/tables/repeat_experimentA.csv"
+if not os.path.exists(REPEAT_CSV):
+    issues.append(f"[근거 파일 없음] {REPEAT_CSV} — python src/repeat_check.py 를 먼저 실행")
+else:
+    accs = [float(r.split(",")[1]) for r in read(REPEAT_CSV).strip().split("\n")[1:] if r]
+    mean = sum(accs) / len(accs)
+    # 문서 표기는 표본표준편차(ddof=1) 기준 — pandas .std() 와 같다
+    var = sum((a - mean) ** 2 for a in accs) / (len(accs) - 1)
+    mean_s, std_s = f"{mean:.4f}", f"{var ** 0.5:.4f}"
+    # "대표 정확도" 라는 이름표가 붙은 값만 본다 ("대표값으로 쓰나" 같은 서술은 제외).
+    # 표 안에도 있으므로 | 는 건너뛰되, 이름표가 충분히 구체적이라 옆 칸을 잘못 집지 않는다.
+    LABEL = re.compile(r"대표\s*정확도[^0-9\n]{0,12}(0\.\d{4})")
+    for p, s in docs.items():
+        for ln, line in enumerate(s.split("\n"), 1):
+            for m in LABEL.finditer(line):
+                if m.group(1) != mean_s:
+                    issues.append(f"[대표 정확도] {p}:{ln} {m.group(1)} "
+                                  f"(근거 {REPEAT_CSV} 평균 {mean_s})")
+                for sd in re.findall(r"±\s*(0\.\d{4})", line[m.end():m.end() + 14]):
+                    if sd != std_s:
+                        issues.append(f"[대표 정확도] {p}:{ln} 표준편차 {sd} (근거 {std_s})")
+
 # 7) requirements.txt 가 실제로 쓰는 패키지를 덮는가
 reqs = read("requirements.txt").lower()
 for pkg in ["flask", "scikit-learn", "pandas", "numpy", "matplotlib", "joblib", "pymysql"]:
