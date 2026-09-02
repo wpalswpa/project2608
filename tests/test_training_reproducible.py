@@ -17,8 +17,25 @@ sys.path.insert(0, ROOT)
 from lolwin.data import CSV_PATH  # noqa: E402
 
 
+def shipped_source() -> str:
+    """배포본이 어느 원천으로 학습됐는지 schema.json 에서 읽는다.
+
+    재현성 검사는 "같은 방식으로 다시 만들면 같은가"를 묻는 것이므로,
+    원천을 자동 감지에 맡기면 안 된다. DB_PASSWORD 가 있는 머신(팀 서버)에서는
+    자동 감지가 DB 뷰를 타는데, 배포본은 CSV 분할로 학습돼 있어 결과가 어긋난다
+    (실측: CSV 분할 0.7394 vs DB ml_split 분할 0.7136 — 둘 다 유효한 분할이다).
+    """
+    import json
+
+    with open(os.path.join(ROOT, "artifacts", "schema.json"), encoding="utf-8") as f:
+        src = json.load(f)["data_source"]
+    return "db" if src.startswith("db") else "csv"
+
+
 def _skip_reason() -> str | None:
-    if not os.path.exists(CSV_PATH):
+    if not os.path.exists(os.path.join(ROOT, "artifacts", "schema.json")):
+        return "artifacts/schema.json 없음"
+    if shipped_source() == "csv" and not os.path.exists(CSV_PATH):
         return f"원본 CSV 없음 ({os.path.relpath(CSV_PATH, ROOT)}) — 데이터 있는 환경에서 실행하세요"
     if not os.path.exists(os.path.join(ROOT, "artifacts", "model.joblib")):
         return "artifacts/model.joblib 없음"
@@ -33,7 +50,7 @@ def test_retraining_reproduces_shipped_model():
     from lolwin.model import train
 
     with tempfile.TemporaryDirectory(prefix="lolwin_test_") as tmp:
-        train(out_dir=tmp, verbose=False)
+        train(source=shipped_source(), out_dir=tmp, verbose=False)
         new = joblib.load(os.path.join(tmp, "model.joblib"))
 
     old = joblib.load(os.path.join(ROOT, "artifacts", "model.joblib"))
@@ -59,7 +76,7 @@ def test_schema_matches_shipped():
     from lolwin.model import train
 
     with tempfile.TemporaryDirectory(prefix="lolwin_test_") as tmp:
-        got = train(out_dir=tmp, verbose=False)["schema"]
+        got = train(source=shipped_source(), out_dir=tmp, verbose=False)["schema"]
 
     with open(os.path.join(ROOT, "artifacts", "schema.json"), encoding="utf-8") as f:
         shipped = json.load(f)

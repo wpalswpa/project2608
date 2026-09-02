@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LOLEX — 10분 승패 예측·설명</title>
+<title>LOL.EX — 10분 승패 예측·설명</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
@@ -51,6 +51,9 @@ h1,h2,h3,.num{font-family:"Cinzel","Noto Serif KR",serif;letter-spacing:.02em}
 h2{font-size:19px;margin:0 0 4px;color:var(--gold)}
 h3{font-size:15px;margin:0 0 8px;color:var(--gold)}
 .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+/* 로고 — op.gg 처럼 점을 살려 도메인형으로 읽히게 */
+.logo{font-family:"Cinzel",serif;font-weight:700;letter-spacing:.02em}
+.logo .dot{color:var(--gold)}
 /* 골드 마름모 구분선 */
 .rule{display:flex;align-items:center;gap:10px;margin:18px 0}
 .rule::before,.rule::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
@@ -144,9 +147,9 @@ footer{color:#6B7A8F;font-size:11.5px;text-align:center;padding:24px 20px;border
 <header>
   <div class="hero-art" id="heroArt" aria-hidden="true"></div>
   <div class="hero-in wrap">
-    <p class="eyebrow">LOLEX · 10 MIN BRIEFING</p>
+    <p class="eyebrow"><span class="logo">LOL<span class="dot">.</span>EX</span> &nbsp;·&nbsp; 10 MIN BRIEFING</p>
     <h1>경기는 언제 승부가 결정되는가</h1>
-    <p class="sub" style="margin:0"><b style="color:var(--gold-lite)">LOLEX</b>(LoL + Explain) — 10분 시점의 숫자 13개로 승패를 예측하고,
+    <p class="sub" style="margin:0"><b class="logo" style="color:var(--gold-lite)">LOL<span class="dot">.</span>EX</b> — 10분 시점의 숫자 13개로 승패를 예측하고,
     <b style="color:var(--gold-lite)">왜 그렇게 판단했는지</b>와 <b style="color:var(--gold-lite)">지금 믿어도 되는지</b>까지 함께 보여줍니다.</p>
     <p class="meta" id="svc">{% if domain %}공개 주소 https://{{ domain }} · {% endif %}백엔드 {% if backend_ok is defined and not backend_ok %}<span style="color:var(--red)">연결 안 됨 — 서버에서 ./check_project.sh status 확인</span>{% else %}연결됨{% endif %} · 예측은 서버 한 곳(lolwin)에서만 계산됩니다</p>
   </div>
@@ -243,7 +246,7 @@ footer{color:#6B7A8F;font-size:11.5px;text-align:center;padding:24px 20px;border
 </div>
 
 <footer>
-  <b>LOLEX</b> · 4조 — 승률이 아니라 <b>설명</b>을 보여주는 10분 브리핑 · 비영리 교육 프로젝트<br>
+  <span class="logo">LOL<span class="dot">.</span>EX</span> · 4조 — 승률이 아니라 <b>설명</b>을 보여주는 10분 브리핑 · 비영리 교육 프로젝트<br>
   isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially
   involved in producing or managing Riot Games properties. Riot Games and all associated properties are
   trademarks or registered trademarks of Riot Games, Inc.<br>
