@@ -28,7 +28,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from finalize_model import DIFF13, build_diff13_from_csv
+from lolwin.features import DIFF13
+from lolwin.features import build as build_diff13_from_csv
 from timepoint_compare import FEATURES as EXPB_FEATURES
 from timepoint_compare import build as build_expb
 

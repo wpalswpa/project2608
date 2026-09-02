@@ -690,6 +690,7 @@ z    = (입력값 - scaler.mean_) / scaler.scale_   # ① 표준화
 ```bash
 pip install -r requirements.txt          # Python 3.11 · scikit-learn 1.9.0
 
+pip install -e .                         # 먼저 한 번 — lolwin 라이브러리 설치
 python src/day1_baseline.py              # 데이터 확인 · 분할 · 찍기 점수 0.5009
 python src/split_check.py                # 분할 진단 (겹침·층화·분포 4항목)
 python src/day2_features_cluster.py      # 중복 정리 · 차이 지표 13개 · 군집
@@ -702,6 +703,7 @@ python src/timepoint_compare.py          # 10분 vs 15분 (보너스)
 python src/repeat_check.py               # 분할을 10번 바꿔 재학습
 python predict.py --demo                 # 예측 확인 (51.2% / 94.6% / 16.8%)
 python src/factcheck.py                  # 문서 숫자 자동 점검 (0건이어야 정상)
+./check_project.sh verify                # 위 검사 + 예측 회귀 · 서빙 계약 · 학습 재현성
 ```
 
 데이터 CSV는 저작권·용량 때문에 저장소에 없습니다. `data/README.md`의 링크에서 받으세요.
@@ -718,29 +720,48 @@ DB 접속 정보가 없으면 자동으로 로컬 CSV를 씁니다(계산식 동
 
 # 무엇이 어디에 있나
 
-| 보려는 것 | 파일 |
+## 사람이 봐야 하는 것 — 이 네 개면 충분합니다
+
+| 폴더·파일 | 역할 | 언제 보나 |
+|---|---|---|
+| **`README.md`** | 프로젝트 전체 이야기 (이 파일) | 처음 볼 때 · 발표 준비할 때 |
+| **`STUDY.md`** | 개념 가이드 — "왜 이걸 하는데?"부터 시작 | 용어가 막힐 때 |
+| **`reports/`** | **결과물이 모이는 곳.** 제출용 노트북 · 발표용 지표표 · 그림 | 제출·발표 자료가 필요할 때 |
+| **`model_card.md`** | 모델 사용설명서와 **금지 상황** | 남에게 모델을 넘길 때 |
+
+`reports/` 안에서 실제로 열어볼 것은 세 개입니다.
+
+| 파일 | 무엇 |
 |---|---|
-| **평가 결과 (제출용)** | `reports/model_report.ipynb` — 모델·데이터·평가·혼동행렬 |
-| **발표에 쓸 숫자와 근거** | `reports/metrics_summary.md` — 지표 표 + 예상 질문 5개의 답 |
-| 페이즈 2 상세 (골드 제외 실험) | `reports/phase2_feature_reduction.md` · 그림 `reports/07_phase2_without_gold.png` |
-| 모델 사용설명서·금지 상황 | `model_card.md` |
-| 팀 작업 방법 | `docs/TEAM_WORKFLOW.md` |
-| 서버 배포 절차 | `docs/deploy.md` |
-| 개념 공부 | `STUDY.md` — 용어를 풀어쓴 가이드 |
+| `model_report.ipynb` | **제출용** — 채택 모델 · 뷰·분할 상태 · 평가 결과 · 혼동행렬 |
+| `metrics_summary.md` | **발표용** — 숫자와 근거 파일, 예상 질문 5개의 답 |
+| `phase2_feature_reduction.md` | 페이즈 2 상세 (골드 제외 실험) |
+
+나머지 `reports/figures/` `reports/tables/` 는 그림·표 원본 보관소라 **직접 열 일이 없습니다.**
+
+## 나머지 — 기계가 검증하는 것들
+
+한 줄씩만 알아두면 됩니다. 고칠 일이 생기면 검사가 잡아줍니다.
 
 ```
-├─ predict.py              예측 진입점 (예측 로직은 여기 하나뿐)
-├─ check_project.sh        서비스 시작·중지·재시작
-├─ artifacts/              model.joblib · schema.json
-├─ src/                    분석 스크립트
-├─ web/                    프론트(9504) · 백엔드(9524)
-├─ notebooks/              전 과정 재현 노트북
-├─ reports/                결과 — 그림 5장 + 보고서 3개 (원본은 figures/ tables/)
-└─ docs/                   기획·명세·계획·작업·공부 자료
+lolwin/        라이브러리 — 피처 정의·모델·예측이 여기 모여 있다 (정본)
+predict.py     명령행 진입점 (실제 로직은 lolwin 안)
+artifacts/     학습된 모델 파일 + 입력 규격
+tests/         회귀·계약·재현성 검사
+src/           분석 실험 스크립트 (페이즈 1·2·3 재현)
+web/           프론트(9504) · 백엔드(9524)
+notebooks/     전 과정 재현 노트북
+docs/          기획·명세·계획·배포·서빙 계약
+db/            DB 적재와 SQL 뷰
+```
+
+무엇을 고치든 이 한 줄이면 전부 확인됩니다.
+
+```bash
+./check_project.sh verify     # 예측 회귀 · 서빙 계약 · 학습 재현성 · 문서 수치
 ```
 
 **산출물 6종** — README · 재현 노트북 · `model.joblib` · `schema.json` · `predict.py` · `model_card.md`
-저장한 모델은 다시 불러왔을 때 예측이 같은지 자동으로 확인합니다.
 
 ---
 

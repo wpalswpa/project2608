@@ -30,7 +30,8 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-from finalize_model import DIFF13, load_data
+from lolwin.data import load as load_data          # 학습 스크립트 대신 라이브러리에서
+from lolwin.features import DIFF13
 
 SEED = 42
 BLUE, RED, GRAY = "#2f6fe4", "#c0392b", "#9aa5b1"

@@ -50,7 +50,7 @@ def load(source: str | None = None):
 
         meta = {"data_source": "db:v_diff13", "data_hash": None,
                 "n_train": len(y_tr), "n_test": len(y_te)}
-        return X_tr[list(DIFF13)], y_tr, X_te[list(DIFF13)], y_te, meta
+        return X_tr[DIFF13], y_tr, X_te[DIFF13], y_te, meta
 
     if not os.path.exists(CSV_PATH):
         raise FileNotFoundError(

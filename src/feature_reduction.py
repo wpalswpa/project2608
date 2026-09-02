@@ -42,7 +42,9 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from finalize_model import DIFF13, build_diff13_from_csv, load_data
+from lolwin.data import load as load_data          # 학습 스크립트 대신 라이브러리에서
+from lolwin.features import DIFF13
+from lolwin.features import build as build_diff13_from_csv
 
 SEED = 42
 SEEDS = [42, 0, 1, 7, 13, 21, 77, 100, 202, 777]

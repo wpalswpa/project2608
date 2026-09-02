@@ -17,12 +17,13 @@ TARGET = "blueWins"
 
 # 블루 − 레드 차이로 통일한 13개. 전부 "양수 = 블루 우세" 로 방향이 같다.
 # 순서가 곧 모델 입력 순서이므로 함부로 바꾸면 저장된 모델과 어긋난다.
-DIFF13: tuple[str, ...] = (
+# 리스트인 이유: 쓰는 쪽이 전부 pandas 인덱싱(X[DIFF13])이라 튜플이면 KeyError 가 난다.
+DIFF13: list[str] = [
     "FirstBlood", "KillsDiff", "GoldDiff", "ExpDiff", "WardsPlacedDiff",
     "WardsDestroyedDiff", "AssistsDiff", "DragonsDiff", "HeraldsDiff",
     "TowersDestroyedDiff", "AvgLevelDiff", "TotalMinionsKilledDiff",
     "TotalJungleMinionsKilledDiff",
-)
+]
 
 # 원본 컬럼이 blue*/red* 쌍으로 있어 그대로 빼면 되는 것들
 _PAIRED = (
@@ -61,7 +62,7 @@ def build(df):
         out[name] = df[blue] if red is None else df[blue] - df[red]
     for p in _PAIRED:
         out[f"{p}Diff"] = df[f"blue{p}"] - df[f"red{p}"]
-    return out[list(DIFF13)]
+    return out[DIFF13]
 
 
 def to_sql(view: str = "v_diff13_all", source: str = "v_base") -> str:

@@ -80,7 +80,7 @@ def test_in_range_no_warning():
 
 def test_schema_matches_features():
     """schema.json 의 피처 목록과 lolwin.features 의 정본이 같은가."""
-    assert list(load_schema()["features"].keys()) == list(DIFF13), (
+    assert list(load_schema()["features"].keys()) == DIFF13, (
         "schema.json 과 lolwin/features.py 의 피처가 다릅니다 — 재학습이 필요합니다")
 
 
