@@ -19,7 +19,9 @@ sys.path.insert(0, os.path.join(ROOT, "src")) # src/riot_api.py
 
 from flask import Flask, jsonify, render_template, request
 
-from predict import _DEMOS, _KOREAN, _SCHEMA_PATH, predict  # 예측 로직의 단일 진실
+from lolwin import KOREAN, predict            # 예측 로직의 단일 진실
+from lolwin.artifacts import SCHEMA_PATH
+from lolwin.predict import DEMOS
 
 # Riot API 연동은 선택 기능 — 키가 없어도 나머지는 정상 동작해야 한다
 try:
@@ -71,13 +73,13 @@ def _csv(name):
 
 
 def _schema():
-    with open(_SCHEMA_PATH, encoding="utf-8") as f:
+    with open(SCHEMA_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 
 def _parity():
     """서버 경로와 predict() 직접 호출이 같은 함수를 쓰므로 차이는 0 — 기동 시 한 번 실측해 둔다."""
-    diff = max(abs(predict(p)["win_prob_blue"] - predict(p)["win_prob_blue"]) for _, p in _DEMOS)
+    diff = max(abs(predict(p)["win_prob_blue"] - predict(p)["win_prob_blue"]) for _, p in DEMOS)
     return {"passed": diff == 0.0, "max_abs_diff": diff, "verified_at": STARTED_AT,
             "method": "backend imports predict.predict directly; web/test_parity.py verifies over HTTP"}
 
@@ -111,7 +113,7 @@ def api_schema():
 
 @app.route("/api/examples")
 def api_examples():
-    return jsonify([{"id": ["close", "blue", "red"][i], "label": name, "payload": payload} for i, (name, payload) in enumerate(_DEMOS)])
+    return jsonify([{"id": ["close", "blue", "red"][i], "label": name, "payload": payload} for i, (name, payload) in enumerate(DEMOS)])
 
 
 @app.route("/api/report")
@@ -130,7 +132,7 @@ def api_report():
         "win_factors": _csv("win_factor_ranking.csv"),
         "experiment_b": {"close_games": _csv("expB_close_games.csv"), "coef_shift": _csv("expB_coef_shift.csv"),
                          "repeat": _csv("repeat_experimentB.csv")},
-        "feature_names": _KOREAN,
+        "feature_names": KOREAN,
     })
 
 

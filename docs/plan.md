@@ -13,7 +13,7 @@
 
 | 항목 | 내용 |
 |---|---|
-| Language | Python 3.12 (학습·예측·웹 단일 스택) |
+| Language | Python 3.12 (학습·예측·웹 단일 스택) — ※ 9/2 **3.11 로 확정** (모델이 scikit-learn 1.9.0 저장본, venv311) |
 | Dependencies | pandas · scikit-learn(Pipeline) · joblib · matplotlib · Flask · pymysql (버전 고정) |
 | Storage | 팀 MariaDB `<팀DB명>` (SQL 뷰 4종이 피처 정의의 정본) · CSV 폴백 · v2 적재처 후보 `<후속DB명>` |
 | Testing | 복원 일치 assert · 서빙 파리티(web/test_parity.py) · 문서 정합성(src/factcheck.py) |

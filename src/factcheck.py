@@ -20,9 +20,16 @@ def read(p):
     return io.open(p, encoding="utf-8").read()
 
 
-DOCS = (["README.md", "model_card.md", "STUDY.md"]
-        + sorted(glob.glob("docs/*.md"))
-        + sorted(glob.glob("reports/*.md")))   # 발표에 쓰는 문서도 점검 대상
+# docs 하위 폴더까지 본다 — ddbm-intent/ 가 점검에서 빠져 저장소보다 뒤처진 적이 있다.
+# _archive 와 _server_backup 은 계획 시점 보존용이라 제외한다(링크가 깨져 있는 게 정상).
+def _live_docs(pattern):
+    return sorted(f for f in glob.glob(pattern, recursive=True)
+                  if "_archive" not in f and "_server_backup" not in f)
+
+
+DOCS = (["README.md", "model_card.md", "STUDY.md", "CLAUDE.md"]
+        + _live_docs("docs/**/*.md")
+        + _live_docs("reports/**/*.md"))   # 발표에 쓰는 문서도 점검 대상
 docs = {p: read(p) for p in DOCS}
 
 # 1) 문서가 가리키는 파일이 실제로 있는가 (마크다운 링크 · 백틱 경로)
@@ -139,6 +146,22 @@ reqs = read("requirements.txt").lower()
 for pkg in ["flask", "scikit-learn", "pandas", "numpy", "matplotlib", "joblib", "pymysql"]:
     if pkg not in reqs:
         issues.append(f"[requirements 누락] {pkg}")
+
+
+# 8) 지침 문서가 저장소 현실을 따라오는가
+#    (docs/ddbm-intent 가 점검에서 빠져 저장소 주소·파이썬 버전이 낡은 채 남아 있었다)
+REPO = "wpalswpa/project2608"
+for p, s in docs.items():
+    for m in re.finditer(r"([\w-]+)/project2608", s):
+        if m.group(0) != REPO:
+            issues.append(f"[저장소 주소] {p}: {m.group(0)} (실제 {REPO})")
+    for ln in s.splitlines():
+        # ※ 표시가 붙은 줄은 "계획 시점 기록 + 대체 안내" 라 그대로 둔다
+        if "※" in ln:
+            continue
+        for m in re.finditer(r"[Pp]ython\s*3\.(\d+)", ln):
+            if m.group(1) != "11":
+                issues.append(f"[파이썬 버전] {p}: 3.{m.group(1)} (실제 3.11)")
 
 print(f"점검 문서 {len(DOCS)}개 · 발견된 문제 {len(issues)}건")
 for i in issues:

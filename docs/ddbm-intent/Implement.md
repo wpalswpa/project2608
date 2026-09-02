@@ -1,5 +1,5 @@
 [구현 범위]
-tasks 의도의 A1~A9를 전부 구현했다 (2026-09-01 완료). 코드는 GitHub `8wghw74rd2-coder/project2608`, 문서는 `specs/002-ml-prediction-service/`.
+tasks 의도의 A1~A9를 전부 구현했다 (2026-09-01 완료). 코드는 GitHub `wpalswpa/project2608`, 문서는 `specs/002-ml-prediction-service/`.
 
 [무엇을 만들었나]
 · 학습 파이프라인 6개 — src/day1_baseline → day2_features_cluster → day2b_game_types → finalize_model → timepoint_compare → repeat_check
