@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lolwin"
+version = "1.0.0"
+description = "LoL 10분 시점 승패 예측·설명 라이브러리 (4조)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "scikit-learn>=1.9.0",
+  "pandas>=2.0",
+  "numpy>=1.26",
+  "joblib>=1.3",
+]
+
+[project.optional-dependencies]
+# 학습·분석 스크립트를 돌릴 때만 필요한 것들 (라이브러리 자체는 위 4개면 충분)
+train = ["matplotlib>=3.8", "statsmodels>=0.14"]
+web = ["flask>=3.0"]
+db = ["pymysql>=1.1"]
+
+[project.scripts]
+lolwin-predict = "lolwin.cli:main"
+
+[tool.setuptools]
+packages = ["lolwin"]
