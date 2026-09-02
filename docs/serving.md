@@ -1,3 +1,9 @@
+<!-- ─────────────────────────────────────────────
+  서빙 계약 — 무엇을 넣으면 무엇이 나오는가.
+  왜 필요한가: 여기 적힌 것이 바뀌면 쓰는 쪽이 깨진다. tests/test_contract.py 가 이 문서대로 도는지 검사한다.
+  주로 보는 사람: 서비스 연동 · Claude(검수)
+  ───────────────────────────────────────────── -->
+
 # 서빙 계약 — 무엇을 넣으면 무엇이 나오나
 
 이 문서가 **약속**이다. 여기 적힌 것이 바뀌면 쓰는 쪽이 깨지므로,
@@ -17,12 +23,7 @@
 | `POST /api/predict` | 웹 화면, 외부 연동 |
 | `lolwin-predict '{...}'` | 터미널에서 한 건 확인 |
 
-```
-브라우저 → frontend.py(9504) → app.py(9524) → lolwin.predict → model.joblib
-             중계만              얇은 API        계산            학습된 모델
-```
-
-**웹 계층에는 `sklearn`·`joblib` import 가 없다.** 계산은 `lolwin` 안에서만 일어난다.
+계산은 `lolwin` 안에서만 일어난다 — 구조는 **6장**에서 자세히 본다.
 
 ## 2. 입력
 
@@ -104,7 +105,37 @@
 | `POST /api/predict/batch` | 여러 건 한 번에 |
 | `GET /figures/<이름>` | `reports/` 의 그림 (사본을 두지 않는다) |
 
-## 6. 이 계약을 지키는지 확인
+## 6. 구현 구조 — 누가 계산하나
+
+```
+브라우저 → web/frontend.py (9504) → web/app.py (9524) → lolwin.predict → artifacts/model.joblib
+            화면·중계만              예측 API            예측 전담        학습된 모델 (2.2KB)
+```
+
+**각 계층이 무엇을 import 하는지**가 곧 "누가 계산하는가"다.
+
+| 파일 | import 하는 것 | 하는 일 |
+|---|---|---|
+| `web/frontend.py` | `flask` · `urllib` | 화면을 내려주고 `/api/*`를 백엔드로 **중계만**. 예측 코드 0줄 |
+| `web/app.py` | `flask` · **`from lolwin import predict`** | 입력을 받아 `predict()`에 넘기고 결과를 JSON으로 반환 |
+| `lolwin/predict.py` | **`joblib` · `pandas` · `numpy`** | 모델을 불러 확률과 승리요인을 계산 — **계산은 이 파일뿐** |
+| `predict.py` (루트) | `from lolwin.predict import …` | 명령행·기존 코드용 호환 진입점. 계산 없음 |
+
+**`web/` 어디에도 `sklearn`·`joblib` import 가 없다.** 웹은 계산하지 않고 `predict()` 를 부를 뿐이다.
+계산이 두 곳에 있으면 화면 확률과 모델 확률이 갈라져도 아무도 모르기 때문이다.
+
+### model.joblib 안에는 무엇이 들어 있나
+
+```
+Pipeline
+ ├─ scaler → StandardScaler      평균 13개 · 표준편차 13개
+ └─ model  → LogisticRegression  계수 13개 + 절편 −0.0043
+```
+
+**딱 이게 전부다(2,209 bytes).** 파이프라인을 통째로 저장했기 때문에
+예측할 때 **표준화를 빠뜨릴 수가 없다.** 스케일러와 회귀식이 한 덩어리로 묶여 있어서다.
+
+## 7. 이 계약을 지키는지 확인
 
 ```bash
 python tests/test_contract.py       # 출력 형식·에러 규약
