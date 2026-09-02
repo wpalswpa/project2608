@@ -19,7 +19,9 @@ def read(p):
     return io.open(p, encoding="utf-8").read()
 
 
-DOCS = ["README.md", "model_card.md"] + sorted(glob.glob("docs/*.md"))
+DOCS = (["README.md", "model_card.md"]
+        + sorted(glob.glob("docs/*.md"))
+        + sorted(glob.glob("reports/*.md")))   # 발표에 쓰는 문서도 점검 대상
 docs = {p: read(p) for p in DOCS}
 
 # 1) 문서가 가리키는 파일이 실제로 있는가 (마크다운 링크 · 백틱 경로)
@@ -75,6 +77,31 @@ for old in ["진행기록", "관전포인트", "캔버스_정리", "피처_명�
     hits = [p for p, s in docs.items() if old in s]
     if hits:
         issues.append(f"[폐기된 이름 '{old}'] {hits}")
+
+# 6-2) 문서가 인용하는 킬 계수가 실측과 같은가
+#      (문서마다 −0.144 / −0.11 / −0.107 로 갈렸던 적이 있어 규칙으로 고정한다.
+#       근거 파일은 src/feature_reduction.py 가 만든다)
+COEF_CSV = "reports/tables/phase2_coef_shift.csv"
+if not os.path.exists(COEF_CSV):
+    issues.append(f"[근거 파일 없음] {COEF_CSV} — python src/feature_reduction.py 를 먼저 실행")
+else:
+    rows = {r.split(",")[0]: r.split(",") for r in read(COEF_CSV).strip().split("\n")[1:]}
+    with_gold, without_gold = float(rows["KillsDiff"][1]), float(rows["KillsDiff"][2])
+    # 문서에 쓸 수 있는 표기: 실측값과 소수 2자리 반올림형
+    ok = {f"{abs(with_gold):.3f}", f"{abs(with_gold):.2f}",
+          f"{abs(without_gold):.3f}", f"{abs(without_gold):.2f}"}
+    # 킬을 언급한 줄에서 "계수/가중치 뒤에 붙은 숫자"만 뽑아 대조한다.
+    # (표 안에도 있으므로 줄 단위로 본다. 효과크기 1.09·상관 0.92 는 계수 뒤가 아니라 안 걸린다)
+    #  | 를 건너뛰지 않게 막는다 — 표에서 옆 칸(y상관) 값을 계수로 잘못 집는 것을 방지
+    NEAR = re.compile(r"(?:계수|가중치)[^0-9\n|]{0,15}[−+-]?(\d\.\d{2,3})")
+    for p, s in docs.items():
+        for ln, line in enumerate(s.split("\n"), 1):
+            if "킬" not in line and "Kills" not in line:
+                continue
+            for m in NEAR.finditer(line):
+                if m.group(1) not in ok:
+                    issues.append(f"[계수 확인] {p}:{ln} 킬 계수 {m.group(1)} "
+                                  f"(실측 {with_gold:+.3f} · 골드 제외 시 {without_gold:+.3f})")
 
 # 7) requirements.txt 가 실제로 쓰는 패키지를 덮는가
 reqs = read("requirements.txt").lower()

@@ -131,6 +131,10 @@ def without_gold(X_tr, y_tr, X_te, y_te):
     s2 = cross_val_score(pipe(), X_tr[nogold], y_tr, cv=cv, n_jobs=1).mean()
 
     flipped = [k for k in nogold if c1.get(k, 0) < 0 < c2.get(k, 0)]
+
+    # 문서가 인용하는 계수의 근거 파일 (src/factcheck.py 가 이 값과 문서를 대조한다)
+    pd.DataFrame({"골드포함": c1.round(3), "골드제외": c2.round(3)}).rename_axis("지표") \
+        .to_csv("reports/tables/phase2_coef_shift.csv", encoding="utf-8-sig")
     print(chr(10) + "[4] 골드를 빼고 다시 분석")
     print(f"    점수    : 홀드아웃 {a1:.4f} → {a2:.4f}  (차이 {a1-a2:+.4f})")
     print(f"    킬 계수 : {c1['KillsDiff']:+.3f} → {c2['KillsDiff']:+.3f}")
