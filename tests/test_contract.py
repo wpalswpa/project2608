@@ -119,12 +119,19 @@ def test_ranking_has_no_puuid():
     _sys.path.insert(0, os.path.join(ROOT, "web"))
     from app import _csv
 
-    rows = _csv("ranking.csv")
-    if not rows:
+    path = os.path.join(ROOT, "reports", "tables", "ranking.csv")
+    if not os.path.exists(path):
         print("  [건너뜀] ranking.csv 없음")
         return
-    assert "puuid" not in rows[0], (
-        "ranking.csv 에 puuid 열이 있습니다 — data/ranking_names.jsonl 로 빼세요.")
+    # 헤더를 직접 본다. _csv() 는 값이 빈 열을 만들지 않아 헤더만으로는 안 걸린다.
+    with open(path, encoding="utf-8-sig") as f:
+        header = f.readline().strip().split(",")
+    assert "puuid" not in header, (
+        f"ranking.csv 헤더에 puuid 가 있습니다 ({header}) — "
+        "data/ranking_names.jsonl 로 빼세요. 한 번 커밋되면 히스토리에 남습니다.")
+
+    rows = _csv("ranking.csv")
+    assert rows and "puuid" not in rows[0], "API 가 읽는 행에 puuid 가 있습니다."
     # 상위 1,000명이 목표인데 표본 테스트가 덮어쓴 적이 있다
     assert len(rows) >= 100, f"랭킹이 {len(rows)}행뿐입니다 — 작은 --limit 실행이 덮어썼는지 확인하세요."
 
