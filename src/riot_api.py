@@ -31,6 +31,9 @@ TEN_MIN_MS = 600_000      # 10분 = 600,000ms — 학습 데이터(10분 스냅�
 SOLO_QUEUE = 420          # 솔로랭크 — 학습 데이터와 같은 큐만 기본 분석
 
 
+LAST_APP_COUNT = [0]      # 마지막 응답의 120초 창 사용량 (배치가 참고한다)
+
+
 class RiotApiError(RuntimeError):
     pass
 
@@ -60,6 +63,13 @@ def _get(url: str) -> dict:
     })
     try:
         with urllib.request.urlopen(req, timeout=15) as r:
+            # 배치 수집기가 "라이브에 얼마나 남았나" 를 보고 스스로 물러나려면
+            # 이 값이 필요하다. 헤더 형식: "12:120,1:1" (120초 창의 사용량이 앞)
+            hdr = r.headers.get("X-App-Rate-Limit-Count") or ""
+            try:
+                LAST_APP_COUNT[0] = int(hdr.split(":")[0])
+            except (ValueError, IndexError):
+                pass
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
         try:
@@ -110,6 +120,13 @@ def key_works(timeout: int = 6) -> bool:
                      "User-Agent": "Mozilla/5.0 (team-project; LoL win-prediction; educational)"})
         with urllib.request.urlopen(req, timeout=timeout):
             return True
+    except urllib.error.HTTPError as e:
+        code = e.code
+        e.close()
+        # 429 는 키가 죽은 게 아니라 잠깐 붐비는 것이다. 여기서 False 를 주면
+        # 사이트가 "소환사 검색 중단 + 입력 비활성" 으로 굳어 다음 재시작까지 안 풀린다.
+        # 키가 진짜 잘못된 경우(401/403)만 False 로 본다.
+        return code == 429
     except Exception:
         return False
 

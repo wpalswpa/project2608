@@ -35,13 +35,27 @@ if not os.environ.get("RIOT_API_KEY") and os.path.exists(".env"):
             os.environ["RIOT_API_KEY"] = _line.split("=", 1)[1].strip()
 
 from riot_api import (PLATFORM, ROUTING, SOLO_QUEUE,  # noqa: E402
-                      RateLimited, RiotApiError, _get)
+                      LAST_APP_COUNT, RateLimited, RiotApiError, _get)
 
 # 라이브 서비스와 **같은 API 키 예산**(100회/120초)을 나눠 쓴다.
 # 페이싱 없이 몰아치면 예산을 몇 초에 태우고, 그동안 사용자 검색이 전부 실패한다.
 # 0.8 req/s = 96회/120초로 예산 안에서 최대한 받는다.
 PACE_SEC = 1.25
+# 라이브 사용자를 위해 예산을 남겨둔다. 수집이 예산을 다 쓰면 서버는 안 죽지만
+# 사용자의 소환사 조회(콜드 12콜)가 대부분 429 로 막힌다 — 실제로 그랬다.
+# 카운터가 이 선을 넘으면 수집이 스스로 쉰다.
+RESERVE = 70             # 120초 예산 100 중 30만 쓰고 나머지는 사용자 몫
 _last_call = [0.0]
+
+
+def _budget_wait():
+    """라이브 예산이 얼마 안 남았으면 쉰다. 헤더를 못 읽으면 그냥 진행한다."""
+    used = LAST_APP_COUNT[0]
+    if used >= RESERVE:
+        wait = 20
+        print(f"  [양보] 라이브 예산 {used}/100 — {wait}초 쉽니다")
+        time.sleep(wait)
+
 
 
 def get_paced(url: str, tries: int = 4) -> dict:
@@ -56,7 +70,9 @@ def get_paced(url: str, tries: int = 4) -> dict:
             time.sleep(gap)
         _last_call[0] = time.time()
         try:
-            return _get(url)
+            r = _get(url)
+            _budget_wait()
+            return r
         except RateLimited as e:
             print(f"  [대기] 한도 초과 — {e.retry_after}초 쉽니다")
             time.sleep(e.retry_after + 1)
