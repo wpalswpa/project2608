@@ -197,6 +197,71 @@ def swing_minute(traj: list, threshold: int = 1000) -> int | None:
     return last_close + 1
 
 
+def lane_matchup(timeline: dict, participants: list, my_puuid: str) -> dict | None:
+    """같은 포지션 상대와 나의 10분 시점 비교 — "팀이" 가 아니라 "당신이" 를 말하려면 필요하다.
+
+    팀 합계만 보면 "우리 팀이 밀렸다" 까지만 나온다. 같은 라인 상대와 견주면
+    내 몫이 얼마였는지가 보인다. 이미 받은 타임라인·매치 응답에서 뽑으므로
+    추가 API 호출이 없다.
+    """
+    me = next((p for p in participants if p["puuid"] == my_puuid), None)
+    if not me or not me.get("teamPosition"):
+        return None
+    opp = next((p for p in participants
+                if p.get("teamPosition") == me["teamPosition"]
+                and p["teamId"] != me["teamId"]), None)
+    if not opp:
+        return None
+
+    frames = timeline["info"]["frames"]
+    if len(frames) <= 10:
+        return None
+    pf = frames[10]["participantFrames"]
+    mine = pf.get(str(me["participantId"]))
+    theirs = pf.get(str(opp["participantId"]))
+    if not mine or not theirs:
+        return None
+
+    def cs(x):
+        return x["minionsKilled"] + x["jungleMinionsKilled"]
+
+    return {
+        "position": me["teamPosition"],
+        "me": {"champion": me.get("championName"), "cs": cs(mine),
+               "gold": mine["totalGold"], "level": mine["level"]},
+        "opponent": {"champion": opp.get("championName"), "cs": cs(theirs),
+                     "gold": theirs["totalGold"], "level": theirs["level"]},
+        "cs_diff": cs(mine) - cs(theirs),
+        "gold_diff": mine["totalGold"] - theirs["totalGold"],
+        "level_diff": mine["level"] - theirs["level"],
+    }
+
+
+def first_objectives(timeline: dict, blue_ids: set) -> dict:
+    """첫 드래곤·전령·타워를 몇 분에 누가 가져갔나 (0~10분).
+
+    "첫 드래곤을 평균 몇 분에 가져가나" 같은 이야기를 하려면 시각이 필요하다.
+    이벤트는 이미 받고 있는데 개수만 세고 시각을 버리고 있었다.
+    """
+    out = {}
+    for fr in timeline["info"]["frames"][:11]:
+        for e in fr.get("events", []):
+            ts = e.get("timestamp", 0)
+            if ts >= TEN_MIN_MS:
+                continue
+            kind = None
+            if e["type"] == "ELITE_MONSTER_KILL":
+                m = e.get("monsterType", "")
+                kind = "dragon" if m == "DRAGON" else ("herald" if m == "RIFTHERALD" else None)
+                side = "블루" if e.get("killerTeamId") == 100 else "레드"
+            elif e["type"] == "BUILDING_KILL" and e.get("buildingType") == "TOWER_BUILDING":
+                kind = "tower"
+                side = "레드" if e.get("teamId") == 100 else "블루"   # 부서진 쪽의 반대
+            if kind and kind not in out:
+                out[kind] = {"minute": round(ts / 60000, 1), "side": side}
+    return out
+
+
 def timeline_to_diff13(timeline: dict, blue_ids: set, red_ids: set) -> dict:
     """타임라인 → 13개 차이 피처 (블루−레드). 학습 데이터(Kaggle 10분 스냅샷)와 같은 정의.
 
@@ -331,6 +396,8 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
         tl = get_timeline(mid)
         feats = timeline_to_diff13(tl, blue_ids, red_ids)
         traj = timeline_trajectory(tl, blue_ids)
+        lane = lane_matchup(tl, info["participants"], puuid)
+        firsts = first_objectives(tl, blue_ids)
         pred = predict(feats)
         blue_won = next(t["win"] for t in info["teams"] if t["teamId"] == 100)
         # 내가 레드면 확률·승패를 내 팀 기준으로 뒤집는다 (사용자는 자기 팀 기준으로 읽는다)
@@ -367,6 +434,8 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
             # 분 단위 궤적 — 이미 받은 타임라인에서 뽑는다 (추가 호출 0회)
             "trajectory": traj,
             "swing_minute": swing_minute(traj),
+            "lane": lane,                  # 같은 라인 상대와의 10분 비교 (개인화)
+            "first_objectives": firsts,    # 첫 드래곤·전령·타워 시각
             "win_prob_blue": pred["win_prob_blue"],
             "pred_label": pred["pred_label"],
             "top_factors": pred["top_factors"],

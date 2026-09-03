@@ -247,13 +247,22 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .fbar{position:relative;height:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:3px}
 .fbar .z{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-2)}
 .fbar i{position:absolute;top:0;bottom:0;border-radius:2px}
+/* 숫자는 '실제 격차', 막대는 '판정을 어느 쪽으로 밀었나' — 서로 다른 뜻이라
+   숫자까지 색을 주면 +7 이 빨갛게 나와 혼란스럽다. 숫자는 중립색으로 둔다. */
+.facval{text-align:right;color:var(--ink)}
+.faclegend{margin-top:6px;font-size:11px;line-height:1.5}
 .coach li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;
   border-bottom:1px dashed var(--line);font-size:13px}
 .coach ul{list-style:none;margin:0;padding:0}
 .coach .gain{font-weight:700;color:var(--blue)}
 .coach .after{color:var(--muted);font-size:12px}
-.trajwrap{margin-top:14px}
-.traj{width:100%;height:60px;display:block}
+.trajwrap{grid-column:1/-1;margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
+.trajgrid{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:stretch}
+.tyax{display:flex;flex-direction:column;justify-content:space-between;
+  font-size:10px;color:var(--faint);text-align:right;font-family:"IBM Plex Mono",monospace;
+  padding:1px 0}
+.traj{width:100%;height:72px;display:block;background:var(--panel-2);border-radius:4px}
+.trajnote{margin-top:7px;font-size:11.5px;line-height:1.6}
 .traj .tzero{stroke:var(--line-2);stroke-width:.4;vector-effect:non-scaling-stroke}
 .traj .tswing{stroke:var(--gold);stroke-width:1.2;stroke-dasharray:3 2;vector-effect:non-scaling-stroke}
 .traj .tline{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
@@ -626,11 +635,12 @@ async function toggleDetail(rowEl, g){
       <div class="fbar"><span class="z"></span>
         <i style="${pos ? `left:50%;width:${wd}%;background:var(--blue)` : `right:50%;width:${wd}%;background:var(--red)`}"></i>
       </div>
-      <span class="num" style="text-align:right;color:${pos ? "var(--blue)" : "var(--red)"}">${f.value != null ? fmtVal(f) : ""}</span>
+      <span class="num facval">${f.value != null ? fmtVal(f) : ""}</span>
     </div>`;
   }).join("");
-  const facLegend = `<p class="note" style="margin-top:6px;font-size:11px">막대가 길수록 이 판정에 크게 작용한 지표입니다.
-    파랑은 이 팀에 유리하게, 빨강은 불리하게 작용. 숫자는 10분 시점의 실제 격차입니다.</p>`;
+  const facLegend = `<p class="note faclegend">숫자 = 10분 실제 격차 ·
+    막대 = 판정에 작용한 크기(<b style="color:var(--blue)">파랑</b> 유리 /
+    <b style="color:var(--red)">빨강</b> 불리)</p>`;
 
   let coachHTML = `<p class="sub">코칭을 불러오지 못했습니다.</p>`, adviceHTML = "";
   try{
@@ -648,8 +658,10 @@ async function toggleDetail(rowEl, g){
 
   const kill = g.factors.find(f => f.feature === "KillsDiff" || f.name === "킬 차이");
   const killNote = (kill && kill.contribution < 0)
-    ? `<p class="note" style="margin-top:8px"><b>킬이 마이너스인 이유</b> — 킬을 하면 돈을 받으므로
-       킬의 가치가 이미 골드에 들어가 있습니다(상관 +0.92). "킬하면 진다"는 뜻이 아닙니다.</p>` : "";
+    ? `<details class="mini"><summary>킬이 앞서는데 왜 빨간 막대인가</summary>
+       <p>킬을 하면 돈을 받으므로 <b>킬의 가치가 이미 골드 차이에 들어가 있습니다</b>(상관 +0.92).
+       골드를 이미 본 모델에게 킬은 더 보탤 정보가 없다는 뜻이지,
+       "킬하면 진다"는 뜻이 아닙니다.</p></details>` : "";
 
   /* 팀 구성 — 이미 받은 데이터라 추가 호출이 없다. 본인은 굵게 표시. */
   const POS = {TOP:"탑", JUNGLE:"정글", MIDDLE:"미드", BOTTOM:"원딜", UTILITY:"서폿"};
@@ -705,16 +717,27 @@ async function toggleDetail(rowEl, g){
     const sw = g.swing_minute;
     const swX = sw != null && tr.length > 1 ? (sw / (tr.length - 1) * W).toFixed(1) : null;
     const last = mine(tr[tr.length - 1].gold_diff);
-    trajHTML = `<div class="trajwrap"><h4>분 단위로 보면</h4>
-      <svg class="traj" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
-        <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" class="tzero"></line>
-        ${swX ? `<line x1="${swX}" y1="0" x2="${swX}" y2="${H}" class="tswing"></line>` : ""}
-        <polyline points="${pts.join(" ")}" class="tline ${last >= 0 ? "up" : "down"}"></polyline>
-      </svg>
-      <div class="tlabels"><span>0분</span>${swX ? `<span class="tsw">${sw}분</span>` : ""}<span>${tr[tr.length-1].minute}분</span></div>
-      <p class="note" style="margin-top:6px">${sw != null
-        ? `<b>${sw}분</b>부터 격차가 벌어져 다시 좁혀지지 않았습니다. 그 전까지는 접전이었습니다.`
-        : "끝까지 골드 격차가 크게 벌어지지 않았습니다 — 10분 시점 정보로는 가리기 어려운 판입니다."}
+    const peak = Math.round(mx / 100) * 100;
+    trajHTML = `<div class="trajwrap">
+      <h4>골드 격차가 분마다 어떻게 움직였나</h4>
+      <div class="trajgrid">
+        <div class="tyax"><span>+${peak.toLocaleString()}</span><span>0</span><span>-${peak.toLocaleString()}</span></div>
+        <div>
+          <svg class="traj" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img"
+               aria-label="분 단위 골드 격차 추이">
+            <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" class="tzero"></line>
+            ${swX ? `<line x1="${swX}" y1="0" x2="${swX}" y2="${H}" class="tswing"></line>` : ""}
+            <polyline points="${pts.join(" ")}" class="tline ${last >= 0 ? "up" : "down"}"></polyline>
+          </svg>
+          <div class="tlabels"><span>0분</span>${swX ? `<span class="tsw">↑ ${sw}분</span>` : ""}<span>${tr[tr.length-1].minute}분</span></div>
+        </div>
+      </div>
+      <p class="note trajnote">
+        세로 = 우리 팀이 앞선 골드(위로 갈수록 유리) · 가로 = 경기 시간
+        ${swX ? ` · <b style="color:var(--gold)">노란 선 = 갈린 순간</b>` : ""}<br>
+        <b>${sw != null
+          ? `${sw}분부터 격차가 벌어져 다시 좁혀지지 않았습니다.`
+          : "끝까지 크게 벌어지지 않았습니다 — 10분 정보로는 가리기 어려운 판입니다."}</b>
       </p></div>`;
   }
 

@@ -1,0 +1,118 @@
+{
+  "model_name": "LoL 승패 예측·설명 서비스",
+  "version": "1.0",
+  "time_point_min": 10,
+  "target": "blueWins (블루팀 승리 확률)",
+  "feature_set": "diff13 (블루-레드 차이, 양수=블루 우세)",
+  "trained_at": "2026-09-02 11:31",
+  "data_source": "csv:fallback",
+  "sklearn_version": "1.9.0",
+  "seed": 42,
+  "metrics_holdout": {
+    "accuracy": 0.7394,
+    "f1": 0.7352,
+    "auc": 0.815,
+    "brier": 0.1756,
+    "baseline_accuracy": 0.501
+  },
+  "features": {
+    "FirstBlood": {
+      "type": "int",
+      "train_min": 0.0,
+      "train_max": 1.0,
+      "train_mean": 0.505
+    },
+    "KillsDiff": {
+      "type": "int",
+      "train_min": -17.0,
+      "train_max": 16.0,
+      "train_mean": 0.055
+    },
+    "GoldDiff": {
+      "type": "int",
+      "train_min": -10830.0,
+      "train_max": 11467.0,
+      "train_mean": 22.457
+    },
+    "ExpDiff": {
+      "type": "int",
+      "train_min": -9333.0,
+      "train_max": 8348.0,
+      "train_mean": -26.136
+    },
+    "WardsPlacedDiff": {
+      "type": "int",
+      "train_min": -260.0,
+      "train_max": 161.0,
+      "train_mean": -0.188
+    },
+    "WardsDestroyedDiff": {
+      "type": "int",
+      "train_min": -22.0,
+      "train_max": 23.0,
+      "train_mean": 0.113
+    },
+    "AssistsDiff": {
+      "type": "int",
+      "train_min": -25.0,
+      "train_max": 23.0,
+      "train_mean": 0.004
+    },
+    "DragonsDiff": {
+      "type": "int",
+      "train_min": -1.0,
+      "train_max": 1.0,
+      "train_mean": -0.05
+    },
+    "HeraldsDiff": {
+      "type": "int",
+      "train_min": -1.0,
+      "train_max": 1.0,
+      "train_mean": 0.024
+    },
+    "TowersDestroyedDiff": {
+      "type": "int",
+      "train_min": -2.0,
+      "train_max": 4.0,
+      "train_mean": 0.011
+    },
+    "AvgLevelDiff": {
+      "type": "float",
+      "train_min": -2.6000000000000005,
+      "train_max": 2.4000000000000004,
+      "train_mean": -0.008
+    },
+    "TotalMinionsKilledDiff": {
+      "type": "int",
+      "train_min": -120.0,
+      "train_max": 127.0,
+      "train_mean": -0.685
+    },
+    "TotalJungleMinionsKilledDiff": {
+      "type": "int",
+      "train_min": -72.0,
+      "train_max": 64.0,
+      "train_mean": -0.786
+    }
+  },
+  "provenance": {
+    "data_hash": "82b2e2327909",
+    "split_hash": "570ca964/9a14d580",
+    "n_train": 7903,
+    "n_test": 1976,
+    "git_commit": "b1f2709",
+    "cv": {
+      "cv_accuracy": 0.7315,
+      "cv_std": 0.0153,
+      "train_minus_cv": 0.0022,
+      "stable": true,
+      "not_overfit": true
+    },
+    "confusion_matrix": {
+      "TN": 746,
+      "FP": 244,
+      "FN": 271,
+      "TP": 715
+    }
+  }
+}
