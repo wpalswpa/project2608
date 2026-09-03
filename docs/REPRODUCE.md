@@ -24,6 +24,7 @@ python src/supplement_checks.py          # 보충 — 나이브베이즈·군집
 python src/twostage_check.py             # 접전 보완 — 2단계 라우팅 검증 (기각 근거)
 python src/collect_champion_stats.py     # 챔피언·라인 승률 수집 (Riot 키 필요 · 이어받기)
 python src/collect_ranking.py            # 상위 1,000명 랭킹 수집 (Riot 키 필요 · 이어받기)
+./run_collectors.sh loop                 # 두 수집기를 무인으로 계속 (Ctrl+C 로 중단)
 python src/timepoint_compare.py          # 페이즈 3 — 10분 vs 15분
 python src/repeat_check.py               # 분할을 10번 바꿔 재학습
 python predict.py --demo                 # 예측 확인 (51.2% / 94.6% / 16.8%)
