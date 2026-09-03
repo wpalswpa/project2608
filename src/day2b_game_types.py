@@ -137,4 +137,23 @@ ax.set_title("경기 유형 4가지 — 승패 정보를 지운 좌표에서 묶
              "오른쪽 끝의 '일방적 경기'만 10분에 이미 결판나 있다", fontsize=13, pad=12)
 fig.tight_layout()
 fig.savefig("reports/figures/day2b_game_types.png", dpi=130, bbox_inches="tight")
-print("\n[저장] reports/tables/day2b_game_type_profile.csv · day2b_game_types.png")
+
+# ---------- 유형 x 골드차 구간 교차표 ----------
+# "난타전 = 접전 아니냐" 는 오해가 생기기 쉬워서, 두 축이 다르다는 것을 표로 남긴다.
+# 유형은 '어떻게 싸웠나'(스타일), 구간은 '얼마나 벌어졌나'(격차)다.
+g2["유형"] = g2["cluster"].map(name_of)
+g2["구간"] = pd.cut(g2["일방성_골드차"], bins=[0, 1000, 2500, 4200, np.inf],
+                    labels=["접전(<1k)", "우세(1k~2.5k)", "크게 우세(2.5k~4.2k)", "사실상 결정(4.2k+)"],
+                    right=False)
+cross = pd.crosstab(g2["유형"], g2["구간"], normalize="index").mul(100).round(1)
+print()
+print("[유형 x 골드차 구간] 행 기준 %  — 유형과 격차는 다른 축이다")
+print(cross.to_string())
+cross.to_csv("reports/tables/day2b_type_by_band.csv", encoding="utf-8-sig")
+
+close = g2[g2["구간"] == "접전(<1k)"]
+share = (close["유형"].value_counts(normalize=True) * 100).round(1)
+print()
+print(f"접전 경기 {len(close):,}판의 유형 구성: " +
+      " · ".join(f"{k} {v}%" for k, v in share.items()))
+print("\n[저장] reports/tables/day2b_game_type_profile.csv · day2b_game_types.png · day2b_type_by_band.csv")
