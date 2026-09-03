@@ -69,6 +69,8 @@ header::after{content:"";position:absolute;inset:0;
 .wbar b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-size:10.5px;font-family:"IBM Plex Mono",monospace}
 .tpbtn{padding:4px 10px;font-size:11.5px;border-radius:5px}
+.lowsam{font-size:10px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
+  border-radius:3px;padding:0 4px;margin-left:3px;white-space:nowrap}
 .tprow td{background:var(--panel-2)}
 .tplist{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0}
 .tpcard{display:flex;align-items:center;gap:8px;padding:6px 11px;border-radius:6px;
@@ -304,7 +306,7 @@ footer > *{position:relative;z-index:2}
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
         <div class="brand">LOL<span class="dot">.</span>EX</div>
-        <h1 class="tag">전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>팀이 무엇을 했어야 했는지</b> 알려줍니다.</h1>
+        <h1 class="tag" id="heroTag">전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>팀이 무엇을 했어야 했는지</b> 알려줍니다.</h1>
       </div>
       <button class="icon-btn" id="themeBtn" title="밝게/어둡게" aria-label="테마 전환">🌙</button>
     </div>
@@ -312,7 +314,7 @@ footer > *{position:relative;z-index:2}
       <button role="tab" id="tabHome" aria-selected="true">유저 전적 분석</button>
       <button role="tab" id="tabChamp" aria-selected="false">실시간 챔피언 승률</button>
     </nav>
-    <div class="searchrow">
+    <div class="searchrow" id="searchrow">
       <!-- 키가 죽어 있을 때 기본값을 채워두면, 첫 클릭이 에러가 된다.
            그래서 기본값·1순위 버튼을 riot_ready 로 가른다 — 초대한 문은 열려 있어야 한다. -->
       <input type="text" id="q" value="{% if riot_ready %}Hide on bush#KR1{% endif %}"{% if not riot_ready %} disabled{% endif %}
@@ -572,7 +574,7 @@ async function toggleDetail(rowEl, g){
       ${members.map(m => {
         const id = m.name && m.tag ? `${m.name}#${m.tag}` : "";
         const rk = m.rank;
-        const tierTxt = rk ? `${(TIER_SHORT[rk.tier] || rk.tier)}${rk.rank === "I" ? "" : ""}` : "언랭";
+        const tierTxt = rk ? (TIER_SHORT[rk.tier] || rk.tier) : "…";
         return `<div class="rrow${m.is_me ? " me" : ""}">
         <img src="${DDRAGON}/${DDV}/img/champion/${esc(m.champion)}.png" alt="" loading="lazy">
         <span class="rpos">${esc(POS[m.position] || "-")}</span>
@@ -582,6 +584,23 @@ async function toggleDetail(rowEl, g){
         <span class="rkda num">${esc(m.kda)}</span>
       </div>`; }).join("")}
     </div>`;
+  /* 참가자 티어는 기본 응답에 없다(요청 비용 때문). 펼칠 때 한 번만 받아 채운다. */
+  if((g.roster || []).length && !g._ranksLoaded){
+    g._ranksLoaded = true;
+    fetch("/api/ranks", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({puuids: g.roster.map(m => m.puuid).filter(Boolean)})})
+      .then(r => r.json()).then(rd => {
+        const map = rd.ranks || {};
+        g.roster.forEach(m => { m.rank = map[m.puuid] || null; });
+        const box = rowEl.querySelector(".rosterwrap");
+        if(box) box.querySelectorAll(".rtier").forEach((el, i) => {
+          const m = [...mineTeam, ...foeTeam][i];
+          if(!m) return;
+          el.textContent = m.rank ? (TIER_SHORT[m.rank.tier] || m.rank.tier) : "언랭";
+          el.classList.toggle("none", !m.rank);
+        });
+      }).catch(() => {});
+  }
   const mineTeam = (g.roster || []).filter(m => m.side === side);
   const foeTeam  = (g.roster || []).filter(m => m.side !== side);
   const rosterHTML = mineTeam.length
@@ -670,10 +689,12 @@ function renderSummary(sum, label, scope){
     (rankTile || "") +
     t("10분 시점 승률 (평균)", sum.avg_win_prob_10min != null ? pct(sum.avg_win_prob_10min) : "—",
       `경기마다 10분 상황을 모델이 승률로 매긴 뒤, ${sum.n}판을 평균한 값`) +
-    t("역전패", sum["역전패"], "앞서고도 짐 — 먼저 다시 볼 판", sum["역전패"] > 0) +
-    t("열세패", sum["열세패"], "밀린 채 그대로 짐") +
-    t("역전승", sum["역전승"], "불리했는데 이김") +
-    t("우세승", sum["우세승"], "앞서서 그대로 이김");
+    t("10분에 앞선 비율", leadRate + "%", `${n}판 중 ${ahead}판에서 앞서 있었음`) +
+    t("앞선 판을 지킨 비율", closeRate != null ? closeRate + "%" : "—",
+      `앞선 ${ahead}판 중 ${sum["우세승"]}판 승리`, closeRate != null && closeRate < 60) +
+    t("밀린 판을 뒤집은 비율", saveRate != null ? saveRate + "%" : "—",
+      `밀린 ${behind}판 중 ${sum["역전승"]}판 승리`) +
+    t("역전패", sum["역전패"], "앞서고도 짐 — 먼저 다시 볼 판", sum["역전패"] > 0);
 }
 
 /* ── 소환사 ── */
@@ -698,7 +719,21 @@ async function loadSummoner(riotId, append){
     const d = await res.json();
     if(my !== seq) return;
     if(!res.ok){
-      if(!append) { $("#rows").innerHTML = `<div class="msg">${esc(d.error || "조회 실패")}</div>`; renderSummary(null); }
+      /* 429 는 "잠깐 붐빈다" 이지 고장이 아니다 — 남은 시간을 세어 준다 */
+      const msg = res.status === 429
+        ? `<div class="msg"><b>Riot 서버 요청이 잠시 몰렸습니다.</b><br>
+           <span id="cool">${d.retry_after || 10}</span>초 후 다시 시도해 주세요.
+           (교육용 API 키라 분당 요청 수에 제한이 있습니다)</div>`
+        : `<div class="msg">${esc(d.error || "조회 실패")}</div>`;
+      if(!append){ $("#rows").innerHTML = msg; renderSummary(null); }
+      if(res.status === 429){
+        let left = d.retry_after || 10;
+        const tick = setInterval(() => {
+          left -= 1; const el = $("#cool");
+          if(!el || left <= 0){ clearInterval(tick); if(el) el.textContent = "0"; return; }
+          el.textContent = left;
+        }, 1000);
+      }
       return;
     }
     const rows = (d.games || []).map(g => normalize(g, true));
@@ -854,7 +889,8 @@ async function loadChampions(){
         ${champPos ? "" : `<td>${esc(POSKO[r.position] || r.position)}</td>`}
         <td><span class="wbar"><i style="width:${(r.win_rate * 100).toFixed(0)}%"></i>
             <b>${(r.win_rate * 100).toFixed(1)}%</b></span></td>
-        <td class="num">${r.games.toLocaleString()}판</td>
+        <td class="num">${r.games.toLocaleString()}판${r.low_sample
+          ? ` <span class="lowsam" title="표본이 적어 승률이 흔들릴 수 있습니다">표본 적음</span>` : ""}</td>
         <td class="num">${(r.pick_rate * 100).toFixed(1)}%</td>
         <td>${tp.length ? `<button class="tpbtn" data-tp="${esc(key)}">잘하는 유저 ${tp.length}명</button>` : ""}</td>
       </tr>` + (tp.length ? `<tr class="tprow" id="tp-${esc(key)}" hidden><td colspan="7">
@@ -892,9 +928,14 @@ function showTab(which){
   const home = which === "home";
   $("#tabHome").setAttribute("aria-selected", home);
   $("#tabChamp").setAttribute("aria-selected", !home);
-  ["profile","brief","tiles","rows","stat","trustHead"].forEach(id => {
+  /* 챔피언 승률은 특정 유저와 무관한 화면이다 — 검색창·프로필·전적을 전부 감춘다 */
+  ["profile","brief","tiles","rows","stat","trustHead","searchrow"].forEach(id => {
     const el = $("#" + id); if(el) el.hidden = !home;
   });
+  const tag = $("#heroTag");
+  if(tag) tag.innerHTML = home
+    ? "전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>팀이 무엇을 했어야 했는지</b> 알려줍니다."
+    : "마스터 이상 솔로랭크에서 <b>최근 실제로 관찰된</b> 챔피언·라인별 승률입니다.";
   document.querySelectorAll(".wrap > details.box, .wrap > h3.sec, .wrap > .more, .wrap > p.sub")
     .forEach(el => { if(el.id !== "champMeta") el.hidden = !home; });
   $("#champPage").hidden = home;

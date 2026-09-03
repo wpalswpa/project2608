@@ -35,6 +35,18 @@ class RiotApiError(RuntimeError):
     pass
 
 
+class RateLimited(RiotApiError):
+    """Riot 한도 초과. 몇 초 뒤에 다시 되는지(retry_after)를 담아 위로 올린다.
+
+    웹 요청 안에서 기다리면 안 된다 — 스레드를 수십 초 붙잡고 결과는 어차피 실패라
+    프록시 타임아웃(502)이 난다. 즉시 올려서 화면이 "N초 후 다시" 를 안내하게 한다.
+    """
+
+    def __init__(self, retry_after: int):
+        self.retry_after = max(1, int(retry_after))
+        super().__init__(f"Riot API 요청이 잠시 많습니다. {self.retry_after}초 후 다시 시도해 주세요.")
+
+
 def _get(url: str) -> dict:
     """API 호출. 키는 환경변수 RIOT_API_KEY 에서만 읽는다."""
     key = os.environ.get("RIOT_API_KEY")
@@ -46,22 +58,36 @@ def _get(url: str) -> dict:
         "X-Riot-Token": key,
         "User-Agent": "Mozilla/5.0 (team-project; LoL win-prediction; educational)",
     })
-    for attempt in range(3):
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
         try:
-            with urllib.request.urlopen(req, timeout=15) as r:
-                return json.loads(r.read())
-        except urllib.error.HTTPError as e:
-            if e.code == 429:                       # 요청 한도 초과 → 잠시 기다렸다 재시도
-                wait = int(e.headers.get("Retry-After", "2"))
-                time.sleep(min(wait, 10))
-                continue
-            if e.code in (401, 403):
-                raise RiotApiError("API 키가 만료됐거나 잘못됐습니다. "
-                                   "developer.riotgames.com 에서 REGENERATE 후 다시 설정하세요.") from e
-            if e.code == 404:
-                raise RiotApiError("찾을 수 없습니다 (소환사명/태그 확인).") from e
-            raise RiotApiError(f"Riot API 오류 HTTP {e.code}") from e
-    raise RiotApiError("요청 한도 초과가 계속됩니다. 잠시 후 다시 시도하세요.")
+            code, retry_after = e.code, e.headers.get("Retry-After", "10")
+        finally:
+            e.close()           # 닫지 않으면 소켓이 GC 될 때까지 남는다
+        if code == 429:
+            # 여기서 기다리지 않는다 (위 RateLimited 설명 참고)
+            raise RateLimited(retry_after) from None
+        if code in (401, 403):
+            raise RiotApiError("API 키가 만료됐거나 잘못됐습니다. "
+                               "developer.riotgames.com 에서 REGENERATE 후 다시 설정하세요.") from None
+        if code == 404:
+            raise RiotApiError("찾을 수 없습니다 (소환사명/태그 확인).") from None
+        raise RiotApiError(f"Riot API 오류 HTTP {code}") from None
+
+
+def get_with_wait(url: str, tries: int = 5) -> dict:
+    """한도에 걸리면 기다렸다 재시도한다 — **배치 수집 전용**.
+
+    웹 요청 경로에서는 쓰지 않는다. 사용자를 기다리게 하면 안 되기 때문이다.
+    """
+    for _ in range(tries):
+        try:
+            return _get(url)
+        except RateLimited as e:
+            time.sleep(min(e.retry_after, 30))
+    raise RiotApiError("요청 한도가 계속 걸립니다. 잠시 후 다시 실행하세요.")
 
 
 def key_works(timeout: int = 6) -> bool:
@@ -199,19 +225,25 @@ def get_rank(puuid: str) -> dict | None:
     """솔로랭크 티어. 실패해도 예외를 올리지 않는다 — 부가 정보라 조회가 막혀도 본 기능은 살아야 한다."""
     if puuid in _RANK_CACHE:
         return _RANK_CACHE[puuid]
-    _RANK_CACHE[puuid] = None       # 실패했을 때도 다시 안 물어보게 먼저 넣어둔다
     try:
+        got = None
         for e in _get(f"https://{PLATFORM}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}"):
             if e.get("queueType") == "RANKED_SOLO_5x5":
-                _RANK_CACHE[puuid] = {"tier": e["tier"], "rank": e["rank"], "lp": e["leaguePoints"],
-                                      "wins": e["wins"], "losses": e["losses"]}
-                return _RANK_CACHE[puuid]
+                got = {"tier": e["tier"], "rank": e["rank"], "lp": e["leaguePoints"],
+                       "wins": e["wins"], "losses": e["losses"]}
+                break
+        # 성공했을 때만 캐시한다. 한도 초과(429)로 못 받은 것을 "언랭" 으로 굳혀 버리면
+        # 서버를 재시작할 때까지 그 사람 티어가 영영 안 나온다 — 실제로 그렇게 됐다.
+        _RANK_CACHE[puuid] = got
+        return got
+    except RateLimited:
+        return None                 # 캐시하지 않는다 — 다음 요청에서 다시 시도
     except Exception:
-        pass
-    return None
+        _RANK_CACHE[puuid] = None   # 언랭 등 진짜 없는 경우만 굳힌다
+        return None
 
 
-def analyze_recent(riot_id: str, count: int = 5, start: int = 0) -> dict:
+def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: bool = False) -> dict:
     """소환사의 최근 솔로랭크 경기들을 10분 시점에서 복기한다.
 
     riot_id: "게임명#태그" (예: "Hide on bush#KR1")
@@ -254,7 +286,9 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0) -> dict:
             "side": "블루" if p["teamId"] == 100 else "레드",
             "is_me": p["puuid"] == puuid,
             "puuid": p["puuid"],
-            "rank": get_rank(p["puuid"]),      # 캐시가 있어 같은 사람은 한 번만 호출된다
+            # 참가자 10명 티어는 판마다 최대 10콜이라 기본 응답에서는 뺀다.
+            # 행을 펼칠 때 /api/ranks 로 따로 받는다 (첫 페이지 비용 22 → 12).
+            "rank": get_rank(p["puuid"]) if with_ranks else None,
         } for p in info["participants"]]
 
         games.append({

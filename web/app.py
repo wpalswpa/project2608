@@ -27,7 +27,7 @@ from lolwin.predict import DEMOS
 
 # Riot API 연동은 선택 기능 — 키가 없어도 나머지는 정상 동작해야 한다
 try:
-    from riot_api import RiotApiError, analyze_recent, key_works
+    from riot_api import RateLimited, RiotApiError, analyze_recent, key_works
     # 키가 '있는지' 가 아니라 '지금 통하는지' 를 본다. 개발용 키는 24시간마다 죽는데,
     # 죽은 키로 화면이 소환사 검색을 권하면 시연 중에 고장 난 것처럼 보인다.
     RIOT_READY = key_works()
@@ -310,6 +310,30 @@ def api_matches():
     })
 
 
+@app.route("/api/ranks", methods=["POST"])
+def api_ranks():
+    """puuid 목록의 솔로랭크 티어 — 행을 펼칠 때만 부른다.
+
+    참가자 10명 티어를 기본 응답에 넣으면 판마다 최대 10콜이 붙어
+    한 페이지에 22콜이 든다. Personal 키 예산(100회/120초)으로는 감당이 안 된다.
+    """
+    from riot_api import RateLimited, get_rank
+
+    if not RIOT_READY:
+        return jsonify({"ranks": {}}), 200
+    data = request.get_json() or {}
+    puuids = [p for p in (data.get("puuids") or []) if isinstance(p, str)][:10]
+    out = {}
+    try:
+        for pu in puuids:
+            out[pu] = get_rank(pu)
+    except RateLimited as e:
+        return jsonify({"error": str(e), "retry_after": e.retry_after, "ranks": out}), 429
+    except Exception:
+        pass
+    return jsonify({"ranks": out})
+
+
 @app.route("/api/champions")
 def api_champions():
     """챔피언 x 라인 승률표 — 마스터 이상 솔로랭크 실측.
@@ -326,7 +350,12 @@ def api_champions():
              "games": int(r["경기수"]), "win_rate": float(r["승률"]),
              "pick_rate": float(r["픽률"])}
             for r in data if not pos or r["position"] == pos]
-    rows.sort(key=lambda x: x["win_rate"], reverse=True)
+    # 표본이 적은 조합을 승률만으로 위에 올리면 "7판 85%" 가 1위가 된다.
+    # 충분한 표본(MIN)을 먼저 세우고, 부족한 것은 아래로 내려 표시만 한다.
+    MIN_GAMES = 10
+    for r in rows:
+        r["low_sample"] = r["games"] < MIN_GAMES
+    rows.sort(key=lambda x: (x["low_sample"], -x["win_rate"]))
 
     meta = None
     mpath = os.path.join(ROOT, "reports", "tables", "champion_stats_meta.json")
@@ -368,6 +397,9 @@ def api_summoner():
         except (TypeError, ValueError):
             count, start = 5, 0
         return jsonify(analyze_recent(riot_id, count=count, start=start))
+    except RateLimited as e:
+        # 기다리지 않고 바로 알린다 — 스레드를 붙잡으면 프록시가 502 를 낸다
+        return jsonify({"error": str(e), "retry_after": e.retry_after}), 429
     except RiotApiError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
