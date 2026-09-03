@@ -104,8 +104,8 @@
 | `GET /api/match-types` | 경기 유형 4가지 프로파일 |
 | `POST /api/predict/batch` | 여러 건 한 번에 |
 | `POST /api/coach` | **감독** — 지금 상태에서 무엇을 했다면 승률이 얼마나 올랐나. 13개 피처(+선택 `verdict`)를 넣으면 상승폭 큰 순으로 조언 |
-| `GET /api/matches` | **시험셋 실제 경기 복기** — 예측 vs 실제, 필터(`band`·`correct`)·페이징(`limit`·`offset`·`seed`)·번호 조회(`id`) |
-| `POST /api/summoner` | Riot ID 로 최근 솔로랭크 경기를 10분 시점 복기 (`RIOT_API_KEY` 필요, 없으면 503). 경기마다 `band`·`my_win_prob`·`my_won`·`verdict`, 전체 `summary` 포함 |
+| `GET /api/matches` | **시험셋 실제 경기 복기** — 예측 vs 실제, `top_factors` 에 실제 격차 `value` 포함, 필터(`band`·`correct`)·페이징·번호 조회(`id`) |
+| `POST /api/summoner` | Riot ID 로 최근 솔로랭크 경기를 10분 시점 복기 (`RIOT_API_KEY` 필요, 없으면 503). 경기마다 `band`·`my_win_prob`·`my_won`·`verdict`·`played_at`, 전체 `summary`(판정별 건수·`period`) 포함 |
 | `GET /figures/<이름>` | `reports/` 의 그림 (사본을 두지 않는다) |
 
 ## 6. 구현 구조 — 누가 계산하나

@@ -218,8 +218,11 @@ def analyze_recent(riot_id: str, count: int = 5) -> dict:
         i_am_blue = me["teamId"] == 100
         my_p = pred["win_prob_blue"] if i_am_blue else 1 - pred["win_prob_blue"]
         my_won = bool(blue_won) if i_am_blue else not blue_won
+        # 경기 날짜 — "언제 범위의 전적인가" 를 화면이 한 줄로 보여주기 위해
+        played_at = time.strftime("%m.%d", time.localtime(info.get("gameCreation", 0) / 1000))
         games.append({
             "match_id": mid,
+            "played_at": played_at,
             "champion": me["championName"],
             "my_side": "블루" if me["teamId"] == 100 else "레드",
             "duration_min": round(info["gameDuration"] / 60),
@@ -243,6 +246,8 @@ def analyze_recent(riot_id: str, count: int = 5) -> dict:
     counts = Counter(g["verdict"] for g in games)
     summary = {
         "n": len(games),
+        # 조회 범위 (가장 오래된 판 ~ 최신 판)
+        "period": (f"{games[-1]['played_at']} ~ {games[0]['played_at']}" if games else None),
         "avg_win_prob_10min": round(sum(g["my_win_prob"] for g in games) / len(games), 4) if games else None,
         "역전패": counts.get("역전패", 0),
         "열세패": counts.get("열세패", 0),

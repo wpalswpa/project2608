@@ -206,7 +206,8 @@ def _build_matches():
             # 샘플 경기는 '블루 팀 관점'으로 판정한다 (소환사 경기는 그 사람 팀 관점)
             "verdict": verdict_of(r["win_prob_blue"], bool(actual)),
             # 근거 3개면 카드에 충분하다 (5개는 카드가 길어진다)
-            "top_factors": [{"name": f["name"], "contribution": f["contribution"]}
+            "top_factors": [{"feature": f["feature"], "name": f["name"],
+                             "value": f["value"], "contribution": f["contribution"]}
                             for f in r["top_factors"][:3]],
             "features": row,
         })
