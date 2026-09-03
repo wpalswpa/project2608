@@ -8,7 +8,8 @@
 # 예산 양보(RESERVE 70)가 걸려 있어 라이브 사용자와 공존한다 —
 # 예산 100 중 30만 쓰고 나머지는 사용자 몫으로 남긴다.
 cd "$(dirname "$0")/.." || exit 1
-PY=$(command -v python3 || command -v python)
+# python3 이 Windows 스토어 스텁일 수 있다 — 실제로 코드가 도는 쪽을 고른다
+PY=python3; "$PY" -c "pass" 2>/dev/null || PY=python
 LOG=logs; mkdir -p "$LOG"
 
 run_once() {

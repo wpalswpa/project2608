@@ -84,7 +84,11 @@ def load_known_names() -> dict:
             for line in f:
                 try:
                     r = _json.loads(line)
-                    known[r["puuid"]] = (r.get("name", ""), r.get("tag", ""))
+                    # 이름이 빈 항목은 "아는 사람" 이 아니다 — 429 등으로 못 받은
+                    # 실패 기록이다. 여기서 걸러야 다음 실행이 재시도한다.
+                    # (안 거르면 "이미 아는 사람 1,000명" 이 되어 658명에서 끝난다)
+                    if r.get("name"):
+                        known[r["puuid"]] = (r["name"], r.get("tag", ""))
                 except Exception:
                     continue
     return known
