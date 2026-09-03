@@ -252,6 +252,14 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .coach ul{list-style:none;margin:0;padding:0}
 .coach .gain{font-weight:700;color:var(--blue)}
 .coach .after{color:var(--muted);font-size:12px}
+.trajwrap{margin-top:14px}
+.traj{width:100%;height:60px;display:block}
+.traj .tzero{stroke:var(--line-2);stroke-width:.4;vector-effect:non-scaling-stroke}
+.traj .tswing{stroke:var(--gold);stroke-width:1.2;stroke-dasharray:3 2;vector-effect:non-scaling-stroke}
+.traj .tline{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.traj .tline.up{stroke:var(--blue)} .traj .tline.down{stroke:var(--red)}
+.tlabels{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:2px}
+.tlabels .tsw{color:var(--gold);font-weight:700}
 .rosterwrap{grid-column:1/-1;margin-top:4px}
 .rosters{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .rosterbox{border:1px solid var(--line);border-radius:8px;overflow:hidden}
@@ -521,6 +529,7 @@ function normalize(x, isSummoner){
     key: x.match_id, champion: x.champion, side: x.my_side,
     win_prob: x.my_win_prob, won: x.my_won, verdict: x.verdict, band: x.band,
     correct: x.model_correct, side_label: x.my_side, played_at: x.played_at, roster: x.roster || [],
+    trajectory: x.trajectory || [], swing_minute: x.swing_minute,
     gold: x.features.GoldDiff, kills: x.features.KillsDiff, dragons: x.features.DragonsDiff,
     factors: x.top_factors, features: x.features, warnings: x.warnings || [],
     sub: `${x.played_at ? x.played_at + " · " : ""}${x.duration_min}분 경기`,
@@ -684,8 +693,33 @@ async function toggleDetail(rowEl, g){
     ? `<div class="rosters">${teamCol("우리 팀 (" + side + ")", mineTeam, true)}
        ${teamCol("상대 팀 (" + (side === "블루" ? "레드" : "블루") + ")", foeTeam, false)}</div>` : "";
 
+  /* 분 단위 골드 궤적 — 이미 받은 타임라인에서 나온 값이라 추가 호출이 없다.
+     "10분에 기울었다" 가 아니라 "몇 분에 갈렸나" 를 보여준다. */
+  const tr = g.trajectory || [];
+  let trajHTML = "";
+  if(tr.length > 2){
+    const W = 100, H = 34;                        /* viewBox 단위 — 폭은 CSS 가 늘린다 */
+    const mx = Math.max(...tr.map(p => Math.abs(mine(p.gold_diff))), 500);
+    const pts = tr.map((p, i) =>
+      `${(i / (tr.length - 1) * W).toFixed(1)},${(H / 2 - mine(p.gold_diff) / mx * (H / 2 - 2)).toFixed(1)}`);
+    const sw = g.swing_minute;
+    const swX = sw != null && tr.length > 1 ? (sw / (tr.length - 1) * W).toFixed(1) : null;
+    const last = mine(tr[tr.length - 1].gold_diff);
+    trajHTML = `<div class="trajwrap"><h4>분 단위로 보면</h4>
+      <svg class="traj" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+        <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" class="tzero"></line>
+        ${swX ? `<line x1="${swX}" y1="0" x2="${swX}" y2="${H}" class="tswing"></line>` : ""}
+        <polyline points="${pts.join(" ")}" class="tline ${last >= 0 ? "up" : "down"}"></polyline>
+      </svg>
+      <div class="tlabels"><span>0분</span>${swX ? `<span class="tsw">${sw}분</span>` : ""}<span>${tr[tr.length-1].minute}분</span></div>
+      <p class="note" style="margin-top:6px">${sw != null
+        ? `<b>${sw}분</b>부터 격차가 벌어져 다시 좁혀지지 않았습니다. 그 전까지는 접전이었습니다.`
+        : "끝까지 골드 격차가 크게 벌어지지 않았습니다 — 10분 시점 정보로는 가리기 어려운 판입니다."}
+      </p></div>`;
+  }
+
   rowEl.querySelector(".detail").innerHTML =
-    `<div><h4>이 판을 가른 것</h4>${facs}${facLegend}${killNote}</div>
+    `<div><h4>이 판을 가른 것</h4>${facs}${facLegend}${killNote}${trajHTML}</div>
      <div class="coach"><h4>이랬다면 어땠나 — 10분 승률 ${pct(g.win_prob)} 기준</h4>${coachHTML}<p class="note" style="margin-top:8px;font-size:11.5px">지표들은 서로 얽혀 있어(킬·CS↔골드 상관 0.6~0.9) CS만 오르는 상황은 현실에 없습니다 — 그래서 <b>따라오는 골드까지 함께 올려</b> 계산합니다. 실험이 아니라 실제 경기 기록으로 계산한 추정이라, "이렇게 하면 이긴다"의 증명이 아니라 <b>"그런 상태였던 경기들은 이만큼 이겼다"</b>로 읽어주세요. 지표는 팀 단위 차이라 개인이 아니라 <b>팀</b> 이야기입니다.</p>${adviceHTML}</div>` +
     (rosterHTML ? `<div class="rosterwrap"><h4>이 경기 팀 구성</h4>${rosterHTML}</div>` : "") +
     (g.warnings.length ? `<div class="warnbox">${g.warnings.map(esc).join("<br>")}</div>` : "");

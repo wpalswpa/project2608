@@ -152,6 +152,51 @@ def get_timeline(match_id: str) -> dict:
     return _get(f"https://{ROUTING}.api.riotgames.com/lol/match/v5/matches/{match_id}/timeline")
 
 
+def timeline_trajectory(timeline: dict, blue_ids: set, upto: int = 15) -> list:
+    """분 단위 골드 격차 궤적 — "몇 분에 갈렸나" 를 말하기 위한 데이터.
+
+    타임라인은 분마다 프레임을 주는데 우리는 10분 한 장만 쓰고 나머지를 버려 왔다.
+    추가 API 호출 없이 이미 받은 응답에서 뽑는다.
+
+    반환: [{"minute": 0, "gold_diff": 0}, ...]  (블루 − 레드)
+    """
+    out = []
+    for i, fr in enumerate(timeline["info"]["frames"]):
+        if i > upto:
+            break
+        b = r = 0
+        for pid, pf in fr["participantFrames"].items():
+            if int(pid) in blue_ids:
+                b += pf["totalGold"]
+            else:
+                r += pf["totalGold"]
+        out.append({"minute": i, "gold_diff": b - r})
+    return out
+
+
+def swing_minute(traj: list, threshold: int = 1000) -> int | None:
+    """격차가 벌어지기 시작해 **다시 안 좁혀진** 분 — "이 판은 N분에 갈렸다" 의 N.
+
+    기준은 EDA 의 접전 경계(골드차 1,000)를 그대로 쓴다.
+    단순히 "처음 1,000을 넘은 분" 을 잡으면 안 된다 — 3분에 잠깐 벌어졌다가
+    다시 붙는 판이 많아서, 그걸 "3분에 갈렸다" 고 말하면 틀린다.
+    그래서 **마지막으로 접전이었던 분의 다음** 을 잡는다. 그 뒤로는 안 좁혀졌다는 뜻이다.
+
+    끝까지 접전이었으면 None — "아직 안 갈렸다" 가 맞는 답이다.
+    """
+    if not traj:
+        return None
+    last_close = None
+    for p in traj:
+        if abs(p["gold_diff"]) < threshold:
+            last_close = p["minute"]
+    if last_close is None:
+        return traj[0]["minute"]                        # 처음부터 벌어져 있었다
+    if last_close == traj[-1]["minute"]:
+        return None                                     # 마지막까지 접전 — 안 갈렸다
+    return last_close + 1
+
+
 def timeline_to_diff13(timeline: dict, blue_ids: set, red_ids: set) -> dict:
     """타임라인 → 13개 차이 피처 (블루−레드). 학습 데이터(Kaggle 10분 스냅샷)와 같은 정의.
 
@@ -283,7 +328,9 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
         blue_ids = {p["participantId"] for p in info["participants"] if p["teamId"] == 100}
         red_ids = {p["participantId"] for p in info["participants"] if p["teamId"] == 200}
         me = next(p for p in info["participants"] if p["puuid"] == puuid)
-        feats = timeline_to_diff13(get_timeline(mid), blue_ids, red_ids)
+        tl = get_timeline(mid)
+        feats = timeline_to_diff13(tl, blue_ids, red_ids)
+        traj = timeline_trajectory(tl, blue_ids)
         pred = predict(feats)
         blue_won = next(t["win"] for t in info["teams"] if t["teamId"] == 100)
         # 내가 레드면 확률·승패를 내 팀 기준으로 뒤집는다 (사용자는 자기 팀 기준으로 읽는다)
@@ -317,6 +364,9 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
             "duration_min": round(info["gameDuration"] / 60),
             "game_version": ".".join(info.get("gameVersion", "").split(".")[:2]),
             "features": feats,
+            # 분 단위 궤적 — 이미 받은 타임라인에서 뽑는다 (추가 호출 0회)
+            "trajectory": traj,
+            "swing_minute": swing_minute(traj),
             "win_prob_blue": pred["win_prob_blue"],
             "pred_label": pred["pred_label"],
             "top_factors": pred["top_factors"],
