@@ -51,6 +51,10 @@ def cors(resp):
     return resp
 
 
+# 숫자로 변환하면 안 되는 열 — 앞자리 0 이 사라지거나 뜻이 달라진다
+TEXT_COLUMNS = {"tag", "name", "champion", "position", "구간", "유형", "label"}
+
+
 def _csv(name):
     """reports 의 csv 를 dict 목록으로 (BOM 포함 파일 대응, 숫자는 숫자로).
 
@@ -68,6 +72,11 @@ def _csv(name):
             out = {}
             for k, v in row.items():
                 k = k or "name"
+                # 사람 이름·Riot 태그는 숫자로 보여도 문자열이다.
+                # 태그 "0223" 을 int 로 바꾸면 223 이 되어 링크가 죽는다(실제로 죽었다).
+                if k in TEXT_COLUMNS:
+                    out[k] = v
+                    continue
                 try:
                     out[k] = float(v) if ("." in v or "e" in v.lower()) else int(v)
                 except (ValueError, AttributeError):

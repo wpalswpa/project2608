@@ -84,10 +84,35 @@ def test_schema_matches_features():
         "schema.json 과 lolwin/features.py 의 피처가 다릅니다 — 재학습이 필요합니다")
 
 
+def test_csv_keeps_text_columns_as_text():
+    """CSV 를 읽을 때 이름·태그를 숫자로 바꾸면 안 된다.
+
+    Riot 태그 "0223" 을 int 로 읽으면 223 이 되어 앞자리 0 이 사라지고,
+    화면의 "이름#태그" 링크가 존재하지 않는 계정을 가리킨다(실제로 그랬다).
+    """
+    import sys as _sys
+
+    _sys.path.insert(0, os.path.join(ROOT, "web"))
+    from app import _csv
+
+    rows = _csv("champion_top_players.csv")
+    if not rows:
+        print("  [건너뜀] champion_top_players.csv 없음")
+        return
+    bad = [r for r in rows if not isinstance(r.get("tag"), str)
+           or not isinstance(r.get("name"), str)]
+    assert not bad, (f"이름·태그가 문자열이 아닙니다 ({len(bad)}건): "
+                     f"{[(r.get('name'), r.get('tag')) for r in bad[:3]]} — "
+                     "web/app.py 의 TEXT_COLUMNS 를 확인하세요.")
+    # 숫자 열은 여전히 숫자여야 한다 (예외를 너무 넓게 걸지 않았는지)
+    assert isinstance(rows[0].get("판수"), int), "숫자 열까지 문자열이 됐습니다"
+
+
 def main():
     tests = [test_schema_matches_features, test_output_shape, test_pred_matches_threshold,
              test_top_factors, test_missing_feature_raises,
-             test_out_of_range_warns_but_returns, test_in_range_no_warning]
+             test_out_of_range_warns_but_returns, test_in_range_no_warning,
+             test_csv_keeps_text_columns_as_text]
     failed = 0
     for t in tests:
         try:
