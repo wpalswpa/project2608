@@ -260,10 +260,9 @@ footer > *{position:relative;z-index:2}
   <div id="brief"></div>
   <div class="tiles" id="tiles"></div>
 
-  <div class="filters" id="filters"></div>
   <p class="sub" id="stat" style="margin:0 0 8px"></p>
   <div class="rows" id="rows"></div>
-  <div class="more"><button id="more" style="display:none">더 보기</button></div>
+  <div class="more"><button id="more" style="display:none">전적 더 보기</button></div>
 
   <h3 class="sec">이 판정을 믿어도 되나</h3>
   <p class="sub">숨기지 않고 그대로 보여드립니다 — 저희가 잘 맞히는 판과 자주 틀리는 판.</p>
@@ -363,7 +362,7 @@ function normalize(x, isSummoner){
   return isSummoner ? {
     key: x.match_id, champion: x.champion, side: x.my_side,
     win_prob: x.my_win_prob, won: x.my_won, verdict: x.verdict, band: x.band,
-    correct: x.model_correct, side_label: x.my_side,
+    correct: x.model_correct, side_label: x.my_side, played_at: x.played_at,
     gold: x.features.GoldDiff, kills: x.features.KillsDiff, dragons: x.features.DragonsDiff,
     factors: x.top_factors, features: x.features, warnings: x.warnings || [],
     sub: `${x.played_at ? x.played_at + " · " : ""}${x.duration_min}분 경기`,
@@ -514,62 +513,58 @@ function renderSummary(sum, label, scope){
     t("우세승", sum["우세승"], "앞서서 그대로 이김");
 }
 
-/* ── 샘플 경기 ── */
-async function loadSample(append){
-  if(loading) return;
-  loading = true; mode = "sample";
-  $("#filters").hidden = false;
-  const my = ++seq;
-  $("#more").disabled = true;
-  if(!append){ offset = 0; $("#rows").innerHTML = `<p class="sub"><span class="spin"></span>불러오는 중…</p>`; }
-  try{
-    const qs = new URLSearchParams({limit:"10", offset:String(offset), seed:String(shuffleSeed)});
-    if(band) qs.set("band", band);
-    if(correct !== "") qs.set("correct", correct);
-    const d = await (await fetch("/api/matches?" + qs)).json();
-    if(my !== seq) return;
-    const rows = d.matches.map(m => normalize(m, false));
-    const html = rows.map(rowHTML).join("");
-    if(append) $("#rows").insertAdjacentHTML("beforeend", html);
-    else { $("#rows").innerHTML = html || `<div class="empty">조건에 맞는 경기가 없습니다.</div>`;
-           renderSummary(d.summary, `샘플 ${d.total.toLocaleString()}판 · 블루 팀 기준`,
-             "출처 — 공개 데이터셋의 다이아 랭크 실제 경기. 모델이 학습 때 본 적 없는 판만 모았습니다"); }
-    rows.forEach(g => bind(g));
-    offset += d.returned;
-    $("#stat").innerHTML = d.total
-      ? `이 조건 <b>${d.total.toLocaleString()}판</b> 중 <b>${offset}판</b> 표시` +
-        (d.accuracy != null ? ` · 실측 적중률 <b class="num">${pct(d.accuracy)}</b>` : "") : "";
-    $("#more").style.display = offset < d.total ? "" : "none";
-  }catch(e){ if(my === seq) $("#rows").innerHTML = `<div class="msg">경기를 불러오지 못했습니다.</div>`; }
-  finally{ loading = false; $("#more").disabled = false; }
-}
-
 /* ── 소환사 ── */
-async function loadSummoner(riotId){
+const PAGE = 5;                 /* 한 번에 볼 경기 수 — 판마다 타임라인을 받아서 크게 못 늘린다 */
+let curId = "", curStart = 0, allRows = [];
+
+async function loadSummoner(riotId, append){
+  if(loading) return;
+  loading = true;
   const my = ++seq;
   mode = "summoner";
-  $("#filters").hidden = true;
-  $("#rows").innerHTML = `<p class="sub"><span class="spin"></span>${esc(riotId)} 의 최근 경기를 10분 시점으로 되감는 중… (타임라인 분석이라 수십 초 걸립니다)</p>`;
-  $("#more").style.display = "none"; $("#stat").textContent = "";
+  if(!append){ curId = riotId; curStart = 0; allRows = [];
+    $("#rows").innerHTML = `<p class="sub"><span class="spin"></span>${esc(riotId)} 의 최근 경기를 10분 시점으로 되감는 중… (경기마다 타임라인을 받아 계산해서 수십 초 걸립니다)</p>`;
+    $("#more").style.display = "none"; $("#stat").textContent = "";
+  } else {
+    $("#more").disabled = true; $("#more").innerHTML = '<span class="spin"></span>불러오는 중';
+  }
   try{
     const res = await fetch("/api/summoner", {method:"POST",
-      headers:{"Content-Type":"application/json"}, body: JSON.stringify({riot_id: riotId})});
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({riot_id: riotId, count: PAGE, start: curStart})});
     const d = await res.json();
     if(my !== seq) return;
     if(!res.ok){
-      $("#rows").innerHTML = `<div class="msg">${esc(d.error || "조회 실패")}</div>` +
-        `<p class="note">아래 <b>샘플 경기 보기</b>로 전체 기능을 그대로 확인할 수 있습니다.</p>`;
-      renderSummary(null); return;
+      if(!append) { $("#rows").innerHTML = `<div class="msg">${esc(d.error || "조회 실패")}</div>`; renderSummary(null); }
+      return;
     }
     const rows = (d.games || []).map(g => normalize(g, true));
-    $("#rows").innerHTML = rows.length ? rows.map(rowHTML).join("")
-      : `<div class="empty">최근 솔로랭크 경기를 찾지 못했습니다.</div>`;
+    allRows = allRows.concat(rows);
+    if(!allRows.length){
+      $("#rows").innerHTML = `<div class="empty">최근 솔로랭크 경기를 찾지 못했습니다.</div>`;
+      renderSummary(null); return;
+    }
+    if(append) $("#rows").insertAdjacentHTML("beforeend", rows.map(rowHTML).join(""));
+    else $("#rows").innerHTML = rows.map(rowHTML).join("");
     rows.forEach(g => bind(g));
-    renderSummary(d.summary, esc(d.riot_id),
-      `조회 범위 — 솔로랭크 최근 ${rows.length}판` + (d.summary.period ? ` (${d.summary.period})` : "") + ", 11분 미만 조기종료 경기는 제외");
-    $("#stat").innerHTML = rows.length
-      ? `최근 <b>${rows.length}판</b> · 10분 판정이 실제 결과와 맞은 경기 <b>${d.summary.model_correct}판</b>` : "";
-  }catch(e){ if(my === seq) $("#rows").innerHTML = `<div class="msg">조회에 실패했습니다.</div>`; }
+    curStart = d.next_start != null ? d.next_start : curStart + PAGE;
+
+    /* 요약은 지금까지 불러온 전부를 기준으로 다시 센다 */
+    const agg = {n: allRows.length, model_correct: allRows.filter(r => r.correct).length,
+      avg_win_prob_10min: allRows.reduce((a, r) => a + r.win_prob, 0) / allRows.length,
+      period: (allRows[allRows.length-1].played_at && allRows[0].played_at)
+        ? `${allRows[allRows.length-1].played_at} ~ ${allRows[0].played_at}` : null};
+    ["우세승","역전승","역전패","열세패"].forEach(k => agg[k] = allRows.filter(r => r.verdict === k).length);
+    renderSummary(agg, esc(d.riot_id),
+      `조회 범위 — 솔로랭크 최근 ${agg.n}판` + (agg.period ? ` (${agg.period})` : "") + ", 11분 미만 조기종료 경기는 제외");
+    $("#stat").innerHTML = `최근 <b>${agg.n}판</b> · 10분 판정이 실제 결과와 맞은 경기 <b>${agg.model_correct}판</b>`;
+    /* 마지막 페이지가 덜 찼으면 더 없는 것 */
+    $("#more").style.display = rows.length < PAGE ? "none" : "";
+  }catch(e){
+    if(my === seq && !append) $("#rows").innerHTML = `<div class="msg">조회에 실패했습니다.</div>`;
+  }finally{
+    loading = false; $("#more").disabled = false; $("#more").textContent = "전적 더 보기";
+  }
 }
 
 function bind(g){
@@ -582,20 +577,8 @@ function bind(g){
 async function doSearch(){
   const q = $("#q").value.trim();
   if(!q) return;
-  if(q.includes("#")) return loadSummoner(q);
-  if(/^\d+$/.test(q)){
-    $("#rows").innerHTML = `<p class="sub"><span class="spin"></span>경기 #${esc(q)} 찾는 중…</p>`;
-    try{
-      const d = await (await fetch("/api/matches?id=" + encodeURIComponent(q))).json();
-      const rows = (d.matches || []).map(m => normalize(m, false));
-      $("#rows").innerHTML = rows.length ? rows.map(rowHTML).join("")
-        : `<div class="empty">경기 #${esc(q)} 는 샘플에 없는 번호입니다.</div>`;
-      rows.forEach(g => bind(g));
-      renderSummary(null); $("#stat").textContent = ""; $("#more").style.display = "none";
-    }catch(e){ $("#rows").innerHTML = `<div class="msg">조회에 실패했습니다.</div>`; }
-    return;
-  }
-  $("#rows").innerHTML = `<div class="msg">소환사는 <b>이름#태그</b>, 경기는 <b>숫자</b>로 검색합니다.</div>`;
+  if(q.includes("#")) return loadSummoner(q, false);
+  $("#rows").innerHTML = `<div class="msg">소환사 이름을 <b>이름#태그</b> 형식으로 입력하세요 (예: Hide on bush#KR1).</div>`;
 }
 
 /* ── 리포트 · 필터 칩 ── */
@@ -610,28 +593,6 @@ async function loadReport(){
       fetch("/api/report").then(r => r.json()), fetch("/api/match-types").then(r => r.json())]);
     const p = rep.performance || {}, r = p.repeat_seeds || {}, names = rep.feature_names || {};
     confBins = (rep.errors && rep.errors.bins) || [];
-
-    /* 필터 — 칩 아홉 개는 눈에 안 들어와서 드롭다운 둘로.
-       구간 이름은 서버 bins 에서 그대로 가져온다 (화면에 숫자 하드코딩 없음) */
-    const f = $("#filters");
-    const sel = (id, label, opts) => {
-      const wrap = document.createElement("label");
-      wrap.className = "fsel";
-      wrap.innerHTML = `${label} <select id="${id}">` +
-        opts.map(o => `<option value="${esc(o[0])}">${esc(o[1])}</option>`).join("") + `</select>`;
-      return wrap;
-    };
-    f.innerHTML = "";
-    f.appendChild(sel("selBand", "10분 골드 격차",
-      [["", "전체"]].concat(confBins.map(b => [b["구간"], b["구간"]]))));
-    f.appendChild(sel("selCorrect", "모델 판정",
-      [["", "전체"], ["1", "맞힌 경기만"], ["0", "틀린 경기만"]]));
-    const sh = document.createElement("button");
-    sh.textContent = "다른 경기 보기"; sh.style.marginLeft = "auto";
-    sh.addEventListener("click", () => { shuffleSeed = (Date.now() % 99999) || 1; loadSample(false); });
-    f.appendChild(sh);
-    $("#selBand").addEventListener("change", e => { band = e.target.value; loadSample(false); });
-    $("#selCorrect").addEventListener("change", e => { correct = e.target.value; loadSample(false); });
 
     $("#report").innerHTML =
       `<p class="sub"><b>한 줄 요약 — 크게 벌어진 판은 거의 다 맞히고, 팽팽한 판은 저희도 자주 틀립니다.</b>
@@ -692,17 +653,16 @@ async function runManual(){
 
 /* ── 연결 ── */
 buildForm();
-loadReport().then(() => {
-  /* 첫 화면: 키가 살아 있으면 대표 표본(페이커)을 바로 조회, 아니면 샘플 경기 */
-  if(RIOT_READY) loadSummoner($("#q").value.trim());
-  else loadSample(false);
-});
+loadReport();
+/* 첫 화면 — 키가 살아 있으면 대표 표본(페이커)을 바로 보여준다 */
+if(RIOT_READY) loadSummoner($("#q").value.trim(), false);
+else $("#rows").innerHTML = `<div class="empty">소환사 검색이 일시적으로 중단됐습니다.<br>잠시 후 다시 시도해 주세요.</div>`;
 $("#themeBtn").addEventListener("click", () =>
   applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));
 $("#find").addEventListener("click", doSearch);
 $("#q").addEventListener("keydown", e => { if(e.key === "Enter") doSearch(); });
-$("#more").addEventListener("click", () => loadSample(true));
-/* 프리셋 — 학습 데이터에서 실제로 흔한 규모의 상황 3가지 */
+$("#more").addEventListener("click", () => { if(curId) loadSummoner(curId, true); });
+/* 프리셋 — 실제 경기에서 흔한 규모의 상황 3가지 */
 const DEMOS = {
   close:{FirstBlood:1,KillsDiff:0,GoldDiff:150,ExpDiff:-100,WardsPlacedDiff:2,WardsDestroyedDiff:0,AssistsDiff:1,DragonsDiff:0,HeraldsDiff:0,TowersDestroyedDiff:0,AvgLevelDiff:0,TotalMinionsKilledDiff:5,TotalJungleMinionsKilledDiff:-2},
   blue:{FirstBlood:1,KillsDiff:5,GoldDiff:4500,ExpDiff:3000,WardsPlacedDiff:5,WardsDestroyedDiff:2,AssistsDiff:6,DragonsDiff:1,HeraldsDiff:1,TowersDestroyedDiff:1,AvgLevelDiff:1.2,TotalMinionsKilledDiff:30,TotalJungleMinionsKilledDiff:10},

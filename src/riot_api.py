@@ -95,9 +95,10 @@ def get_puuid(game_name: str, tag_line: str) -> str:
     return acc["puuid"]
 
 
-def get_recent_match_ids(puuid: str, count: int = 5) -> list:
+def get_recent_match_ids(puuid: str, count: int = 5, start: int = 0) -> list:
+    """최근 솔로랭크 경기 id 목록. start 는 건너뛸 개수 — "더 보기" 에 쓴다."""
     return _get(f"https://{ROUTING}.api.riotgames.com/lol/match/v5/matches/"
-                f"by-puuid/{puuid}/ids?queue={SOLO_QUEUE}&count={count}")
+                f"by-puuid/{puuid}/ids?queue={SOLO_QUEUE}&count={count}&start={start}")
 
 
 def get_match(match_id: str) -> dict:
@@ -188,7 +189,7 @@ def timeline_to_diff13(timeline: dict, blue_ids: set, red_ids: set) -> dict:
     }
 
 
-def analyze_recent(riot_id: str, count: int = 5) -> dict:
+def analyze_recent(riot_id: str, count: int = 5, start: int = 0) -> dict:
     """소환사의 최근 솔로랭크 경기들을 10분 시점에서 복기한다.
 
     riot_id: "게임명#태그" (예: "Hide on bush#KR1")
@@ -203,7 +204,7 @@ def analyze_recent(riot_id: str, count: int = 5) -> dict:
     name, tag = riot_id.rsplit("#", 1)
     puuid = get_puuid(name.strip(), tag.strip())
     games = []
-    for mid in get_recent_match_ids(puuid, count):
+    for mid in get_recent_match_ids(puuid, count, start):
         m = get_match(mid)
         info = m["info"]
         if info.get("gameDuration", 0) < 660:        # 11분 미만(조기 항복 등) 제외
@@ -255,7 +256,8 @@ def analyze_recent(riot_id: str, count: int = 5) -> dict:
         "우세승": counts.get("우세승", 0),
         "model_correct": sum(1 for g in games if g["model_correct"]),
     }
-    return {"riot_id": riot_id, "queue": "솔로랭크", "games": games, "summary": summary}
+    return {"riot_id": riot_id, "queue": "솔로랭크", "games": games, "summary": summary,
+            "start": start, "next_start": start + count}
 
 
 def _selftest():

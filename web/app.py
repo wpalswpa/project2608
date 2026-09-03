@@ -317,13 +317,19 @@ def api_summoner():
         # 뭉뚱그리면 "넣으라"는 안내를 받고 이미 넣은 사람이 혼란스러워진다.
         if os.environ.get("RIOT_API_KEY"):
             return jsonify({"error": "Riot API 키가 만료되어 소환사 조회를 일시 중단했습니다. "
-                                     "(개발용 키는 24시간마다 만료됩니다) "
-                                     "샘플 경기로는 모든 기능을 그대로 확인할 수 있습니다."}), 503
-        return jsonify({"error": "서버에 Riot API 키가 없어 소환사 조회를 쓸 수 없습니다. "
-                                 "샘플 경기로는 모든 기능을 그대로 확인할 수 있습니다."}), 503
+                                     "잠시 후 다시 시도해 주세요."}), 503
+        return jsonify({"error": "서버에 Riot API 키가 없어 소환사 조회를 쓸 수 없습니다."}), 503
     try:
-        riot_id = (request.get_json() or {}).get("riot_id", "").strip()
-        return jsonify(analyze_recent(riot_id, count=5))
+        data = request.get_json() or {}
+        riot_id = data.get("riot_id", "").strip()
+        # 한 판마다 타임라인을 받아야 해서 count 가 크면 느리다 — 상한 10.
+        # start 는 "더 보기" 용으로 건너뛸 개수다.
+        try:
+            count = max(1, min(10, int(data.get("count", 5))))
+            start = max(0, int(data.get("start", 0)))
+        except (TypeError, ValueError):
+            count, start = 5, 0
+        return jsonify(analyze_recent(riot_id, count=count, start=start))
     except RiotApiError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
