@@ -163,6 +163,26 @@ for p, s in docs.items():
             if m.group(1) != "11":
                 issues.append(f"[파이썬 버전] {p}: 3.{m.group(1)} (실제 3.11)")
 
+# ── model_card 의 유효 범위 표가 schema.json 과 같은가 ──
+# 계획서가 요구한 "X 가 a~b 범위일 때만 유효" 를 손으로 적으면 재학습 때 어긋난다.
+# 표는 schema 에서 생성했지만, 이후 schema 가 바뀌면 표만 낡을 수 있어 대조한다.
+try:
+    import json as _json
+
+    _sch = _json.load(open(os.path.join("artifacts", "schema.json"), encoding="utf-8"))["features"]
+    _card = read("model_card.md")
+    for _f, _v in _sch.items():
+        _m = re.search(rf"\| `{re.escape(_f)}` \|[^|]*\| \*\*([^*]+)\*\*", _card)
+        if not _m:
+            issues.append(f"[유효 범위] model_card.md 에 {_f} 행이 없습니다")
+            continue
+        _lo, _hi = (x.strip().replace(",", "").replace("+", "") for x in _m.group(1).split("~"))
+        for _got, _want, _side in ((_lo, _v["train_min"], "min"), (_hi, _v["train_max"], "max")):
+            if abs(float(_got) - float(_want)) > 0.05:
+                issues.append(f"[유효 범위] model_card.md {_f} {_side}: {_got} (schema {_want})")
+except Exception as _e:
+    issues.append(f"[유효 범위] 대조 실패: {_e}")
+
 print(f"점검 문서 {len(DOCS)}개 · 발견된 문제 {len(issues)}건")
 for i in issues:
     print("  -", i)
