@@ -1,4 +1,4 @@
-# 제출물 6종을 한 폴더에 모은다 (submission/)
+# 제출물 6종을 한 폴더에 모은다 (final/)
 #
 # 실행: python scripts/build_submission.py
 #
@@ -16,7 +16,7 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
-OUT = "submission"
+OUT = "final"
 
 # (원본 경로, 제출 폴더에서의 이름, 설명) — 계획서 §6.2 의 필수 산출물 6종
 ITEMS = [
