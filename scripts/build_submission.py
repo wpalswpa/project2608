@@ -44,7 +44,9 @@ def main():
         print("[실패] 원본이 없습니다:", ", ".join(missing))
         return 1
 
-    lines = ["# 제출물 6종", "",
+    lines = ["# 이 폴더 안내 (제출물이 아닙니다)", "",
+             "**제출할 것은 아래 6개 파일입니다. 이 문서는 그 목록일 뿐입니다.**",
+             "프로젝트 설명을 보시려면 `1_README.md` 를 여세요.", "",
              "계획서 §6.2 의 필수 산출물입니다. **원본을 복사해 모아둔 것**이라,",
              "고칠 때는 원본을 고치고 `python scripts/build_submission.py` 를 다시 돌리세요.",
              "(원본을 옮기면 코드가 경로로 찾지 못해 프로젝트가 깨집니다)", "",
@@ -62,7 +64,9 @@ def main():
         lines.append(f"| `{dst}` | `{sha(src)}` |")
     lines += ["", f"생성 시각: {time.strftime('%Y-%m-%d %H:%M')}", ""]
 
-    with open(os.path.join(OUT, "README.md"), "w", encoding="utf-8", newline="\n") as f:
+    # 안내문 이름을 README.md 로 하면 제출물 1번(1_README.md)과 헷갈린다.
+    # 0_ 을 붙여 맨 위에 오게 하고 이름으로 정체가 드러나게 한다.
+    with open(os.path.join(OUT, "0_이_폴더_안내.md"), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines))
     print(f"\n[완료] {OUT}/ 에 6종 + 안내 README")
     return 0
