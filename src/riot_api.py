@@ -302,7 +302,7 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
             "features": feats,
             "win_prob_blue": pred["win_prob_blue"],
             "pred_label": pred["pred_label"],
-            "top_factors": pred["top_factors"][:3],
+            "top_factors": pred["top_factors"],
             "warnings": pred["warnings"],
             "actual": "블루 승리" if blue_won else "레드 승리",
             "model_correct": (pred["pred"] == 1) == blue_won,

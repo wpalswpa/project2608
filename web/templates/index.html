@@ -229,8 +229,11 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .expand:hover{color:var(--blue);border:none}
 
 /* 펼친 근거 + 코칭 */
-.detail{grid-column:1/-1;border-top:1px solid var(--line);margin-top:8px;padding:12px 14px 4px 19px;
-  display:grid;grid-template-columns:1fr 1fr;gap:20px}
+/* 왼쪽(근거)과 오른쪽(코칭) 길이가 달라 아래가 비어 보이던 것 —
+   각 칸을 위로 붙이고 아래 여백을 없앤다 */
+.detail{grid-column:1/-1;border-top:1px solid var(--line);margin-top:8px;padding:12px 14px 12px 19px;
+  display:grid;grid-template-columns:1fr 1fr;gap:20px 24px;align-items:start}
+.detail > div{align-self:start}
 .detail h4{margin:0 0 8px;font-size:12px;font-weight:700;color:var(--muted);
   letter-spacing:.06em;text-transform:uppercase}
 .fac{display:grid;grid-template-columns:98px 1fr 58px;gap:8px;align-items:center;
