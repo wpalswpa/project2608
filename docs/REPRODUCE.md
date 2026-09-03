@@ -22,6 +22,7 @@ python src/feature_reduction.py          # 페이즈 2 — 히트맵 확인 후 
 python src/phase2_pca.py                 # 페이즈 2 — PCA 가 골드 탓이었는지 확인
 python src/supplement_checks.py          # 보충 — 나이브베이즈·군집 비교·차원 축소
 python src/twostage_check.py             # 접전 보완 — 2단계 라우팅 검증 (기각 근거)
+python src/collect_champion_stats.py     # 챔피언·라인 승률 수집 (Riot 키 필요 · 이어받기)
 python src/timepoint_compare.py          # 페이즈 3 — 10분 vs 15분
 python src/repeat_check.py               # 분할을 10번 바꿔 재학습
 python predict.py --demo                 # 예측 확인 (51.2% / 94.6% / 16.8%)

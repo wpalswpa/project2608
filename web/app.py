@@ -309,6 +309,33 @@ def api_matches():
     })
 
 
+@app.route("/api/champions")
+def api_champions():
+    """챔피언 x 라인 승률표 — 마스터 이상 솔로랭크 실측.
+
+    src/collect_champion_stats.py 가 만든 집계 CSV 를 그대로 내려준다.
+    이 값은 우리 모델의 예측이 아니라 **관찰된 승률**이다 (인과 아님).
+    """
+    data = _csv("champion_stats.csv")
+    if not data:
+        return jsonify({"rows": [], "meta": None,
+                        "note": "아직 수집된 챔피언 통계가 없습니다."}), 200
+    pos = (request.args.get("position") or "").upper()
+    rows = [{"champion": r["champion"], "position": r["position"],
+             "games": int(r["경기수"]), "win_rate": float(r["승률"]),
+             "pick_rate": float(r["픽률"])}
+            for r in data if not pos or r["position"] == pos]
+    rows.sort(key=lambda x: x["win_rate"], reverse=True)
+
+    meta = None
+    mpath = os.path.join(ROOT, "reports", "tables", "champion_stats_meta.json")
+    if os.path.exists(mpath):
+        with open(mpath, encoding="utf-8") as f:
+            meta = json.load(f)
+    return jsonify({"rows": rows, "meta": meta,
+                    "note": "마스터 이상 솔로랭크 관찰 승률입니다. 표본 5판 미만은 제외했습니다."})
+
+
 @app.route("/api/summoner", methods=["POST"])
 def api_summoner():
     """Riot ID 로 최근 솔로랭크 경기들을 10분 시점에서 복기한다 (끝난 경기만 가능)."""

@@ -26,3 +26,4 @@ node_modules/
 *.egg-info/
 build/
 dist/
+data/champion_raw.jsonl
