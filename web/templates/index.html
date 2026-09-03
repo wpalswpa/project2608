@@ -18,7 +18,7 @@
   --ink:#1C2127; --muted:#6B7684; --faint:#98A2B3;
   --blue:#2F6FE4; --blue-bg:#EDF3FE;
   --red:#D64A5A;  --red-bg:#FDEEF0;
-  --gold:#B8860B;
+  --gold:#B8860B; --win:#1F9254; --lose:#8A94A6;
   --shadow:0 1px 2px rgba(16,24,40,.05);
 }
 :root[data-theme="dark"]{
@@ -27,7 +27,7 @@
   --ink:#E4E7EB; --muted:#9AA5B1; --faint:#6B7684;
   --blue:#4A8BF5; --blue-bg:#16243B;
   --red:#E8697A;  --red-bg:#3A1D22;
-  --gold:#D4A843;
+  --gold:#D4A843; --win:#3FBF7F; --lose:#7C8797;
   --shadow:0 1px 2px rgba(0,0,0,.3);
 }
 *{box-sizing:border-box}
@@ -110,8 +110,8 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 :root[data-theme="dark"] .row .rowart{opacity:.11}
 .row > *:not(.rowart){position:relative;z-index:1}
 .row .edge{position:absolute;left:0;top:0;bottom:0;width:6px;z-index:2}
-.row.win  .edge{background:var(--blue)}
-.row.lose .edge{background:var(--red)}
+.row.win  .edge{background:var(--win)}
+.row.lose .edge{background:var(--lose)}
 .row .champ{width:56px;height:56px;border-radius:10px;object-fit:cover;
   border:1px solid var(--line);background:var(--panel-2);margin-left:16px;display:block}
 .row .champ-ph{width:56px;height:56px;border-radius:10px;margin-left:16px;
@@ -140,6 +140,9 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 
 .gauge-sub{font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:12px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reason{margin-top:5px;font-size:11.5px;color:var(--muted);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.reason .lowconf{color:var(--red);font-weight:600}
 
 .verdict{font-size:12.5px;font-weight:700;padding:6px 8px;border-radius:6px;text-align:center;
   border:1px solid transparent;white-space:nowrap}
@@ -153,6 +156,9 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .result{text-align:center;font-size:13.5px;line-height:1.4}
 .result .pv{color:var(--muted);white-space:nowrap}
 .result .pv b{font-size:16px}
+/* 팀은 파랑/빨강, 승패는 초록/회색 — 한 행에서 같은 색이 두 뜻을 갖지 않게 */
+.result .pv b.w{color:var(--win)}
+.result .pv b.l{color:var(--lose)}
 .result .arw{color:var(--faint);margin:0 1px}
 .result .hit{margin-top:3px;font-weight:700;font-size:11.5px}
 .result .hit.ok{color:var(--blue)} .result .hit.no{color:var(--red)}
@@ -319,6 +325,9 @@ const hashOf = str => { let h = 0; for(let i = 0; i < str.length; i++) h = (h * 
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pct = v => (v * 100).toFixed(1) + "%";
+/* 부호를 붙여 읽기 좋게 — 큰 수는 천 단위 구분, 소수는 한 자리까지 */
+const signed = (v, big) => (v > 0 ? "+" : "") +
+  (big || Math.abs(v) >= 100 ? Math.round(v).toLocaleString() : Math.round(v * 10) / 10);
 
 let schema = null, seq = 0;
 let mode = "sample", band = "", correct = "", offset = 0, shuffleSeed = 1, loading = false;
@@ -377,9 +386,25 @@ function rowHTML(g){
             alt="${esc(g.champion)}" loading="lazy">`
     : `<div class="champ-ph"><b>${esc(num)}</b><span>경기</span></div>`;
   const iAmBlue = g.side_label === "블루";
+  /* 서버 값은 언제나 '블루 − 레드' 정본이다(파리티 검사의 기준이라 서버는 못 건드린다).
+     레드팀 사용자에게는 부호를 뒤집어야 "내 팀이 앞섰나"로 읽힌다. */
+  const sign = iAmBlue ? 1 : -1;
+  const mine = v => v * sign;
   const myVar = iAmBlue ? "var(--blue)" : "var(--red)";
   const opVar = iAmBlue ? "var(--red)" : "var(--blue)";
   const opBg  = iAmBlue ? "var(--red-bg)" : "var(--blue-bg)";
+  /* 왜 그렇게 예측했나 — 기여도 상위 2개를 내 팀 기준으로 읽어 한 줄로.
+     "왜?" 를 펼치기 전에 이유가 먼저 보이게 한다. */
+  const why2 = (g.factors || []).slice(0, 2).map(f =>
+    f.feature === "FirstBlood"
+      ? `첫 킬 ${f.value >= 0.5 ? "블루" : "레드"}`
+      : `${f.name.replace(/\(.*?\)/, "").replace(/\s*차이$/, "")} ${signed(mine(f.value))}`).join(" · ");
+  const ahead = g.win_prob >= 0.5;
+  const isClose = (g.band || "").indexOf("접전") === 0;
+  const reason = why2
+    ? `${why2} — ${g.side_label}팀이 ${ahead ? "앞서" : "밀려"} ${ahead ? "승" : "패"} 예측` +
+      (isClose ? ` <span class="lowconf">· 접전이라 판정 신뢰 낮음</span>` : "")
+    : "";
   return `<article class="row ${g.won ? "win" : "lose"}" data-key="${esc(g.key)}">
     <span class="rowart" aria-hidden="true" style="background-image:url(${DDRAGON}/img/champion/loading/${art}_0.jpg)"></span>
     <span class="edge"></span>
@@ -393,17 +418,18 @@ function rowHTML(g){
           <span class="r num" style="color:${opVar}">${esc(iAmBlue ? "레드" : "블루")} ${(100 - w).toFixed(1)}%</span></div>
       </div>
       <div class="gauge-sub">
-        <span>골드 <b class="num">${g.gold > 0 ? "+" : ""}${Math.round(g.gold).toLocaleString()}</b></span>
-        <span>킬 <b class="num">${g.kills > 0 ? "+" : ""}${g.kills}</b></span>
-        <span>드래곤 <b class="num">${g.dragons > 0 ? "+" : ""}${g.dragons}</b></span>
+        <span>골드 <b class="num">${signed(mine(g.gold), true)}</b></span>
+        <span>킬 <b class="num">${signed(mine(g.kills))}</b></span>
+        <span>드래곤 <b class="num">${signed(mine(g.dragons))}</b></span>
         <span style="color:var(--faint)">${esc(g.band || "")}</span>
       </div>
+      ${reason ? `<div class="reason">${reason}</div>` : ""}
     </div>
     <div class="verdict v-${esc(g.verdict || "")}">${esc(g.verdict || "")}</div>
     <div class="result">
-      <div class="pv"><span>10분 예측</span> <b style="color:${g.win_prob >= .5 ? "var(--blue)" : "var(--red)"}">${g.win_prob >= .5 ? "승" : "패"}</b>
+      <div class="pv"><span>10분 예측</span> <b class="${ahead ? "w" : "l"}">${ahead ? "승" : "패"}</b>
         <span class="arw">→</span>
-        <span>실제</span> <b style="color:${g.won ? "var(--blue)" : "var(--red)"}">${g.won ? "승" : "패"}</b></div>
+        <span>실제</span> <b class="${g.won ? "w" : "l"}">${g.won ? "승" : "패"}</b></div>
     </div>
     <button class="expand" aria-expanded="false" title="왜 이렇게 판정했나">＋</button>
   </article>`;
@@ -411,6 +437,8 @@ function rowHTML(g){
 
 /* 펼치면 근거 + 감독 코칭을 그 자리에서 불러온다 (미리 20판 부르지 않는다) */
 async function toggleDetail(rowEl, g){
+  const sign = g.side_label === "블루" ? 1 : -1;
+  const mine = v => v * sign;
   const open = rowEl.querySelector(".detail");
   const btn = rowEl.querySelector(".expand");
   if(open){ open.remove(); btn.textContent = "＋"; btn.setAttribute("aria-expanded", "false"); return; }
@@ -422,8 +450,7 @@ async function toggleDetail(rowEl, g){
      막대 길이만 "판정에 얼마나 작용했나"(기여도 크기)를 담당한다. */
   const fmtVal = f => {
     if(f.feature === "FirstBlood") return f.value >= 0.5 ? "블루" : "레드";
-    const v = f.value, r = Math.abs(v) >= 100 ? Math.round(v).toLocaleString() : (Math.round(v * 10) / 10);
-    return (v > 0 ? "+" : "") + r;
+    return signed(mine(f.value));          /* 내 팀 기준 부호 */
   };
   const mx = Math.max(...g.factors.map(f => Math.abs(f.contribution)), .001);
   const facs = g.factors.map(f => {
