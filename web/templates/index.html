@@ -719,7 +719,7 @@ async function toggleDetail(rowEl, g){
     const last = mine(tr[tr.length - 1].gold_diff);
     const peak = Math.round(mx / 100) * 100;
     trajHTML = `<div class="trajwrap">
-      <h4>골드 격차가 분마다 어떻게 움직였나</h4>
+      <h4>승부가 갈린 순간 — 골드 격차의 흐름</h4>
       <div class="trajgrid">
         <div class="tyax"><span>+${peak.toLocaleString()}</span><span>0</span><span>-${peak.toLocaleString()}</span></div>
         <div>
@@ -729,12 +729,12 @@ async function toggleDetail(rowEl, g){
             ${swX ? `<line x1="${swX}" y1="0" x2="${swX}" y2="${H}" class="tswing"></line>` : ""}
             <polyline points="${pts.join(" ")}" class="tline ${last >= 0 ? "up" : "down"}"></polyline>
           </svg>
-          <div class="tlabels"><span>0분</span>${swX ? `<span class="tsw">↑ ${sw}분</span>` : ""}<span>${tr[tr.length-1].minute}분</span></div>
+          <div class="tlabels"><span>0분</span>${swX ? `<span class="tsw">↑ ${sw}분 · 승부처</span>` : ""}<span>${tr[tr.length-1].minute}분</span></div>
         </div>
       </div>
       <p class="note trajnote">
         세로 = 우리 팀이 앞선 골드(위로 갈수록 유리) · 가로 = 경기 시간
-        ${swX ? ` · <b style="color:var(--gold)">노란 선 = 갈린 순간</b>` : ""}<br>
+        ${swX ? ` · <b style="color:var(--gold)">노란 선 = 승부가 갈린 순간</b>` : ""}<br>
         <b>${sw != null
           ? `${sw}분부터 격차가 벌어져 다시 좁혀지지 않았습니다.`
           : "끝까지 크게 벌어지지 않았습니다 — 10분 정보로는 가리기 어려운 판입니다."}</b>
