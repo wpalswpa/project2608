@@ -185,7 +185,7 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .rosterbox{border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .rhead{font-size:11.5px;font-weight:700;padding:5px 9px;color:#fff}
 .rhead.t-b{background:var(--blue)} .rhead.t-r{background:var(--red)}
-.rrow{display:grid;grid-template-columns:22px 34px 1fr auto;gap:7px;align-items:center;
+.rrow{display:grid;grid-template-columns:22px 34px 1fr auto auto;gap:7px;align-items:center;
   padding:4px 9px;font-size:12px;border-top:1px solid var(--line)}
 .rrow:first-of-type{border-top:none}
 .rrow.me{background:var(--blue-bg);font-weight:700}
@@ -193,6 +193,13 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .rpos{color:var(--muted);font-size:11px}
 .rname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rkda{color:var(--muted);font-size:11px}
+a.rname{color:var(--blue);text-decoration:none;cursor:pointer}
+a.rname:hover{text-decoration:underline}
+.rtier{font-size:10px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
+  border-radius:4px;padding:1px 5px;white-space:nowrap}
+.rtier.none{opacity:.5}
+.tile.tier{border-color:var(--gold)}
+.tile.tier .v{color:var(--gold)}
 @media (max-width:560px){.rosters{grid-template-columns:1fr}}
 .warnbox{grid-column:1/-1;margin-top:6px;padding:8px 11px;border-radius:6px;
   background:var(--red-bg);color:var(--red);font-size:12.5px}
@@ -499,16 +506,24 @@ async function toggleDetail(rowEl, g){
 
   /* 팀 구성 — 이미 받은 데이터라 추가 호출이 없다. 본인은 굵게 표시. */
   const POS = {TOP:"탑", JUNGLE:"정글", MIDDLE:"미드", BOTTOM:"원딜", UTILITY:"서폿"};
+  const TIER_SHORT = {IRON:"아이언",BRONZE:"브론즈",SILVER:"실버",GOLD:"골드",PLATINUM:"플래",
+    EMERALD:"에메",DIAMOND:"다이아",MASTER:"마스터",GRANDMASTER:"그마",CHALLENGER:"챌린저"};
   const side = g.side_label;
   const teamCol = (label, members, isMine) => `
     <div class="rosterbox">
       <div class="rhead ${isMine ? "t-b" : "t-r"}">${esc(label)}</div>
-      ${members.map(m => `<div class="rrow${m.is_me ? " me" : ""}">
+      ${members.map(m => {
+        const id = m.name && m.tag ? `${m.name}#${m.tag}` : "";
+        const rk = m.rank;
+        const tierTxt = rk ? `${(TIER_SHORT[rk.tier] || rk.tier)}${rk.rank === "I" ? "" : ""}` : "언랭";
+        return `<div class="rrow${m.is_me ? " me" : ""}">
         <img src="${DDRAGON}/${DDV}/img/champion/${esc(m.champion)}.png" alt="" loading="lazy">
         <span class="rpos">${esc(POS[m.position] || "-")}</span>
-        <span class="rname">${esc(m.name || "―")}</span>
+        ${id ? `<a class="rname" href="#" data-search="${esc(id)}" title="${esc(id)} 전적 보기">${esc(m.name)}</a>`
+             : `<span class="rname">―</span>`}
+        <span class="rtier${rk ? "" : " none"}">${esc(tierTxt)}</span>
         <span class="rkda num">${esc(m.kda)}</span>
-      </div>`).join("")}
+      </div>`; }).join("")}
     </div>`;
   const mineTeam = (g.roster || []).filter(m => m.side === side);
   const foeTeam  = (g.roster || []).filter(m => m.side !== side);
@@ -524,14 +539,37 @@ async function toggleDetail(rowEl, g){
 }
 
 /* ── 감독 브리핑 + 요약 타일 ── */
+let rankTile = "";              /* 티어 타일 — loadSummoner 가 채운다 */
 function renderSummary(sum, label, scope){
   if(!sum){ $("#brief").innerHTML = ""; $("#tiles").innerHTML = ""; return; }
-  const worst = sum["역전패"] >= sum["열세패"] ? "역전패" : "열세패";
-  const msg = worst === "역전패"
-    ? ["이긴 판을 닫지 못하고 있습니다.",
-       `10분에 앞서고도 진 경기가 <b>${sum["역전패"]}판</b>입니다. 시작이 문제가 아니라 <b>앞선 판을 끝내는 법</b>이 문제입니다.`]
-    : ["시작부터 밀리고 있습니다.",
-       `10분에 밀린 채 그대로 진 경기가 <b>${sum["열세패"]}판</b>입니다. 후반 운영보다 <b>10분까지 버티는 것</b>이 먼저입니다.`];
+  const n = sum.n || 1;
+  const wins = (sum["우세승"] || 0) + (sum["역전승"] || 0);
+  const ahead = (sum["우세승"] || 0) + (sum["역전패"] || 0);   /* 10분에 앞선 판 */
+  const behind = n - ahead;
+  const avg = sum.avg_win_prob_10min;
+  /* 두 가지를 나눠 본다 — 10분까지 잘 만드나(선점률), 만든 판을 지키나(전환율) */
+  const leadRate = Math.round(ahead / n * 100);
+  const closeRate = ahead ? Math.round((sum["우세승"] || 0) / ahead * 100) : null;
+  const saveRate = behind ? Math.round((sum["역전승"] || 0) / behind * 100) : null;
+
+  let head, body;
+  if(sum["역전패"] > sum["열세패"]){
+    head = "앞선 판을 끝내지 못하고 있습니다.";
+    body = `10분에 앞선 <b>${ahead}판</b> 중 <b>${sum["역전패"]}판</b>을 놓쳤습니다` +
+      (closeRate != null ? ` (지켜낸 비율 <b>${closeRate}%</b>)` : "") +
+      `. 시작은 잘 만들고 있으니, 앞설 때 <b>위험을 줄이는 판단</b>이 과제입니다.`;
+  } else if(sum["열세패"] > 0 && sum["열세패"] >= sum["역전패"]){
+    head = "시작부터 밀리는 판이 많습니다.";
+    body = `10분에 밀린 채 그대로 진 경기가 <b>${sum["열세패"]}판</b>입니다. ` +
+      `10분 시점에 앞선 비율이 <b>${leadRate}%</b>라, 후반 운영보다 <b>10분까지 만드는 것</b>이 먼저입니다.`;
+  } else {
+    head = "안정적으로 이기고 있습니다.";
+    body = `${n}판 중 <b>${wins}판</b>을 이겼고, 10분에 앞선 비율이 <b>${leadRate}%</b>입니다.` +
+      (saveRate != null && saveRate > 0 ? ` 밀린 판도 <b>${saveRate}%</b> 뒤집었습니다.` : "");
+  }
+  if(avg != null)
+    body += ` 10분 평균 승률은 <b>${pct(avg)}</b>${avg >= 0.55 ? " — 초반을 유리하게 가져가는 편입니다." : (avg <= 0.45 ? " — 초반이 불리하게 시작되는 편입니다." : " — 초반은 대체로 팽팽합니다.")}`;
+  const msg = [head, body];
   $("#brief").innerHTML = `<div class="brief"><div class="who">COACH · ${esc(label)}</div>
     <h2>${msg[0]}</h2><p>${msg[1]}</p>
     ${scope ? `<p style="margin-top:6px;font-size:11.5px;color:var(--faint)">${esc(scope)}</p>` : ""}</div>`;
@@ -539,6 +577,7 @@ function renderSummary(sum, label, scope){
     `<div class="tile${warn ? " warn" : ""}"><div class="k">${k}</div>
      <div class="v num">${v}</div><div class="s">${s}</div></div>`;
   $("#tiles").innerHTML =
+    (rankTile || "") +
     t("10분 시점 승률 (평균)", sum.avg_win_prob_10min != null ? pct(sum.avg_win_prob_10min) : "—",
       `경기마다 10분 상황을 모델이 승률로 매긴 뒤, ${sum.n}판을 평균한 값`) +
     t("역전패", sum["역전패"], "앞서고도 짐 — 먼저 다시 볼 판", sum["역전패"] > 0) +
@@ -592,8 +631,14 @@ async function loadSummoner(riotId, append){
     const TIER_KO = {IRON:"아이언",BRONZE:"브론즈",SILVER:"실버",GOLD:"골드",PLATINUM:"플래티넘",
       EMERALD:"에메랄드",DIAMOND:"다이아",MASTER:"마스터",GRANDMASTER:"그랜드마스터",CHALLENGER:"챌린저"};
     const rk = d.rank;
-    const rankTxt = rk ? `${TIER_KO[rk.tier] || rk.tier} ${rk.rank} · ${rk.lp}LP (${rk.wins}승 ${rk.losses}패)` : "";
-    renderSummary(agg, esc(d.riot_id) + (rankTxt ? ` · ${rankTxt}` : ""),
+    rankTile = rk
+      ? `<div class="tile tier"><div class="k">솔로랭크 티어</div>
+         <div class="v">${esc(TIER_KO[rk.tier] || rk.tier)} ${esc(rk.rank)}</div>
+         <div class="s"><b class="num">${rk.lp}</b> LP · ${rk.wins}승 ${rk.losses}패
+         (승률 ${(rk.wins / Math.max(1, rk.wins + rk.losses) * 100).toFixed(0)}%)</div></div>`
+      : `<div class="tile"><div class="k">솔로랭크 티어</div><div class="v">언랭</div>
+         <div class="s">이번 시즌 배치 전</div></div>`;
+    renderSummary(agg, esc(d.riot_id),
       `조회 범위 — 솔로랭크 최근 ${agg.n}판` + (agg.period ? ` (${agg.period})` : "") + ", 11분 미만 조기종료 경기는 제외");
     $("#stat").innerHTML = `최근 <b>${agg.n}판</b> · 10분 판정이 실제 결과와 맞은 경기 <b>${agg.model_correct}판</b>`;
     /* 마지막 페이지가 덜 찼으면 더 없는 것 */
@@ -701,6 +746,16 @@ if(RIOT_READY) loadSummoner($("#q").value.trim(), false);
 else $("#rows").innerHTML = `<div class="empty">소환사 검색이 일시적으로 중단됐습니다.<br>잠시 후 다시 시도해 주세요.</div>`;
 $("#themeBtn").addEventListener("click", () =>
   applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+/* 팀원 닉네임 클릭 → 그 사람 전적으로. 행이 계속 늘어나므로 위임으로 한 번만 건다. */
+document.addEventListener("click", e => {
+  const a = e.target.closest("a.rname[data-search]");
+  if(!a) return;
+  e.preventDefault();
+  const id = a.dataset.search;
+  $("#q").value = id;
+  window.scrollTo({top: 0, behavior: "smooth"});
+  loadSummoner(id, false);
+});
 $("#find").addEventListener("click", doSearch);
 $("#q").addEventListener("keydown", e => { if(e.key === "Enter") doSearch(); });
 $("#more").addEventListener("click", () => { if(curId) loadSummoner(curId, true); });

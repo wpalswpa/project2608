@@ -192,13 +192,20 @@ def timeline_to_diff13(timeline: dict, blue_ids: set, red_ids: set) -> dict:
 PLATFORM = "kr"           # 랭크 정보는 대륙(asia)이 아니라 플랫폼(kr) 라우팅
 
 
+_RANK_CACHE: dict = {}          # puuid -> rank | None. 같은 사람이 여러 판에 나오므로 한 번만 조회한다
+
+
 def get_rank(puuid: str) -> dict | None:
     """솔로랭크 티어. 실패해도 예외를 올리지 않는다 — 부가 정보라 조회가 막혀도 본 기능은 살아야 한다."""
+    if puuid in _RANK_CACHE:
+        return _RANK_CACHE[puuid]
+    _RANK_CACHE[puuid] = None       # 실패했을 때도 다시 안 물어보게 먼저 넣어둔다
     try:
         for e in _get(f"https://{PLATFORM}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}"):
             if e.get("queueType") == "RANKED_SOLO_5x5":
-                return {"tier": e["tier"], "rank": e["rank"], "lp": e["leaguePoints"],
-                        "wins": e["wins"], "losses": e["losses"]}
+                _RANK_CACHE[puuid] = {"tier": e["tier"], "rank": e["rank"], "lp": e["leaguePoints"],
+                                      "wins": e["wins"], "losses": e["losses"]}
+                return _RANK_CACHE[puuid]
     except Exception:
         pass
     return None
@@ -246,6 +253,8 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0) -> dict:
             "kda": f"{p.get('kills', 0)}/{p.get('deaths', 0)}/{p.get('assists', 0)}",
             "side": "블루" if p["teamId"] == 100 else "레드",
             "is_me": p["puuid"] == puuid,
+            "puuid": p["puuid"],
+            "rank": get_rank(p["puuid"]),      # 캐시가 있어 같은 사람은 한 번만 호출된다
         } for p in info["participants"]]
 
         games.append({
