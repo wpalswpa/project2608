@@ -79,6 +79,12 @@ header::after{content:"";position:absolute;inset:0;
 .vmatrix td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
 .vmatrix .verdict{display:inline-block;margin-bottom:4px}
 .vdesc{display:block;font-size:12px;color:var(--muted)}
+.pager{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.pager button{padding:6px 12px;font-size:12.5px;border-radius:6px;min-width:38px}
+.pager button[aria-current="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.rk{font-family:"IBM Plex Mono",monospace;font-weight:700;text-align:center}
+.rk.top3{color:var(--gold)}
+.tierbadge{font-size:10.5px;padding:1px 6px;border-radius:4px;color:#fff;white-space:nowrap}
 .lowsam{font-size:10px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
   border-radius:3px;padding:0 4px;margin-left:3px;white-space:nowrap}
 .tprow td{background:var(--panel-2)}
@@ -335,6 +341,7 @@ footer > *{position:relative;z-index:2}
     <nav class="tabs2" role="tablist">
       <button role="tab" id="tabHome" aria-selected="true">유저 전적 분석</button>
       <button role="tab" id="tabChamp" aria-selected="false">최근 챔피언 승률</button>
+      <button role="tab" id="tabRank" aria-selected="false">유저 랭킹</button>
     </nav>
     <div class="searchrow" id="searchrow">
       <!-- 키가 죽어 있을 때 기본값을 채워두면, 첫 클릭이 에러가 된다.
@@ -351,6 +358,16 @@ footer > *{position:relative;z-index:2}
   <div id="profile"></div>
   <div id="brief"></div>
   <div class="tiles" id="tiles"></div>
+
+  <section id="rankPage" hidden>
+    <h3 class="sec">유저 랭킹 — 솔로랭크 상위 1,000명</h3>
+    <p class="sub" id="rankMeta">불러오는 중…</p>
+    <div class="scroll"><table class="ctab" id="rankTable"></table></div>
+    <div class="pager" id="rankPager"></div>
+    <p class="note">LP 내림차순입니다. 이름을 누르면 그 유저의 최근 경기를
+    10분 시점으로 분석합니다. 랭킹은 주기적으로 갱신한 스냅샷이라 실시간 순위와
+    다를 수 있습니다.</p>
+  </section>
 
   <details class="box" id="verdictHelp">
     <summary>판정 4가지가 무슨 뜻인가</summary>
@@ -935,6 +952,62 @@ async function runManual(){
   finally{ btn.disabled = false; btn.textContent = "판정 + 코칭"; }
 }
 
+/* ── 유저 랭킹 페이지 ── */
+let rankPage = 1, rankLoaded = false;
+
+async function loadRanking(page){
+  rankPage = page || 1;
+  const t = $("#rankTable");
+  t.innerHTML = `<tbody><tr><td><span class="spin"></span>불러오는 중…</td></tr></tbody>`;
+  try{
+    const d = await (await fetch("/api/ranking?page=" + rankPage)).json();
+    const m = d.meta;
+    $("#rankMeta").innerHTML = m
+      ? `${esc(m["설명"])} · 총 <b>${d.total.toLocaleString()}명</b> · 갱신 ${esc(m["갱신"])}`
+      : `총 ${d.total.toLocaleString()}명`;
+    const pending = d.rows.filter(r => !r.name).length;
+    if(pending) $("#rankMeta").innerHTML +=
+      ` <span style="color:var(--muted)">· 이름 ${pending}명 수집 중</span>`;
+    if(!d.rows.length){
+      t.innerHTML = `<tbody><tr><td>랭킹 데이터가 아직 없습니다.</td></tr></tbody>`;
+      $("#rankPager").innerHTML = ""; return;
+    }
+    t.innerHTML =
+      `<thead><tr><th style="width:56px">순위</th><th>소환사</th><th>티어</th>
+        <th>LP</th><th>전적</th><th>승률</th></tr></thead><tbody>` +
+      d.rows.map(r => {
+        const id = r.name && r.tag ? `${r.name}#${r.tag}` : "";
+        const color = TIER_COLOR[r.tier] || "var(--muted)";
+        return `<tr>
+          <td class="rk${r.rank <= 3 ? " top3" : ""}">${r.rank}</td>
+          <td>${id ? `<a class="rname" href="#" data-search="${esc(id)}"
+                 title="${esc(id)} 전적 보기">${esc(r.name)}</a>
+                 <span style="color:var(--faint);font-size:11px">#${esc(r.tag)}</span>`
+               : `<span style="color:var(--faint)">불러오는 중…</span>`}</td>
+          <td><span class="tierbadge" style="background:${color}">${esc(TIER_KO[r.tier] || r.tier)}</span></td>
+          <td class="num"><b>${r.lp.toLocaleString()}</b></td>
+          <td class="num" style="color:var(--muted)">${r.wins}승 ${r.losses}패</td>
+          <td class="num">${r.win_rate != null ? (r.win_rate * 100).toFixed(1) + "%" : "—"}</td>
+        </tr>`;
+      }).join("") + `</tbody>`;
+
+    /* 페이지 버튼 — 100명씩 최대 10페이지 */
+    const pg = $("#rankPager");
+    pg.innerHTML = "";
+    for(let i = 1; i <= d.pages; i++){
+      const b = document.createElement("button");
+      b.textContent = i;
+      b.setAttribute("aria-current", i === rankPage ? "true" : "false");
+      b.addEventListener("click", () => { loadRanking(i); window.scrollTo({top: 0, behavior: "smooth"}); });
+      pg.appendChild(b);
+    }
+    const range = document.createElement("span");
+    range.style.cssText = "align-self:center;font-size:12px;color:var(--muted);margin-left:8px";
+    range.textContent = `${(rankPage - 1) * d.per_page + 1}~${Math.min(rankPage * d.per_page, d.total)}위`;
+    pg.appendChild(range);
+  }catch(e){ t.innerHTML = `<tbody><tr><td>랭킹을 불러오지 못했습니다.</td></tr></tbody>`; }
+}
+
 /* ── 챔피언 통계 페이지 ── */
 const POS_LIST = [["", "전체"], ["TOP", "탑"], ["JUNGLE", "정글"], ["MIDDLE", "미드"],
                   ["BOTTOM", "원딜"], ["UTILITY", "서폿"]];
@@ -1008,19 +1081,25 @@ function buildChampPos(){
 function showTab(which){
   const home = which === "home";
   $("#tabHome").setAttribute("aria-selected", home);
-  $("#tabChamp").setAttribute("aria-selected", !home);
+  $("#tabChamp").setAttribute("aria-selected", which === "champ");
+  $("#tabRank").setAttribute("aria-selected", which === "rank");
   /* 챔피언 승률은 특정 유저와 무관한 화면이다 — 검색창·프로필·전적을 전부 감춘다 */
   ["profile","brief","tiles","rows","stat","trustHead","searchrow"].forEach(id => {
     const el = $("#" + id); if(el) el.hidden = !home;
   });
   const tag = $("#heroTag");
-  if(tag) tag.innerHTML = home
-    ? "전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>팀이 무엇을 했어야 했는지</b> 알려줍니다."
-    : "마스터 이상 솔로랭크에서 <b>최근 실제로 관찰된</b> 챔피언·라인별 승률입니다.";
+  if(tag) tag.innerHTML =
+    home ? "전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>팀이 무엇을 했어야 했는지</b> 알려줍니다."
+    : which === "champ" ? "마스터 이상 솔로랭크에서 <b>최근 실제로 관찰된</b> 챔피언·라인별 승률입니다."
+    : "솔로랭크 <b>상위 1,000명</b>입니다. 이름을 누르면 그 유저의 10분 판정을 볼 수 있습니다.";
   document.querySelectorAll(".wrap > details.box, .wrap > h3.sec, .wrap > .more, .wrap > p.sub")
     .forEach(el => { if(el.id !== "champMeta") el.hidden = !home; });
-  $("#champPage").hidden = home;
-  if(!home && !champLoaded){ champLoaded = true; buildChampPos(); loadChampNames().then(loadChampions); }
+  $("#champPage").hidden = which !== "champ";
+  $("#rankPage").hidden = which !== "rank";
+  if(which === "champ" && !champLoaded){
+    champLoaded = true; buildChampPos(); loadChampNames().then(loadChampions);
+  }
+  if(which === "rank" && !rankLoaded){ rankLoaded = true; loadRanking(1); }
 }
 
 /* ── 연결 ── */
@@ -1047,6 +1126,7 @@ document.addEventListener("click", e => {
 });
 $("#tabHome").addEventListener("click", () => showTab("home"));
 $("#tabChamp").addEventListener("click", () => showTab("champ"));
+$("#tabRank").addEventListener("click", () => showTab("rank"));
 $("#find").addEventListener("click", doSearch);
 $("#q").addEventListener("keydown", e => { if(e.key === "Enter") doSearch(); });
 $("#more").addEventListener("click", () => { if(curId) loadSummoner(curId, true); });

@@ -344,6 +344,38 @@ def api_ranks():
     return jsonify({"ranks": out})
 
 
+@app.route("/api/ranking")
+def api_ranking():
+    """솔로랭크 상위 1,000명 — 100명씩 페이지.
+
+    league-v4 는 이름을 주지 않아 1인당 account-v1 을 한 번 더 불러야 한다.
+    1,000명이면 1,000회라 라이브에서는 불가능하므로, src/collect_ranking.py 가
+    미리 모아둔 CSV 만 읽는다 (Riot 호출 0회).
+    """
+    rows = _csv("ranking.csv") or []
+    try:
+        page = max(1, min(10, int(request.args.get("page", 1))))
+    except ValueError:
+        page = 1
+    per = 100
+    start = (page - 1) * per
+    out = []
+    for r in rows[start:start + per]:
+        wins, losses = int(r.get("wins") or 0), int(r.get("losses") or 0)
+        total = wins + losses
+        out.append({"rank": int(r["rank"]), "tier": r["tier"],
+                    "name": r.get("name") or "", "tag": r.get("tag") or "",
+                    "lp": int(r.get("lp") or 0), "wins": wins, "losses": losses,
+                    "win_rate": round(wins / total, 4) if total else None})
+    meta = None
+    mpath = os.path.join(ROOT, "reports", "tables", "ranking_meta.json")
+    if os.path.exists(mpath):
+        with open(mpath, encoding="utf-8") as f:
+            meta = json.load(f)
+    return jsonify({"rows": out, "page": page, "per_page": per,
+                    "total": len(rows), "pages": min(10, -(-len(rows) // per)), "meta": meta})
+
+
 @app.route("/api/champions")
 def api_champions():
     """챔피언 x 라인 승률표 — 마스터 이상 솔로랭크 실측.

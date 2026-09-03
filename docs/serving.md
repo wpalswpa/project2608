@@ -105,6 +105,7 @@
 | `GET /api/match-types` | 경기 유형 4가지 프로파일 |
 | `POST /api/predict/batch` | 여러 건 한 번에 |
 | `POST /api/coach` | **감독** — 지금 상태에서 무엇을 했다면 승률이 얼마나 올랐나. 13개 피처(+선택 `verdict`)를 넣으면 상승폭 큰 순으로 조언 |
+| `GET /api/ranking` | 솔로랭크 상위 1,000명 (`page` 1~10, 100명씩). CSV 스냅샷만 읽어 Riot 호출 0회 |
 | `GET /api/champions` | 챔피언 x 라인 승률표 (`position` 으로 라인 필터). 각 행에 `top_players`(그 챔피언 승률이 높았던 유저 최대 5명). 마스터 이상 솔로랭크 **관찰 승률**이지 모델 예측이 아니다 |
 | `GET /api/matches` | **시험셋 복기 (검증·재현용 — 사용자 화면에서는 쓰지 않는다)** — 예측 vs 실제, `top_factors` 5개에 실제 격차 `value` 포함, 필터(`band`·`correct`)·페이징·번호 조회(`id`) |
 | `POST /api/ranks` | puuid 목록의 솔로랭크 티어 — 행을 펼칠 때만 부른다 (기본 응답에 넣으면 판마다 최대 10콜) |
