@@ -104,6 +104,7 @@ cmd_verify() {
   echo "▶ 예측 회귀 (골든 50건)";      "$PY" tests/test_regression.py          || fail=1; echo
   echo "▶ 서빙 계약";                  "$PY" tests/test_contract.py            || fail=1; echo
   echo "▶ 코칭 (조언이 뒤집히지 않나)"; "$PY" tests/test_coach.py               || fail=1; echo
+  echo "▶ 화면 JS 부팅";              "$PY" web/test_frontend_js.py          || fail=1; echo
   echo "▶ 학습 재현성";                "$PY" tests/test_training_reproducible.py || fail=1; echo
   echo "▶ 문서·수치 정합성";           "$PY" src/factcheck.py                  || fail=1
   [ "$fail" = 0 ] || { c_bad "verify 실패 — 위 항목을 먼저 고칠 것"; return 1; }

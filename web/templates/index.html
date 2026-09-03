@@ -415,6 +415,20 @@ let schema = null, seq = 0;
 let mode = "sample", band = "", correct = "", offset = 0, shuffleSeed = 1, loading = false;
 let confBins = [];
 
+  /* 챔피언 영문 id → 한글 이름. Data Dragon 에서 한 번만 받아 쓰고,
+   못 받으면 영문 그대로 보여준다 (기능이 죽으면 안 되므로). */
+let CHAMP_KO = {};
+async function loadChampNames(){
+  try{
+    const d = await (await fetch(`${DDRAGON}/${DDV}/data/ko_KR/champion.json`)).json();
+    Object.entries(d.data).forEach(([k, v]) => { CHAMP_KO[k] = v.name; });
+  }catch(e){}
+}
+const champKo = id => CHAMP_KO[id] || id;
+
+const TIER_SHORT = {IRON:"아이언",BRONZE:"브론즈",SILVER:"실버",GOLD:"골드",PLATINUM:"플래",
+    EMERALD:"에메",DIAMOND:"다이아",MASTER:"마스터",GRANDMASTER:"그마",CHALLENGER:"챌린저"};
+
 /* ── 테마 — 저장해 두고 다음에도 유지 ── */
 (function initTheme(){
   let t = null;
@@ -568,19 +582,6 @@ async function toggleDetail(rowEl, g){
 
   /* 팀 구성 — 이미 받은 데이터라 추가 호출이 없다. 본인은 굵게 표시. */
   const POS = {TOP:"탑", JUNGLE:"정글", MIDDLE:"미드", BOTTOM:"원딜", UTILITY:"서폿"};
-  /* 챔피언 영문 id → 한글 이름. Data Dragon 에서 한 번만 받아 쓰고,
-   못 받으면 영문 그대로 보여준다 (기능이 죽으면 안 되므로). */
-let CHAMP_KO = {};
-async function loadChampNames(){
-  try{
-    const d = await (await fetch(`${DDRAGON}/${DDV}/data/ko_KR/champion.json`)).json();
-    Object.entries(d.data).forEach(([k, v]) => { CHAMP_KO[k] = v.name; });
-  }catch(e){}
-}
-const champKo = id => CHAMP_KO[id] || id;
-
-const TIER_SHORT = {IRON:"아이언",BRONZE:"브론즈",SILVER:"실버",GOLD:"골드",PLATINUM:"플래",
-    EMERALD:"에메",DIAMOND:"다이아",MASTER:"마스터",GRANDMASTER:"그마",CHALLENGER:"챌린저"};
   const side = g.side_label;
   const teamCol = (label, members, isMine) => `
     <div class="rosterbox">
