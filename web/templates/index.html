@@ -31,6 +31,9 @@
   --shadow:0 1px 2px rgba(0,0,0,.3);
 }
 *{box-sizing:border-box}
+/* hidden 속성이 display 규칙에 지지 않게 — .tiles{display:grid} 같은 선언이
+   hidden 을 덮어써서 탭 전환이 아무것도 안 감추던 적이 있다 */
+[hidden]{display:none!important}
 html,body{margin:0;padding:0}
 body{
   background:var(--bg); color:var(--ink);
@@ -144,10 +147,14 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 /* ── 전적 행: 가로로 길게 ── */
 .rows{display:flex;flex-direction:column;gap:7px}
 .row{position:relative;display:grid;
-  grid-template-columns:6px 56px minmax(140px,180px) minmax(230px,1fr) 112px 122px 34px;
+  /* .edge·.rowart 는 position:absolute 라 칸을 차지하지 않는다.
+     예전엔 6px 칸을 앞에 뒀다가 모든 칸이 하나씩 밀려, 챔피언 이름이 56px 에
+     끼고 판정 배지가 1fr 을 먹어 화면 절반이 빈 파란 띠였다. */
+  grid-template-columns:56px minmax(150px,190px) minmax(260px,1fr) 108px 132px 30px;
+  padding-left:14px;
   align-items:center;gap:14px;
   background:var(--panel);border:1px solid var(--line);border-radius:10px;
-  padding:12px 16px 12px 0;box-shadow:var(--shadow);overflow:hidden}
+  padding:12px 16px;box-shadow:var(--shadow);overflow:hidden}
 /* grid 자식은 기본 min-width 가 auto 라 내용이 줄바꿈 대신 칸을 밀어낸다.
    이 한 줄이 없으면 "샘플 경 기" 처럼 글자가 깨져 보인다. */
 .row > *{min-width:0}
@@ -160,8 +167,8 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .row.win  .edge{background:var(--win)}
 .row.lose .edge{background:var(--lose)}
 .row .champ{width:56px;height:56px;border-radius:10px;object-fit:cover;
-  border:1px solid var(--line);background:var(--panel-2);margin-left:16px;display:block}
-.row .champ-ph{width:56px;height:56px;border-radius:10px;margin-left:16px;
+  border:1px solid var(--line);background:var(--panel-2);display:block}
+.row .champ-ph{width:56px;height:56px;border-radius:10px;
   border:1px solid var(--line);background:var(--panel-2);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:1px;overflow:hidden}
@@ -192,7 +199,7 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .reason .lowconf{color:var(--red);font-weight:600}
 
 .verdict{font-size:12.5px;font-weight:700;padding:6px 8px;border-radius:6px;text-align:center;
-  border:1px solid transparent;white-space:nowrap}
+  border:1px solid transparent;white-space:nowrap;justify-self:stretch}
 /* 판정 배지 — 모델이 맞힌 쪽(우세승·열세패)은 테두리 없이 차분하게,
    빗나간 쪽(역전승·역전패)은 테두리를 줘서 눈에 띄게 한다.
    역전패가 가장 아까운 판이라 제일 강하게. */
@@ -281,7 +288,7 @@ footer > *{position:relative;z-index:2}
   vertical-align:-2px;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
 @media (max-width:900px){
-  .row{grid-template-columns:6px 44px 1fr 96px 32px;row-gap:8px}
+  .row{grid-template-columns:44px 1fr 100px 30px;row-gap:8px}
   .row .gauge-wrap{grid-column:2/-1}
   .row .result{display:none}
   .detail{grid-template-columns:1fr}
@@ -289,8 +296,8 @@ footer > *{position:relative;z-index:2}
 /* 모바일 — 롤 유저의 주 기기. 행은 두 줄로 접고, 타일은 2열로 */
 @media (max-width:560px){
   body{font-size:13.5px}
-  .row{grid-template-columns:6px 40px 1fr 30px;padding-right:10px}
-  .row .champ,.row .champ-ph{width:40px;height:40px;margin-left:10px}
+  .row{grid-template-columns:40px 1fr 30px;padding:10px 12px}
+  .row .champ,.row .champ-ph{width:40px;height:40px}
   .row .verdict{grid-column:2/4;justify-self:start;margin-left:2px}
   .row .gauge-wrap{grid-column:2/-1}
   .gauge-sub{gap:8px;font-size:10.5px}
@@ -510,8 +517,9 @@ function rowHTML(g){
     <div class="gauge-wrap">
       <div class="gauge" style="background:${opBg}">
         <div class="fill" style="width:${w}%;background:${myVar}"></div><div class="mid"></div>
-        <div class="lbl"><span class="l num">${esc(g.side_label)} ${w}%</span>
-          <span class="r num" style="color:${opVar}">${esc(iAmBlue ? "레드" : "블루")} ${(100 - w).toFixed(1)}%</span></div>
+        <div class="lbl">
+          <span class="l num" style="color:#fff">${esc(g.side_label)} ${w}%</span>
+          <span class="r num" style="color:${w > 82 ? "rgba(255,255,255,.85)" : opVar}">${esc(iAmBlue ? "레드" : "블루")} ${(100 - w).toFixed(1)}%</span></div>
       </div>
       <div class="gauge-sub">
         <span>골드 <b class="num">${signed(mine(g.gold), true)}</b></span>

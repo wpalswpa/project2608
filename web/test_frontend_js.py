@@ -97,9 +97,33 @@ global.setInterval = () => 0;
         os.unlink(path)
 
 
+def test_row_grid_columns_match_items():
+    """전적 행의 그리드 칸 수와 실제 자식 수가 맞는가.
+
+    .edge·.rowart 는 position:absolute 라 칸을 차지하지 않는다. 그런데도 칸을
+    잡아두면 모든 자식이 하나씩 밀려, 챔피언 이름이 아이콘 칸에 끼고 판정 배지가
+    남은 폭을 통째로 먹는다 — 실제로 그렇게 배포됐다.
+    """
+    html = open(TEMPLATE, encoding="utf-8").read()
+    cols_line = re.search(r"\.row\{position:relative.*?grid-template-columns:([^;]+);",
+                          html, re.S)
+    assert cols_line, "행 그리드 정의를 찾지 못했습니다"
+    cols = re.findall(r"minmax\([^)]*\)|[\d.]+px|\d+fr|auto", cols_line.group(1))
+
+    row = html[html.index("function rowHTML(g){"):html.index("/* 펼치면 근거")]
+    # 한 행에 실제로 그려지는 자식 (champ 와 champ-ph 는 배타적이라 하나로 센다)
+    slots = ["champ", "who", "gauge-wrap", "verdict", "result", "expand"]
+    present = [x for x in slots if f'class="{x}' in row or f"class=\"{x} " in row]
+    assert 'class="champ-ph"' in row or 'class="champ"' in row, "챔피언 칸이 없습니다"
+    assert len(cols) == len(present), (
+        f"그리드 칸 {len(cols)}개인데 자식은 {len(present)}개입니다 "
+        f"({', '.join(present)}) — absolute 요소용 칸이 남아 있는지 확인하세요.")
+
+
 def main():
     failed = 0
-    for t in (test_top_level_declarations, test_boots_in_node):
+    for t in (test_top_level_declarations, test_row_grid_columns_match_items,
+              test_boots_in_node):
         try:
             t()
             print(f"[통과] {t.__name__} — {t.__doc__.splitlines()[0]}")
