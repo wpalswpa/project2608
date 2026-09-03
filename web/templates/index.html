@@ -262,9 +262,9 @@ footer > *{position:relative;z-index:2}
     <div class="searchrow">
       <!-- 키가 죽어 있을 때 기본값을 채워두면, 첫 클릭이 에러가 된다.
            그래서 기본값·1순위 버튼을 riot_ready 로 가른다 — 초대한 문은 열려 있어야 한다. -->
-      <input type="text" id="q" value="{% if riot_ready %}Hide on bush#KR1{% endif %}"
-             placeholder="{% if riot_ready %}소환사명#태그 (예: Hide on bush#KR1) 또는 경기 번호{% else %}소환사 검색은 잠시 꺼져 있습니다 — 경기 번호로 찾기 (예: 7758){% endif %}">
-      <button class="primary" id="find">분석</button>
+      <input type="text" id="q" value="{% if riot_ready %}Hide on bush#KR1{% endif %}"{% if not riot_ready %} disabled{% endif %}
+             placeholder="{% if riot_ready %}소환사명#태그 (예: Hide on bush#KR1){% else %}소환사 검색이 일시적으로 중단됐습니다{% endif %}">
+      <button class="primary" id="find"{% if not riot_ready %} disabled{% endif %}>분석</button>
     </div>
   </div>
 </header>
