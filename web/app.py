@@ -9,6 +9,7 @@
 import argparse
 import csv
 import json
+from collections import defaultdict
 import os
 import sys
 from datetime import datetime, timezone
@@ -332,6 +333,16 @@ def api_champions():
     if os.path.exists(mpath):
         with open(mpath, encoding="utf-8") as f:
             meta = json.load(f)
+    # 챔피언별 "잘하는 사람" — 공부용 참고. 없으면 조용히 빈 목록.
+    tops = defaultdict(list)
+    for r in (_csv("champion_top_players.csv") or []):
+        key = f"{r['champion']}|{r['position']}"
+        if len(tops[key]) < 5:
+            tops[key].append({"name": r["name"], "tag": r["tag"],
+                              "games": int(r["판수"]), "win_rate": float(r["승률"])})
+    for row in rows:
+        row["top_players"] = tops.get(f"{row['champion']}|{row['position']}", [])
+
     return jsonify({"rows": rows, "meta": meta,
                     "note": "마스터 이상 솔로랭크 관찰 승률입니다. 표본 5판 미만은 제외했습니다."})
 

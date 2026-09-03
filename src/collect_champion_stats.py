@@ -8,12 +8,14 @@
 #   이미 받은 match_id 를 건너뛴다. 몇 번에 나눠 돌려도 결과가 같다.
 #
 # 무엇을 모으나:
-#   경기 하나당 참가자 10명 → (챔피언, 라인, 승패, 날짜) 10건.
-#   개인 식별 정보는 저장하지 않는다 — 집계에 필요 없다.
+#   경기 하나당 참가자 10명 → (챔피언, 라인, 승패, 날짜, 공개 Riot ID) 10건.
+#   puuid 같은 내부 식별자는 저장하지 않는다. 이름을 담는 이유는 화면에
+#   "이 챔피언으로 승률이 높았던 유저" 를 공부용 참고로 보여주기 위해서다.
 #
 # 산출물:
-#   data/champion_raw.jsonl        수집 원본 (저장소에 안 올린다 — 크고 재생성 가능)
-#   reports/tables/champion_stats.csv  집계 결과 (이건 올린다)
+#   data/champion_raw.jsonl              수집 원본 (.gitignore — 크고 재생성 가능)
+#   reports/tables/champion_stats.csv        챔피언 x 라인 승률 (커밋)
+#   reports/tables/champion_top_players.csv  챔피언별 상위 유저 (커밋)
 import argparse
 import json
 import os
@@ -109,12 +111,15 @@ def main():
                 patch = ".".join((info.get("gameVersion") or "").split(".")[:2])
                 day = time.strftime("%Y-%m-%d", time.localtime(info.get("gameCreation", 0) / 1000))
                 for p in info["participants"]:
-                    # 개인 식별 정보는 담지 않는다 — 집계에 불필요하다
+                    # 공개 Riot ID 만 담는다 (puuid 같은 내부 식별자는 저장하지 않는다).
+                    # "이 챔피언으로 잘하는 사람" 을 참고용으로 보여주려면 이름이 필요하다.
                     f.write(json.dumps({
                         "match_id": mid, "date": day, "patch": patch,
                         "champion": p.get("championName"),
                         "position": p.get("teamPosition") or "",
                         "win": bool(p.get("win")),
+                        "name": (p.get("riotIdGameName") or "").strip(),
+                        "tag": p.get("riotIdTagline") or "",
                     }, ensure_ascii=False) + "\n")
                 added += 1
                 if added % 50 == 0:
@@ -154,6 +159,22 @@ def aggregate():
     g["픽률"] = g["픽률"].round(4)
     g = g.sort_values(["position", "승률"], ascending=[True, False])
     g[["champion", "position", "경기수", "승률", "픽률"]].to_csv(OUT, index=False, encoding="utf-8-sig")
+
+    # 챔피언 x 라인별 "잘하는 사람" — 공부용 참고.
+    # 표본 3판 이상만 본다. 2판 100% 같은 값은 참고가 안 되기 때문이다.
+    if "name" in df.columns:
+        pl = df[df["name"].astype(str).str.len() > 0]
+        if len(pl):
+            pg = pl.groupby(["champion", "position", "name", "tag"]).agg(
+                판수=("win", "size"), 승률=("win", "mean")).reset_index()
+            # "잘하는 유저" 이므로 이긴 쪽이 더 많은 사람만 남긴다.
+            # 이걸 안 걸면 표본이 적은 챔피언에서 승률 20% 인 사람이 목록에 올라온다.
+            pg = pg[(pg["판수"] >= 3) & (pg["승률"] > 0.5)].sort_values(
+                ["champion", "position", "승률", "판수"], ascending=[True, True, False, False])
+            pg = pg.groupby(["champion", "position"]).head(5)
+            pg["승률"] = pg["승률"].round(4)
+            pg.to_csv("reports/tables/champion_top_players.csv", index=False, encoding="utf-8-sig")
+            print(f"[집계] 상위 플레이어 {len(pg):,}행")
 
     meta = {"수집_경기수": int(df["match_id"].nunique()),
             "패치": sorted(df["patch"].dropna().unique().tolist())[-3:],

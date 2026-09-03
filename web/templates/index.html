@@ -68,6 +68,15 @@ header::after{content:"";position:absolute;inset:0;
 .wbar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--blue)}
 .wbar b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-size:10.5px;font-family:"IBM Plex Mono",monospace}
+.tpbtn{padding:4px 10px;font-size:11.5px;border-radius:5px}
+.tprow td{background:var(--panel-2)}
+.tplist{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0}
+.tpcard{display:flex;align-items:center;gap:8px;padding:6px 11px;border-radius:6px;
+  border:1px solid var(--line-2);background:var(--panel);text-decoration:none;color:var(--ink);font-size:12.5px}
+.tpcard:hover{border-color:var(--blue);color:var(--blue)}
+.tpname{font-weight:600}
+.tpwr{color:var(--win);font-weight:700}
+.tpg{color:var(--muted);font-size:11px}
 .searchrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .searchrow input{flex:1;min-width:250px;max-width:440px;padding:10px 13px;
   background:var(--panel);color:var(--ink);border:1px solid var(--line-2);border-radius:6px;
@@ -834,8 +843,11 @@ async function loadChampions(){
     const POSKO = {TOP:"탑", JUNGLE:"정글", MIDDLE:"미드", BOTTOM:"원딜", UTILITY:"서폿"};
     t.innerHTML =
       `<thead><tr><th>#</th><th>챔피언</th>${champPos ? "" : "<th>라인</th>"}
-        <th>승률</th><th>표본</th><th>픽률</th></tr></thead><tbody>` +
-      d.rows.map((r, i) => `<tr>
+        <th>승률</th><th>표본</th><th>픽률</th><th></th></tr></thead><tbody>` +
+      d.rows.map((r, i) => {
+        const tp = r.top_players || [];
+        const key = `${r.champion}|${r.position}`;
+        return `<tr class="crow" data-key="${esc(key)}">
         <td class="num" style="color:var(--faint)">${i + 1}</td>
         <td><span class="cch"><img src="${DDRAGON}/${DDV}/img/champion/${esc(r.champion)}.png"
             alt="" loading="lazy">${esc(r.champion)}</span></td>
@@ -844,7 +856,19 @@ async function loadChampions(){
             <b>${(r.win_rate * 100).toFixed(1)}%</b></span></td>
         <td class="num">${r.games.toLocaleString()}판</td>
         <td class="num">${(r.pick_rate * 100).toFixed(1)}%</td>
-      </tr>`).join("") + `</tbody>`;
+        <td>${tp.length ? `<button class="tpbtn" data-tp="${esc(key)}">잘하는 유저 ${tp.length}명</button>` : ""}</td>
+      </tr>` + (tp.length ? `<tr class="tprow" id="tp-${esc(key)}" hidden><td colspan="7">
+        <div class="tplist">${tp.map(u => `
+          <a class="tpcard" href="#" data-search="${esc(u.name + "#" + u.tag)}"
+             title="${esc(u.name)}#${esc(u.tag)} 전적 보기">
+            <span class="tpname">${esc(u.name)}</span>
+            <span class="tpwr num">${(u.win_rate * 100).toFixed(0)}%</span>
+            <span class="tpg num">${u.games}판</span>
+          </a>`).join("")}</div>
+        <p class="note" style="margin:6px 0 0;font-size:11px">이 챔피언으로 최근 승률이 높았던 유저입니다.
+        이름을 누르면 그 사람 전적을 10분 시점으로 분석합니다 — 어떻게 초반을 만들었는지 참고해 보세요.</p>
+      </td></tr>` : "");
+      }).join("") + `</tbody>`;
   }catch(e){ t.innerHTML = `<tbody><tr><td>통계를 불러오지 못했습니다.</td></tr></tbody>`; }
 }
 
@@ -887,12 +911,16 @@ $("#themeBtn").addEventListener("click", () =>
   applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));
 /* 팀원 닉네임 클릭 → 그 사람 전적으로. 행이 계속 늘어나므로 위임으로 한 번만 건다. */
 document.addEventListener("click", e => {
-  const a = e.target.closest("a.rname[data-search]");
+  const tp = e.target.closest("button[data-tp]");
+  if(tp){ const row = document.getElementById("tp-" + tp.dataset.tp);
+          if(row) row.hidden = !row.hidden; return; }
+  const a = e.target.closest("a.rname[data-search], a.tpcard[data-search]");
   if(!a) return;
   e.preventDefault();
   const id = a.dataset.search;
   $("#q").value = id;
   window.scrollTo({top: 0, behavior: "smooth"});
+  showTab("home");
   loadSummoner(id, false);
 });
 $("#tabHome").addEventListener("click", () => showTab("home"));
