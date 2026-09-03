@@ -8,7 +8,7 @@ mkdir -p logs
 N=${1:-150}                      # 티어당 목표 경기 수
 for T in IRON BRONZE SILVER GOLD PLATINUM EMERALD DIAMOND; do
   echo "[$(date '+%H:%M:%S')] $T 수집 ($N판)"
-  "$PY" src/tier_generalization.py --collect --tier "$T" --games "$N" \
+  "$PY" -u src/tier_generalization.py --collect --tier "$T" --games "$N" \
     >> logs/tier_study.log 2>&1
 done
-"$PY" src/tier_generalization.py --report | tee -a logs/tier_study.log
+"$PY" -u src/tier_generalization.py --report | tee -a logs/tier_study.log

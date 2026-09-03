@@ -14,10 +14,10 @@ LOG=logs; mkdir -p "$LOG"
 
 run_once() {
   echo "[$(date '+%H:%M:%S')] 챔피언 표본 수집 (40분)"
-  "$PY" src/collect_champion_stats.py --minutes 40 --players 400 --per-player 15 \
+  "$PY" -u src/collect_champion_stats.py --minutes 40 --players 400 --per-player 15 \
     >> "$LOG/collect_champion.log" 2>&1
   echo "[$(date '+%H:%M:%S')] 랭킹 이름 수집"
-  "$PY" src/collect_ranking.py --limit 1000 >> "$LOG/collect_ranking.log" 2>&1
+  "$PY" -u src/collect_ranking.py --limit 1000 >> "$LOG/collect_ranking.log" 2>&1
   echo "[$(date '+%H:%M:%S')] 한 바퀴 완료"
 }
 
