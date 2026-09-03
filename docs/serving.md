@@ -108,7 +108,7 @@
 | `GET /api/champions` | 챔피언 x 라인 승률표 (`position` 으로 라인 필터). 각 행에 `top_players`(그 챔피언 승률이 높았던 유저 최대 5명). 마스터 이상 솔로랭크 **관찰 승률**이지 모델 예측이 아니다 |
 | `GET /api/matches` | **시험셋 복기 (검증·재현용 — 사용자 화면에서는 쓰지 않는다)** — 예측 vs 실제, `top_factors` 에 실제 격차 `value` 포함, 필터(`band`·`correct`)·페이징·번호 조회(`id`) |
 | `POST /api/ranks` | puuid 목록의 솔로랭크 티어 — 행을 펼칠 때만 부른다 (기본 응답에 넣으면 판마다 최대 10콜) |
-| `POST /api/summoner` | Riot ID 로 최근 솔로랭크 경기를 10분 시점 복기 (`count` 1~10 · `start` 로 페이지) (`RIOT_API_KEY` 필요, 없으면 503). 경기마다 `band`·`my_win_prob`·`my_won`·`verdict`·`played_at`, 전체 `summary`(판정별 건수·`period`) 포함 |
+| `POST /api/summoner` | Riot ID 로 최근 솔로랭크 경기를 10분 시점 복기 (`count` 1~10 · `start` 로 페이지 · 결과를 5분 캐시하고 `cached` 로 알린다) (`RIOT_API_KEY` 필요, 없으면 503). 경기마다 `band`·`my_win_prob`·`my_won`·`verdict`·`played_at`, 전체 `summary`(판정별 건수·`period`) 포함 |
 | `GET /figures/<이름>` | `reports/` 의 그림 (사본을 두지 않는다) |
 
 ## 6. 구현 구조 — 누가 계산하나

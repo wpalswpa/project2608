@@ -11,6 +11,7 @@ import csv
 import json
 from collections import defaultdict
 import os
+import time
 import sys
 from datetime import datetime, timezone
 
@@ -385,6 +386,29 @@ def api_champions():
                     "note": "마스터 이상 솔로랭크 관찰 승률입니다. 표본 5판 미만은 제외했습니다."})
 
 
+# 소환사 조회 결과 캐시 — 방문자 한 명이 페이지를 열 때마다 Riot 을 12번 부르면
+# 다섯 명만 동시에 들어와도 예산(100회/120초)이 끝난다. 같은 요청은 재사용한다.
+# 경기 기록은 이미 끝난 경기라 몇 분 사이에 바뀌지 않는다.
+_SUMMONER_CACHE: dict = {}
+SUMMONER_TTL = 300          # 5분
+
+
+def _cached_summoner(riot_id: str, count: int, start: int):
+    """캐시에 있으면 그대로, 없으면 조회 후 저장. (값, 캐시적중여부)"""
+    key = (riot_id.lower(), count, start)
+    hit = _SUMMONER_CACHE.get(key)
+    if hit and time.time() - hit[0] < SUMMONER_TTL:
+        return hit[1], True
+    data = analyze_recent(riot_id, count=count, start=start)
+    _SUMMONER_CACHE[key] = (time.time(), data)
+    # 오래된 항목 정리 (메모리가 무한정 늘지 않게)
+    if len(_SUMMONER_CACHE) > 200:
+        cutoff = time.time() - SUMMONER_TTL
+        for k in [k for k, v in _SUMMONER_CACHE.items() if v[0] < cutoff]:
+            _SUMMONER_CACHE.pop(k, None)
+    return data, False
+
+
 @app.route("/api/summoner", methods=["POST"])
 def api_summoner():
     """Riot ID 로 최근 솔로랭크 경기들을 10분 시점에서 복기한다 (끝난 경기만 가능)."""
@@ -405,7 +429,9 @@ def api_summoner():
             start = max(0, int(data.get("start", 0)))
         except (TypeError, ValueError):
             count, start = 5, 0
-        return jsonify(analyze_recent(riot_id, count=count, start=start))
+        data, cached = _cached_summoner(riot_id, count, start)
+        data["cached"] = cached
+        return jsonify(data)
     except RateLimited as e:
         # 기다리지 않고 바로 알린다 — 스레드를 붙잡으면 프록시가 502 를 낸다
         return jsonify({"error": str(e), "retry_after": e.retry_after}), 429
