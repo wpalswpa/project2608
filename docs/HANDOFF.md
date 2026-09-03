@@ -104,7 +104,7 @@ git pull && ./check_project.sh restart && ./check_project.sh test
 
 ### ③ 미확인 사항
 
-- **SC-7 재검증** — 정본(`docs/spec.md`)이 `△ 부분 통과`다. 부록을 보완했지만
+- **SC-7 재검증** — 정본(`docs/spec.md`)이 `△ 부분 통과`다. 관전 안내(현 README 게임 설명)를 보완했지만
   재테스트는 안 했다. 다시 돌리면 다섯 문서를 함께 고쳐야 한다.
 - **DDBM 5단계 13항목** — `docs/planning.md` 가 방법론으로 언급하는데
   그 13항목이 저장소에 없다. 대조 못 함.

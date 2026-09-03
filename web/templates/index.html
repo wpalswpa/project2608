@@ -218,15 +218,17 @@ footer > *{position:relative;z-index:2}
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
         <div class="brand">LOL<span class="dot">.</span>EX</div>
-        <div class="tag">전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>무엇을 했어야 했는지</b> 알려줍니다.</div>
+        <div class="tag">전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>팀이 무엇을 했어야 했는지</b> 알려줍니다.</div>
       </div>
       <button class="icon-btn" id="themeBtn" title="밝게/어둡게" aria-label="테마 전환">🌙</button>
     </div>
     <div class="searchrow">
-      <input type="text" id="q" value="Hide on bush#KR1"
-             placeholder="소환사명#태그 (예: Hide on bush#KR1) 또는 경기 번호">
-      <button class="primary" id="find">분석</button>
-      <button id="sample">샘플 경기 보기</button>
+      <!-- 키가 죽어 있을 때 기본값을 채워두면, 첫 클릭이 에러가 된다.
+           그래서 기본값·1순위 버튼을 riot_ready 로 가른다 — 초대한 문은 열려 있어야 한다. -->
+      <input type="text" id="q" value="{% if riot_ready %}Hide on bush#KR1{% endif %}"
+             placeholder="{% if riot_ready %}소환사명#태그 (예: Hide on bush#KR1) 또는 경기 번호{% else %}소환사 검색은 잠시 꺼져 있습니다 — 경기 번호로 찾기 (예: 7758){% endif %}">
+      <button class="{% if riot_ready %}primary{% endif %}" id="find">분석</button>
+      <button class="{% if not riot_ready %}primary{% endif %}" id="sample">샘플 경기 보기</button>
     </div>
   </div>
 </header>
@@ -432,7 +434,7 @@ async function toggleDetail(rowEl, g){
 
   rowEl.querySelector(".detail").innerHTML =
     `<div><h4>이 판을 가른 것</h4>${facs}${killNote}</div>
-     <div class="coach"><h4>이랬다면 어땠나 — 10분 승률 ${pct(g.win_prob)} 기준</h4>${coachHTML}<p class="note" style="margin-top:8px;font-size:11.5px">실험이 아니라 실제 경기 기록으로 계산한 추정입니다 — 그런 상태였던 경기들이 그만큼 이겼다는 뜻입니다.</p>${adviceHTML}</div>` +
+     <div class="coach"><h4>이랬다면 어땠나 — 10분 승률 ${pct(g.win_prob)} 기준</h4>${coachHTML}<p class="note" style="margin-top:8px;font-size:11.5px">실험이 아니라 실제 경기 기록으로 계산한 추정입니다 — 그런 상태였던 경기들이 그만큼 이겼다는 뜻입니다. 지표가 팀 단위 차이라, 개인이 아니라 <b>팀이</b> 무엇이 부족했는지를 말합니다.</p>${adviceHTML}</div>` +
     (g.warnings.length ? `<div class="warnbox">${g.warnings.map(esc).join("<br>")}</div>` : "");
 }
 
