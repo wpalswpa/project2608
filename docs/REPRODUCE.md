@@ -26,6 +26,7 @@ python src/collect_champion_stats.py     # 챔피언·라인 승률 수집 (Riot
 python src/collect_ranking.py            # 상위 1,000명 랭킹 수집 (Riot 키 필요 · 이어받기)
 ./scripts/run_collectors.sh loop                 # 두 수집기를 무인으로 계속 (Ctrl+C 로 중단)
 ./scripts/run_tier_study.sh 150                  # 티어별 일반화 검증 (7티어 x 150판 수집 후 채점)
+./scripts/run_overnight.sh              # 밤새: 랭킹 → 챔피언 표본(180분) → 티어 연구
 python scripts/build_submission.py       # 제출물 6종을 final/ 에 모은다
 python src/timepoint_compare.py          # 페이즈 3 — 10분 vs 15분
 python src/repeat_check.py               # 분할을 10번 바꿔 재학습
