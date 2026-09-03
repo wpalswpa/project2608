@@ -34,7 +34,33 @@ if not os.environ.get("RIOT_API_KEY") and os.path.exists(".env"):
         if _line.strip().startswith("RIOT_API_KEY="):
             os.environ["RIOT_API_KEY"] = _line.split("=", 1)[1].strip()
 
-from riot_api import PLATFORM, ROUTING, SOLO_QUEUE, RiotApiError, _get  # noqa: E402
+from riot_api import (PLATFORM, ROUTING, SOLO_QUEUE,  # noqa: E402
+                      RateLimited, RiotApiError, _get)
+
+# 라이브 서비스와 **같은 API 키 예산**(100회/120초)을 나눠 쓴다.
+# 페이싱 없이 몰아치면 예산을 몇 초에 태우고, 그동안 사용자 검색이 전부 실패한다.
+# 0.8 req/s = 96회/120초로 예산 안에서 최대한 받는다.
+PACE_SEC = 1.25
+_last_call = [0.0]
+
+
+def get_paced(url: str, tries: int = 4) -> dict:
+    """수집 전용 호출 — 간격을 지키고, 한도에 걸리면 Retry-After 만큼 온전히 기다린다.
+
+    웹 요청은 기다리면 안 되지만(502), 배치는 기다리는 것이 맞다.
+    10초만 자고 건너뛰면 Riot 이 요구한 69초를 안 지켜 세 번 다 실패한다.
+    """
+    for _ in range(tries):
+        gap = PACE_SEC - (time.time() - _last_call[0])
+        if gap > 0:
+            time.sleep(gap)
+        _last_call[0] = time.time()
+        try:
+            return _get(url)
+        except RateLimited as e:
+            print(f"  [대기] 한도 초과 — {e.retry_after}초 쉽니다")
+            time.sleep(e.retry_after + 1)
+    raise RiotApiError("한도가 계속 걸립니다. 나중에 다시 실행하세요.")
 
 RAW = "data/champion_raw.jsonl"
 OUT = "reports/tables/champion_stats.csv"
@@ -60,8 +86,8 @@ def puuids_from_apex(limit: int) -> list:
     out = []
     for t in TIERS:
         try:
-            entries = _get(f"https://{PLATFORM}.api.riotgames.com/lol/league/v4/{t}"
-                           f"/by-queue/RANKED_SOLO_5x5")["entries"]
+            entries = get_paced(f"https://{PLATFORM}.api.riotgames.com/lol/league/v4/{t}"
+                                f"/by-queue/RANKED_SOLO_5x5")["entries"]
         except RiotApiError:
             continue
         out += [e["puuid"] for e in entries if e.get("puuid")]
@@ -93,8 +119,8 @@ def main():
                 print("[중단] 시간 종료 — 다시 실행하면 이어서 받습니다")
                 break
             try:
-                ids = _get(f"https://{ROUTING}.api.riotgames.com/lol/match/v5/matches/"
-                           f"by-puuid/{pu}/ids?queue={SOLO_QUEUE}&count={args.per_player}")
+                ids = get_paced(f"https://{ROUTING}.api.riotgames.com/lol/match/v5/matches/"
+                                f"by-puuid/{pu}/ids?queue={SOLO_QUEUE}&count={args.per_player}")
             except RiotApiError:
                 continue
 
@@ -102,7 +128,7 @@ def main():
                 if mid in seen or time.time() > deadline:
                     continue
                 try:
-                    info = _get(f"https://{ROUTING}.api.riotgames.com/lol/match/v5/matches/{mid}")["info"]
+                    info = get_paced(f"https://{ROUTING}.api.riotgames.com/lol/match/v5/matches/{mid}")["info"]
                 except RiotApiError:
                     continue
                 seen.add(mid)
@@ -161,22 +187,26 @@ def aggregate():
     g[["champion", "position", "경기수", "승률", "픽률"]].to_csv(OUT, index=False, encoding="utf-8-sig")
 
     # 챔피언 x 라인별 "잘하는 사람" — 공부용 참고.
-    # 표본 3판 이상만 본다. 2판 100% 같은 값은 참고가 안 되기 때문이다.
+    # 표본이 적으면 승률이 의미 없다 — 기준은 아래 필터에 있다.
     if "name" in df.columns:
         pl = df[df["name"].astype(str).str.len() > 0]
         if len(pl):
             pg = pl.groupby(["champion", "position", "name", "tag"]).agg(
                 판수=("win", "size"), 승률=("win", "mean")).reset_index()
-            # "잘하는 유저" 이므로 이긴 쪽이 더 많은 사람만 남긴다.
-            # 이걸 안 걸면 표본이 적은 챔피언에서 승률 20% 인 사람이 목록에 올라온다.
-            pg = pg[(pg["판수"] >= 3) & (pg["승률"] > 0.5)].sort_values(
+            # 표본이 먼저다. 3판 100% 는 동전 세 번 앞면(12.5%)과 다르지 않아 참고가 안 된다.
+            # 8판 이상 & 승률 50% 초과만 "잘하는 유저" 로 본다.
+            pg = pg[(pg["판수"] >= 8) & (pg["승률"] > 0.5)].sort_values(
                 ["champion", "position", "승률", "판수"], ascending=[True, True, False, False])
             pg = pg.groupby(["champion", "position"]).head(5)
             pg["승률"] = pg["승률"].round(4)
             pg.to_csv("reports/tables/champion_top_players.csv", index=False, encoding="utf-8-sig")
             print(f"[집계] 상위 플레이어 {len(pg):,}행")
 
+    # 화면에 나가는 수는 이 하나로 고정한다 —
+    # "라인이 확인되고 11분 이상 진행된, 중복 없는 경기 수".
+    # (원본 줄 수 / 필터 전 수 / 참가자 수 를 섞어 말하면 값이 계속 달라 보인다)
     meta = {"수집_경기수": int(df["match_id"].nunique()),
+            "정의": "라인 정보가 있고 11분 이상 진행된 중복 없는 경기 수",
             "패치": sorted(df["patch"].dropna().unique().tolist())[-3:],
             "기간": f"{df['date'].min()} ~ {df['date'].max()}",
             "갱신": time.strftime("%Y-%m-%d %H:%M")}

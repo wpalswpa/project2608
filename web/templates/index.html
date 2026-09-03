@@ -117,6 +117,9 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
   text-transform:uppercase;margin-bottom:5px}
 .brief h2{font-size:17px;margin:0 0 5px;font-weight:700}
 .brief p{margin:0;color:var(--muted);font-size:13.5px}
+.selfnote{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);
+  font-size:12.5px;color:var(--muted);line-height:1.55}
+.selfnote b{color:var(--ink)}
 
 /* ── 요약 타일 ── */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
@@ -312,7 +315,7 @@ footer > *{position:relative;z-index:2}
     </div>
     <nav class="tabs2" role="tablist">
       <button role="tab" id="tabHome" aria-selected="true">유저 전적 분석</button>
-      <button role="tab" id="tabChamp" aria-selected="false">실시간 챔피언 승률</button>
+      <button role="tab" id="tabChamp" aria-selected="false">최근 챔피언 승률</button>
     </nav>
     <div class="searchrow" id="searchrow">
       <!-- 키가 죽어 있을 때 기본값을 채워두면, 첫 클릭이 에러가 된다.
@@ -335,7 +338,7 @@ footer > *{position:relative;z-index:2}
   <div class="more"><button id="more" style="display:none">전적 더 보기</button></div>
 
   <section id="champPage" hidden>
-    <h3 class="sec">실시간 챔피언 승률 — 라인별</h3>
+    <h3 class="sec">최근 챔피언 승률 — 라인별</h3>
     <p class="sub" id="champMeta">불러오는 중…</p>
     <div class="filters" id="champPos"></div>
     <div class="scroll"><table class="ctab" id="champTable"></table></div>
@@ -462,7 +465,7 @@ function rowHTML(g){
   const art = g.champion || ART[Math.abs(hashOf(g.key)) % ART.length];
   const portrait = g.champion
     ? `<img class="champ" src="${DDRAGON}/${DDV}/img/champion/${esc(g.champion)}.png"
-            alt="${esc(g.champion)}" loading="lazy">`
+            alt="${esc(champKo(g.champion))}" loading="lazy">`
     : `<div class="champ-ph"><b>${esc(num)}</b><span>경기</span></div>`;
   const iAmBlue = g.side_label === "블루";
   /* 서버 값은 언제나 '블루 − 레드' 정본이다(파리티 검사의 기준이라 서버는 못 건드린다).
@@ -488,7 +491,7 @@ function rowHTML(g){
     <span class="rowart" aria-hidden="true" style="background-image:url(${DDRAGON}/img/champion/loading/${art}_0.jpg)"></span>
     <span class="edge"></span>
     ${portrait}
-    <div class="who">${esc(g.champion || "경기 #" + num)}
+    <div class="who">${esc(g.champion ? champKo(g.champion) : "경기 #" + num)}
       <small><span class="teamchip ${iAmBlue ? "t-b" : "t-r"}">${esc(g.side_label)}팀</span>${esc(g.sub)}</small></div>
     <div class="gauge-wrap">
       <div class="gauge" style="background:${opBg}">
@@ -565,7 +568,18 @@ async function toggleDetail(rowEl, g){
 
   /* 팀 구성 — 이미 받은 데이터라 추가 호출이 없다. 본인은 굵게 표시. */
   const POS = {TOP:"탑", JUNGLE:"정글", MIDDLE:"미드", BOTTOM:"원딜", UTILITY:"서폿"};
-  const TIER_SHORT = {IRON:"아이언",BRONZE:"브론즈",SILVER:"실버",GOLD:"골드",PLATINUM:"플래",
+  /* 챔피언 영문 id → 한글 이름. Data Dragon 에서 한 번만 받아 쓰고,
+   못 받으면 영문 그대로 보여준다 (기능이 죽으면 안 되므로). */
+let CHAMP_KO = {};
+async function loadChampNames(){
+  try{
+    const d = await (await fetch(`${DDRAGON}/${DDV}/data/ko_KR/champion.json`)).json();
+    Object.entries(d.data).forEach(([k, v]) => { CHAMP_KO[k] = v.name; });
+  }catch(e){}
+}
+const champKo = id => CHAMP_KO[id] || id;
+
+const TIER_SHORT = {IRON:"아이언",BRONZE:"브론즈",SILVER:"실버",GOLD:"골드",PLATINUM:"플래",
     EMERALD:"에메",DIAMOND:"다이아",MASTER:"마스터",GRANDMASTER:"그마",CHALLENGER:"챌린저"};
   const side = g.side_label;
   const teamCol = (label, members, isMine) => `
@@ -678,6 +692,25 @@ function renderSummary(sum, label, scope){
   }
   if(avg != null)
     body += ` 10분 평균 승률은 <b>${pct(avg)}</b>${avg >= 0.55 ? " — 초반을 유리하게 가져가는 편입니다." : (avg <= 0.45 ? " — 초반이 불리하게 시작되는 편입니다." : " — 초반은 대체로 팽팽합니다.")}`;
+
+  /* 모델이 스스로를 평가하는 한 줄 — 사용자 분석만 하고 우리 성적을 안 밝히면
+     "이 판정을 왜 믿나" 에 답이 없다. 못 맞혔으면 이유까지 말한다. */
+  const hitN = sum.model_correct || 0;
+  const hitPct = Math.round(hitN / n * 100);
+  const closeN = allRows.filter(r => (r.band || "").indexOf("접전") === 0).length;
+  let selfHead, selfBody;
+  if(hitPct >= 70){
+    selfHead = `이 ${n}판에서 저희 판정은 ${hitN}판 맞았습니다 (${hitPct}%)`;
+    selfBody = "10분 시점만 보고 낸 판정치고 잘 맞은 편입니다. 전체 평균과 비슷한 수준입니다.";
+  } else {
+    selfHead = `이 ${n}판에서 저희 판정은 ${hitN}판만 맞았습니다 (${hitPct}%)`;
+    selfBody = closeN >= Math.ceil(n / 3)
+      ? `${closeN}판이 <b>10분에 팽팽했던 경기</b>라 그렇습니다. 이 구간은 원래 저희도 열 판 중 여섯 판만 맞힙니다 — 
+         10분 시점에 승부의 단서가 아직 없기 때문이고, 모델을 바꿔도 나아지지 않는 부분입니다.`
+      : `10분에 기울었던 판이 뒤집힌 경우가 많았습니다. 초반 격차가 크지 않으면 이후 운영에서 충분히 갈립니다.`;
+  }
+  const selfMsg = `<div class="selfnote"><b>${selfHead}</b><br>${selfBody}</div>`;
+  body += selfMsg;
   const msg = [head, body];
   $("#brief").innerHTML = `<div class="brief"><div class="who">COACH · ${esc(label)}</div>
     <h2>${msg[0]}</h2><p>${msg[1]}</p>
@@ -870,7 +903,9 @@ async function loadChampions(){
     const m = d.meta;
     $("#champMeta").innerHTML = m
       ? `마스터 이상 솔로랭크 <b>${m["수집_경기수"].toLocaleString()}판</b> 기준 ·
-         ${esc(m["기간"])} · 패치 ${esc((m["패치"] || []).join(", "))} · 갱신 ${esc(m["갱신"])}`
+         ${esc(m["기간"])} · 패치 ${esc((m["패치"] || []).join(", "))} · 갱신 ${esc(m["갱신"])}
+         <br><span style="font-size:11.5px">${esc(m["정의"] || "")}. 챔피언·라인 조합은 5판 이상만 싣고,
+         10판 미만은 "표본 적음" 으로 아래에 둡니다.</span>`
       : esc(d.note || "");
     if(!d.rows.length){
       t.innerHTML = `<tbody><tr><td>표시할 통계가 아직 없습니다.</td></tr></tbody>`; return;
@@ -885,7 +920,7 @@ async function loadChampions(){
         return `<tr class="crow" data-key="${esc(key)}">
         <td class="num" style="color:var(--faint)">${i + 1}</td>
         <td><span class="cch"><img src="${DDRAGON}/${DDV}/img/champion/${esc(r.champion)}.png"
-            alt="" loading="lazy">${esc(r.champion)}</span></td>
+            alt="" loading="lazy">${esc(champKo(r.champion))}</span></td>
         ${champPos ? "" : `<td>${esc(POSKO[r.position] || r.position)}</td>`}
         <td><span class="wbar"><i style="width:${(r.win_rate * 100).toFixed(0)}%"></i>
             <b>${(r.win_rate * 100).toFixed(1)}%</b></span></td>
@@ -898,8 +933,8 @@ async function loadChampions(){
           <a class="tpcard" href="#" data-search="${esc(u.name + "#" + u.tag)}"
              title="${esc(u.name)}#${esc(u.tag)} 전적 보기">
             <span class="tpname">${esc(u.name)}</span>
-            <span class="tpwr num">${(u.win_rate * 100).toFixed(0)}%</span>
             <span class="tpg num">${u.games}판</span>
+            <span class="tpwr num">${(u.win_rate * 100).toFixed(0)}%</span>
           </a>`).join("")}</div>
         <p class="note" style="margin:6px 0 0;font-size:11px">이 챔피언으로 최근 승률이 높았던 유저입니다.
         이름을 누르면 그 사람 전적을 10분 시점으로 분석합니다 — 어떻게 초반을 만들었는지 참고해 보세요.</p>
@@ -939,12 +974,12 @@ function showTab(which){
   document.querySelectorAll(".wrap > details.box, .wrap > h3.sec, .wrap > .more, .wrap > p.sub")
     .forEach(el => { if(el.id !== "champMeta") el.hidden = !home; });
   $("#champPage").hidden = home;
-  if(!home && !champLoaded){ champLoaded = true; buildChampPos(); loadChampions(); }
+  if(!home && !champLoaded){ champLoaded = true; buildChampPos(); loadChampNames().then(loadChampions); }
 }
 
 /* ── 연결 ── */
 buildForm();
-loadReport();
+loadChampNames().then(loadReport);
 /* 첫 화면 — 키가 살아 있으면 대표 표본(페이커)을 바로 보여준다 */
 if(RIOT_READY) loadSummoner($("#q").value.trim(), false);
 else $("#rows").innerHTML = `<div class="empty">소환사 검색이 일시적으로 중단됐습니다.<br>잠시 후 다시 시도해 주세요.</div>`;
