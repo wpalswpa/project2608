@@ -51,7 +51,7 @@ header::after{content:"";position:absolute;inset:0;
 .hero-in{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:26px 20px 22px}
 .brand{font-weight:700;font-size:22px;letter-spacing:-.01em}
 .brand .dot{color:var(--gold)}
-.tag{color:var(--muted);font-size:13px;margin:2px 0 16px}
+.tag{color:var(--muted);font-size:13px;margin:2px 0 16px;font-weight:400;line-height:1.6}
 .searchrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .searchrow input{flex:1;min-width:250px;max-width:440px;padding:10px 13px;
   background:var(--panel);color:var(--ink);border:1px solid var(--line-2);border-radius:6px;
@@ -202,10 +202,22 @@ footer > *{position:relative;z-index:2}
   vertical-align:-2px;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
 @media (max-width:900px){
-  .row{grid-template-columns:5px 44px 1fr 88px 34px;row-gap:8px}
+  .row{grid-template-columns:6px 44px 1fr 96px 32px;row-gap:8px}
   .row .gauge-wrap{grid-column:2/-1}
   .row .result{display:none}
   .detail{grid-template-columns:1fr}
+}
+/* 모바일 — 롤 유저의 주 기기. 행은 두 줄로 접고, 타일은 2열로 */
+@media (max-width:560px){
+  body{font-size:13.5px}
+  .row{grid-template-columns:6px 40px 1fr 30px;padding-right:10px}
+  .row .champ,.row .champ-ph{width:40px;height:40px;margin-left:10px}
+  .row .verdict{grid-column:2/4;justify-self:start;margin-left:2px}
+  .row .gauge-wrap{grid-column:2/-1}
+  .gauge-sub{gap:8px;font-size:10.5px}
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .searchrow input{min-width:0;flex-basis:100%}
+  .hero-in{padding:18px 16px 16px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -218,7 +230,7 @@ footer > *{position:relative;z-index:2}
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
         <div class="brand">LOL<span class="dot">.</span>EX</div>
-        <div class="tag">전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>팀이 무엇을 했어야 했는지</b> 알려줍니다.</div>
+        <h1 class="tag">전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>팀이 무엇을 했어야 했는지</b> 알려줍니다.</h1>
       </div>
       <button class="icon-btn" id="themeBtn" title="밝게/어둡게" aria-label="테마 전환">🌙</button>
     </div>
@@ -252,7 +264,7 @@ footer > *{position:relative;z-index:2}
   <details class="box">
     <summary>왜 이 모델인가 — 후보 8종 비교</summary>
     <div class="din">
-      <img src="/figures/06_model_choice.png" alt="모델 8종 비교"
+      <img src="/figures/06_model_choice.png" alt="모델 8종 비교" loading="lazy"
            style="width:100%;border:1px solid var(--line);border-radius:6px">
       <p class="note">점수는 상위 7개가 비슷했습니다. 갈린 것은 <b>외웠는가</b>와
       <b>이유를 설명할 수 있는가</b>였고, 둘 다 통과한 것은 로지스틱 회귀뿐입니다.
@@ -331,7 +343,7 @@ function applyTheme(t){
   try{
     const splash = n => `${DDRAGON}/img/champion/splash/${n}_0.jpg`;
     $("#heroBg").style.backgroundImage = `url(${splash("Ashe")})`;
-    $("#footBg").style.backgroundImage = `url(${splash("Baron")})`;   /* 없으면 조용히 비어 있음 */
+    $("#footBg").style.backgroundImage = `url(${DDRAGON}/img/champion/loading/Thresh_0.jpg)`;
   }catch(e){}
 })();
 
@@ -365,7 +377,7 @@ function rowHTML(g){
             alt="${esc(g.champion)}" loading="lazy">`
     : `<div class="champ-ph"><b>${esc(num)}</b><span>경기</span></div>`;
   return `<article class="row ${g.won ? "win" : "lose"}" data-key="${esc(g.key)}">
-    <span class="rowart" style="background-image:url(${DDRAGON}/img/champion/splash/${art}_0.jpg)"></span>
+    <span class="rowart" aria-hidden="true" style="background-image:url(${DDRAGON}/img/champion/loading/${art}_0.jpg)"></span>
     <span class="edge"></span>
     ${portrait}
     <div class="who">${esc(g.champion || "경기 #" + num)}
