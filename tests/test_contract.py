@@ -108,11 +108,32 @@ def test_csv_keeps_text_columns_as_text():
     assert isinstance(rows[0].get("판수"), int), "숫자 열까지 문자열이 됐습니다"
 
 
+def test_ranking_has_no_puuid():
+    """공개 산출물에 PUUID 가 들어가면 안 된다 (Riot 정책).
+
+    이어받기용 puuid→이름 캐시는 data/(gitignore)에 두고, 커밋되는 CSV 와
+    API 응답에는 넣지 않는다. 한 번 커밋되면 히스토리에 남아 지우기 어렵다.
+    """
+    import sys as _sys
+
+    _sys.path.insert(0, os.path.join(ROOT, "web"))
+    from app import _csv
+
+    rows = _csv("ranking.csv")
+    if not rows:
+        print("  [건너뜀] ranking.csv 없음")
+        return
+    assert "puuid" not in rows[0], (
+        "ranking.csv 에 puuid 열이 있습니다 — data/ranking_names.jsonl 로 빼세요.")
+    # 상위 1,000명이 목표인데 표본 테스트가 덮어쓴 적이 있다
+    assert len(rows) >= 100, f"랭킹이 {len(rows)}행뿐입니다 — 작은 --limit 실행이 덮어썼는지 확인하세요."
+
+
 def main():
     tests = [test_schema_matches_features, test_output_shape, test_pred_matches_threshold,
              test_top_factors, test_missing_feature_raises,
              test_out_of_range_warns_but_returns, test_in_range_no_warning,
-             test_csv_keeps_text_columns_as_text]
+             test_csv_keeps_text_columns_as_text, test_ranking_has_no_puuid]
     failed = 0
     for t in tests:
         try:

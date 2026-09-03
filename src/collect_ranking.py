@@ -145,6 +145,20 @@ def main():
 
 
 def _write(rows, known):
+    # 작은 --limit 테스트가 기존 산출물을 덮어써 1,000행이 4행이 된 적이 있다.
+    # 기존 파일보다 행이 줄어드는 쓰기는 막는다 (--force 로만 허용).
+    if os.path.exists(OUT) and not os.environ.get("RANKING_FORCE"):
+        try:
+            with open(OUT, encoding="utf-8-sig", newline="") as f:
+                have = sum(1 for _ in csv.DictReader(f))
+            if len(rows) < have:
+                print(f"  [보호] 기존 {have:,}행 > 새 {len(rows):,}행 — 덮어쓰지 않습니다. "
+                      f"의도한 축소라면 RANKING_FORCE=1 로 실행하세요.")
+                save_known_names(known)      # 이름 캐시는 남긴다 (손해가 없다)
+                return
+        except Exception:
+            pass
+
     save_known_names(known)          # puuid 는 로컬 캐시에만 (공개 CSV 에 넣지 않는다)
     with open(OUT, "w", encoding="utf-8-sig", newline="") as f:
         w = csv.writer(f)
