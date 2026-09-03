@@ -117,7 +117,14 @@ def advise(features: dict, top_n: int = 3) -> dict:
             "gain": round(after - base, 4),
         })
     actions.sort(key=lambda a: a["gain"], reverse=True)
-    return {"win_prob": round(base, 4), "actions": actions[:top_n]}
+    return {
+        "win_prob": round(base, 4),
+        "actions": actions[:top_n],
+        # 화면 없이 API 만 쓰는 쪽도 같은 해석 선을 지키도록 응답에 함께 싣는다
+        "how_to_read": ("관찰 데이터 기반 가정 계산입니다. 지표를 올릴 때 따라오는 골드도 "
+                        "함께 올려 계산하며, 개입 효과(인과)의 증명이 아니라 "
+                        "'그런 상태였던 경기들은 이만큼 이겼다'는 뜻입니다. 지표는 팀 단위입니다."),
+    }
 
 
 def verdict_advice(verdict: str) -> dict:

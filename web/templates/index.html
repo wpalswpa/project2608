@@ -446,7 +446,7 @@ async function toggleDetail(rowEl, g){
 
   rowEl.querySelector(".detail").innerHTML =
     `<div><h4>이 판을 가른 것</h4>${facs}${killNote}</div>
-     <div class="coach"><h4>이랬다면 어땠나 — 10분 승률 ${pct(g.win_prob)} 기준</h4>${coachHTML}<p class="note" style="margin-top:8px;font-size:11.5px">실험이 아니라 실제 경기 기록으로 계산한 추정입니다 — 그런 상태였던 경기들이 그만큼 이겼다는 뜻입니다. 지표가 팀 단위 차이라, 개인이 아니라 <b>팀이</b> 무엇이 부족했는지를 말합니다.</p>${adviceHTML}</div>` +
+     <div class="coach"><h4>이랬다면 어땠나 — 10분 승률 ${pct(g.win_prob)} 기준</h4>${coachHTML}<p class="note" style="margin-top:8px;font-size:11.5px">지표들은 서로 얽혀 있어(킬·CS↔골드 상관 0.6~0.9) CS만 오르는 상황은 현실에 없습니다 — 그래서 <b>따라오는 골드까지 함께 올려</b> 계산합니다. 실험이 아니라 실제 경기 기록으로 계산한 추정이라, "이렇게 하면 이긴다"의 증명이 아니라 <b>"그런 상태였던 경기들은 이만큼 이겼다"</b>로 읽어주세요. 지표는 팀 단위 차이라 개인이 아니라 <b>팀</b> 이야기입니다.</p>${adviceHTML}</div>` +
     (g.warnings.length ? `<div class="warnbox">${g.warnings.map(esc).join("<br>")}</div>` : "");
 }
 
