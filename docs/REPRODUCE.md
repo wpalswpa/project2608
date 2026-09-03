@@ -24,8 +24,8 @@ python src/supplement_checks.py          # 보충 — 나이브베이즈·군집
 python src/twostage_check.py             # 접전 보완 — 2단계 라우팅 검증 (기각 근거)
 python src/collect_champion_stats.py     # 챔피언·라인 승률 수집 (Riot 키 필요 · 이어받기)
 python src/collect_ranking.py            # 상위 1,000명 랭킹 수집 (Riot 키 필요 · 이어받기)
-./run_collectors.sh loop                 # 두 수집기를 무인으로 계속 (Ctrl+C 로 중단)
-./run_tier_study.sh 150                  # 티어별 일반화 검증 (7티어 x 150판 수집 후 채점)
+./scripts/run_collectors.sh loop                 # 두 수집기를 무인으로 계속 (Ctrl+C 로 중단)
+./scripts/run_tier_study.sh 150                  # 티어별 일반화 검증 (7티어 x 150판 수집 후 채점)
 python src/timepoint_compare.py          # 페이즈 3 — 10분 vs 15분
 python src/repeat_check.py               # 분할을 10번 바꿔 재학습
 python predict.py --demo                 # 예측 확인 (51.2% / 94.6% / 16.8%)
@@ -71,6 +71,14 @@ DB 접속 정보가 없으면 자동으로 로컬 CSV를 씁니다(계산식 동
 한 줄씩만 알아두면 됩니다. 고칠 일이 생기면 검사가 잡아줍니다.
 
 ```
+── 루트에 두는 것 (사람이 여는 것만) ──
+README.md      프로젝트 전체 이야기
+STUDY.md       개념 가이드
+model_card.md  모델 사용설명서와 금지 상황
+predict.py     명령행 진입점
+check_project.sh  검사·서버 실행
+
+── 폴더 ──
 lolwin/        라이브러리 — 피처 정의·모델·예측이 여기 모여 있다 (정본)
 predict.py     명령행 진입점 (실제 로직은 lolwin 안)
 artifacts/     학습된 모델 파일 + 입력 규격
@@ -82,6 +90,8 @@ docs/          기획·명세·계획·배포·서빙 계약
 db/            DB 적재와 SQL 뷰
 data/          원본 CSV(저장소에 없음) + 분할 인덱스 — 재현성 규약의 실물
 specs/         팀 서버 정본 명세 (서버에서 git pull 로 갱신 — 편집 금지)
+scripts/       무인 수집 실행 스크립트
+logs/          수집 로그 (gitignore)
 ```
 
 무엇을 고치든 이 한 줄이면 전부 확인됩니다.
