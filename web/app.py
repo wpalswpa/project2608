@@ -297,8 +297,8 @@ def api_matches():
             "n": len(rows),
             "avg_win_prob_10min": (round(sum(m["win_prob_blue"] for m in rows) / len(rows), 4)
                                    if rows else None),
-            "역전패": vc.get("역전패", 0), "초반 붕괴": vc.get("초반 붕괴", 0),
-            "역전승": vc.get("역전승", 0), "리드 굳힘": vc.get("리드 굳힘", 0),
+            "역전패": vc.get("역전패", 0), "열세패": vc.get("열세패", 0),
+            "역전승": vc.get("역전승", 0), "우세승": vc.get("우세승", 0),
             "model_correct": hit,
         },
         "offset": offset,

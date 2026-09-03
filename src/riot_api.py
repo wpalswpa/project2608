@@ -245,9 +245,9 @@ def analyze_recent(riot_id: str, count: int = 5) -> dict:
         "n": len(games),
         "avg_win_prob_10min": round(sum(g["my_win_prob"] for g in games) / len(games), 4) if games else None,
         "역전패": counts.get("역전패", 0),
-        "초반 붕괴": counts.get("초반 붕괴", 0),
+        "열세패": counts.get("열세패", 0),
         "역전승": counts.get("역전승", 0),
-        "리드 굳힘": counts.get("리드 굳힘", 0),
+        "우세승": counts.get("우세승", 0),
         "model_correct": sum(1 for g in games if g["model_correct"]),
     }
     return {"riot_id": riot_id, "queue": "솔로랭크", "games": games, "summary": summary}
