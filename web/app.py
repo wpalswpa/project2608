@@ -53,7 +53,11 @@ def cors(resp):
 
 
 # 숫자로 변환하면 안 되는 열 — 앞자리 0 이 사라지거나 뜻이 달라진다
-TEXT_COLUMNS = {"tag", "name", "champion", "position", "구간", "유형", "label"}
+TEXT_COLUMNS = {"tag", "name", "champion", "position", "구간", "유형", "label",
+                # match_id 는 117030752644841619 같은 18자리다. 숫자로 바꾸면
+                # ① 서버에서 문자열 비교가 어긋나고 ② JS 의 안전 정수 한계(2^53)를
+                # 넘어 브라우저에서 값이 뭉개진다. 반드시 문자열로 둔다.
+                "match_id", "team1_code", "team2_code", "bo"}
 
 
 def _csv(name):
@@ -342,6 +346,97 @@ def api_ranks():
     except Exception:
         pass
     return jsonify({"ranks": out})
+
+
+# ── 승부예측 투표 ─────────────────────────────────────────────
+# 돈이 오가지 않는 참여형 예측이다(네이버·치지직이 하는 이벤트와 같은 형태).
+# model_card 금지 6번은 "베팅·배당 산출" 을 막는 것이지 이런 투표를 막지 않는다.
+# 배당을 만들지 않고, 참가비도 상금도 없다.
+VOTE_DB = os.path.join(ROOT, "db", "votes.sqlite3")
+
+
+def _vote_db():
+    import sqlite3
+
+    os.makedirs(os.path.dirname(VOTE_DB), exist_ok=True)
+    conn = sqlite3.connect(VOTE_DB, timeout=5)
+    conn.execute("""CREATE TABLE IF NOT EXISTS votes (
+        match_id TEXT NOT NULL,
+        voter    TEXT NOT NULL,
+        pick     INTEGER NOT NULL,
+        voted_at TEXT NOT NULL,
+        PRIMARY KEY (match_id, voter))""")
+    return conn
+
+
+@app.route("/api/schedule")
+def api_schedule():
+    """예정 경기 + 현재 표. 일정은 CSV 스냅샷이라 Riot·외부 호출이 0회다."""
+    rows = _csv("schedule.csv") or []
+    voter = (request.args.get("voter") or "")[:64]
+    tally, mine = {}, {}
+    try:
+        conn = _vote_db()
+        for mid, pick, n in conn.execute(
+                "SELECT match_id, pick, COUNT(*) FROM votes GROUP BY match_id, pick"):
+            tally.setdefault(mid, {1: 0, 2: 0})[pick] = n
+        if voter:
+            mine = {mid: pick for mid, pick in conn.execute(
+                "SELECT match_id, pick FROM votes WHERE voter = ?", (voter,))}
+        conn.close()
+    except Exception:
+        pass                       # 투표 저장이 안 되더라도 일정은 보여준다
+
+    out = []
+    for r in rows:
+        t = tally.get(r["match_id"], {1: 0, 2: 0})
+        out.append({**{k: r.get(k) for k in
+                       ("match_id", "start_at", "league", "block", "bo",
+                        "team1", "team1_code", "team1_img",
+                        "team2", "team2_code", "team2_img")},
+                    "votes1": t.get(1, 0), "votes2": t.get(2, 0),
+                    "my_pick": mine.get(r["match_id"])})
+    meta = None
+    mp = os.path.join(ROOT, "reports", "tables", "schedule_meta.json")
+    if os.path.exists(mp):
+        with open(mp, encoding="utf-8") as f:
+            meta = json.load(f)
+    return jsonify({"matches": out, "meta": meta})
+
+
+@app.route("/api/vote", methods=["POST"])
+def api_vote():
+    """한 경기에 한 번. 같은 사람이 다시 누르면 바꾼 것으로 본다."""
+    body = request.get_json(silent=True) or {}
+    mid = str(body.get("match_id", ""))[:64]
+    voter = str(body.get("voter", ""))[:64]
+    pick = body.get("pick")
+    if not mid or not voter or pick not in (1, 2):
+        return jsonify({"error": "match_id · voter · pick(1|2) 가 필요합니다"}), 400
+
+    # 이미 시작한 경기에는 투표를 받지 않는다 — 결과를 보고 찍는 것을 막는다
+    row = next((r for r in (_csv("schedule.csv") or []) if r["match_id"] == mid), None)
+    if not row:
+        return jsonify({"error": "예정 경기 목록에 없습니다"}), 404
+    try:
+        started = datetime.fromisoformat(row["start_at"].replace("Z", "+00:00"))
+        if datetime.now(timezone.utc) >= started:
+            return jsonify({"error": "이미 시작한 경기입니다"}), 409
+    except ValueError:
+        pass
+
+    conn = _vote_db()
+    with conn:
+        conn.execute("INSERT INTO votes(match_id, voter, pick, voted_at) VALUES(?,?,?,?) "
+                     "ON CONFLICT(match_id, voter) DO UPDATE SET pick=excluded.pick, "
+                     "voted_at=excluded.voted_at",
+                     (mid, voter, int(pick), datetime.now(timezone.utc).isoformat(timespec="seconds")))
+    t = {1: 0, 2: 0}
+    for p, n in conn.execute("SELECT pick, COUNT(*) FROM votes WHERE match_id=? GROUP BY pick", (mid,)):
+        t[p] = n
+    conn.close()
+    return jsonify({"match_id": mid, "my_pick": int(pick),
+                    "votes1": t.get(1, 0), "votes2": t.get(2, 0)})
 
 
 @app.route("/api/ranking")

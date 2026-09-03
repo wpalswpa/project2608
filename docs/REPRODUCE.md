@@ -24,6 +24,7 @@ python src/supplement_checks.py          # 보충 — 나이브베이즈·군집
 python src/twostage_check.py             # 접전 보완 — 2단계 라우팅 검증 (기각 근거)
 python src/collect_champion_stats.py     # 챔피언·라인 승률 수집 (Riot 키 필요 · 이어받기)
 python src/collect_ranking.py            # 상위 1,000명 랭킹 수집 (Riot 키 필요 · 이어받기)
+python src/collect_schedule.py           # 프로 경기 일정 (승부예측 투표용)
 ./scripts/run_collectors.sh loop                 # 두 수집기를 무인으로 계속 (Ctrl+C 로 중단)
 ./scripts/run_tier_study.sh 150                  # 티어별 일반화 검증 (7티어 x 150판 수집 후 채점)
 ./scripts/run_overnight.sh              # 밤새: 랭킹 → 챔피언 표본(180분) → 티어 연구

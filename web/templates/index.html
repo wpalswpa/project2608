@@ -79,6 +79,23 @@ header::after{content:"";position:absolute;inset:0;
 .vmatrix td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
 .vmatrix .verdict{display:inline-block;margin-bottom:4px}
 .vdesc{display:block;font-size:12px;color:var(--muted)}
+.vcard{border:1px solid var(--line);border-radius:9px;padding:12px 14px;margin-bottom:10px;
+  background:var(--panel)}
+.vhead{display:flex;gap:8px;align-items:center;font-size:11.5px;color:var(--muted);margin-bottom:9px}
+.vleague{background:var(--blue);color:#fff;padding:1px 7px;border-radius:4px;font-weight:700}
+.vblock{color:var(--faint)}
+.vwhen{margin-left:auto;font-weight:600}
+.vteams{display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;gap:6px}
+.vteam{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;
+  border:1.5px solid var(--line);border-radius:8px;background:var(--panel-2);cursor:pointer;
+  font-size:12.5px;font-weight:600;color:var(--ink);transition:border-color .12s,background .12s}
+.vteam:hover{border-color:var(--blue)}
+.vteam.picked{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 14%,transparent)}
+.vteam img{width:34px;height:34px;object-fit:contain}
+.vvs{text-align:center;font-size:11px;color:var(--faint);font-weight:700}
+.vbar{height:7px;border-radius:4px;background:var(--red);overflow:hidden;margin-top:10px}
+.vbar i{display:block;height:100%;background:var(--blue)}
+.vnums{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px}
 .pager{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-top:14px}
 .pager button{padding:6px 12px;font-size:12.5px;border-radius:6px;min-width:38px}
 .pager button[aria-current="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
@@ -359,6 +376,7 @@ footer > *{position:relative;z-index:2}
       <button role="tab" id="tabHome" aria-selected="true">유저 전적 분석</button>
       <button role="tab" id="tabChamp" aria-selected="false">최근 챔피언 승률</button>
       <button role="tab" id="tabRank" aria-selected="false">유저 랭킹</button>
+      <button role="tab" id="tabVote" aria-selected="false">승부예측</button>
     </nav>
     <div class="searchrow" id="searchrow">
       <!-- 키가 죽어 있을 때 기본값을 채워두면, 첫 클릭이 에러가 된다.
@@ -375,6 +393,15 @@ footer > *{position:relative;z-index:2}
   <div id="profile"></div>
   <div id="brief"></div>
   <div class="tiles" id="tiles"></div>
+
+  <section id="votePage" hidden>
+    <h3 class="sec">승부예측 — 누가 이길 것 같나요</h3>
+    <p class="sub" id="voteMeta">불러오는 중…</p>
+    <div id="voteList"></div>
+    <p class="note">경기 시작 전까지만 투표할 수 있습니다. 한 경기에 한 번이고,
+    다시 누르면 바꿉니다. 상금도 참가비도 없는 참여형 예측입니다 —
+    이 서비스는 배당을 만들지 않습니다.</p>
+  </section>
 
   <section id="rankPage" hidden>
     <h3 class="sec">유저 랭킹 — 솔로랭크 상위 1,000명</h3>
@@ -1009,6 +1036,78 @@ async function runManual(){
   finally{ btn.disabled = false; btn.textContent = "판정 + 코칭"; }
 }
 
+/* ── 승부예측 ── */
+let voteLoaded = false;
+/* 브라우저마다 하나씩. 로그인이 없으므로 중복 투표를 이 정도로만 막는다. */
+const VOTER = (() => {
+  try{
+    let v = localStorage.getItem("lolex_voter");
+    if(!v){ v = "v" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+            localStorage.setItem("lolex_voter", v); }
+    return v;
+  }catch(e){ return "v" + Math.random().toString(36).slice(2); }
+})();
+
+function whenKo(iso){
+  const d = new Date(iso), now = new Date();
+  const days = Math.round((d - now) / 86400000);
+  const hhmm = d.toLocaleTimeString("ko-KR", {hour:"2-digit", minute:"2-digit", hour12:false});
+  const md = `${d.getMonth()+1}.${d.getDate()}`;
+  const rel = days <= 0 ? "오늘" : days === 1 ? "내일" : `${days}일 뒤`;
+  return `${rel} ${md} ${hhmm}`;
+}
+
+async function loadVotes(){
+  const box = $("#voteList");
+  box.innerHTML = `<p class="note"><span class="spin"></span>불러오는 중…</p>`;
+  try{
+    const d = await (await fetch("/api/schedule?voter=" + encodeURIComponent(VOTER))).json();
+    $("#voteMeta").innerHTML = d.meta
+      ? `${esc(d.meta["설명"])} · <b>${d.matches.length}경기</b> · 갱신 ${esc(d.meta["갱신"])}`
+      : `${d.matches.length}경기`;
+    if(!d.matches.length){ box.innerHTML = `<p class="note">예정된 경기가 없습니다.</p>`; return; }
+    box.innerHTML = d.matches.map(m => voteCard(m)).join("");
+    box.querySelectorAll("[data-vote]").forEach(b =>
+      b.addEventListener("click", () => castVote(b.dataset.mid, +b.dataset.vote)));
+  }catch(e){ box.innerHTML = `<p class="note">일정을 불러오지 못했습니다.</p>`; }
+}
+
+function voteCard(m){
+  const tot = m.votes1 + m.votes2;
+  const p1 = tot ? Math.round(m.votes1 / tot * 100) : 50;
+  const sel = n => m.my_pick === n ? " picked" : "";
+  return `<div class="vcard">
+    <div class="vhead"><span class="vleague">${esc(m.league)}</span>
+      ${m.block ? `<span class="vblock">${esc(m.block)}</span>` : ""}
+      <span class="vwhen">${esc(whenKo(m.start_at))}</span></div>
+    <div class="vteams">
+      <button class="vteam${sel(1)}" data-vote="1" data-mid="${esc(m.match_id)}">
+        ${m.team1_img ? `<img src="${esc(m.team1_img)}" alt="" loading="lazy">` : ""}
+        <span>${esc(m.team1)}</span></button>
+      <span class="vvs">VS</span>
+      <button class="vteam${sel(2)}" data-vote="2" data-mid="${esc(m.match_id)}">
+        ${m.team2_img ? `<img src="${esc(m.team2_img)}" alt="" loading="lazy">` : ""}
+        <span>${esc(m.team2)}</span></button>
+    </div>
+    <div class="vbar" title="${m.votes1} : ${m.votes2}">
+      <i style="width:${tot ? p1 : 50}%"></i></div>
+    <div class="vnums"><span>${m.votes1}표 · ${tot ? p1 : 50}%</span>
+      <span>${tot ? tot + "명 참여" : "첫 표를 던져보세요"}</span>
+      <span>${tot ? 100 - p1 : 50}% · ${m.votes2}표</span></div>
+  </div>`;
+}
+
+async function castVote(mid, pick){
+  try{
+    const r = await fetch("/api/vote", {method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({match_id: mid, voter: VOTER, pick})});
+    if(!r.ok){ const e = await r.json().catch(()=>({}));
+               alert(e.error || "투표하지 못했습니다."); return; }
+    loadVotes();
+  }catch(e){ alert("투표하지 못했습니다."); }
+}
+
 /* ── 유저 랭킹 페이지 ── */
 let rankPage = 1, rankLoaded = false;
 
@@ -1140,6 +1239,7 @@ function showTab(which){
   $("#tabHome").setAttribute("aria-selected", home);
   $("#tabChamp").setAttribute("aria-selected", which === "champ");
   $("#tabRank").setAttribute("aria-selected", which === "rank");
+  $("#tabVote").setAttribute("aria-selected", which === "vote");
   /* 챔피언 승률은 특정 유저와 무관한 화면이다 — 검색창·프로필·전적을 전부 감춘다 */
   ["profile","brief","tiles","rows","stat","trustHead","searchrow"].forEach(id => {
     const el = $("#" + id); if(el) el.hidden = !home;
@@ -1148,15 +1248,18 @@ function showTab(which){
   if(tag) tag.innerHTML =
     home ? "전적을 보여주는 곳이 아닙니다. <b>언제 갈렸는지</b> 판정하고, <b>팀이 무엇을 했어야 했는지</b> 알려줍니다."
     : which === "champ" ? "마스터 이상 솔로랭크에서 <b>최근 실제로 관찰된</b> 챔피언·라인별 승률입니다."
-    : "솔로랭크 <b>상위 1,000명</b>입니다. 이름을 누르면 그 유저의 10분 판정을 볼 수 있습니다.";
+    : which === "rank" ? "솔로랭크 <b>상위 1,000명</b>입니다. 이름을 누르면 그 유저의 10분 판정을 볼 수 있습니다."
+    : "곧 열리는 프로 경기입니다. <b>누가 이길지 찍어보세요</b> — 상금도 참가비도 없습니다.";
   document.querySelectorAll(".wrap > details.box, .wrap > h3.sec, .wrap > .more, .wrap > p.sub")
     .forEach(el => { if(el.id !== "champMeta") el.hidden = !home; });
   $("#champPage").hidden = which !== "champ";
   $("#rankPage").hidden = which !== "rank";
+  $("#votePage").hidden = which !== "vote";
   if(which === "champ" && !champLoaded){
     champLoaded = true; buildChampPos(); loadChampNames().then(loadChampions);
   }
   if(which === "rank" && !rankLoaded){ rankLoaded = true; loadRanking(1); }
+  if(which === "vote" && !voteLoaded){ voteLoaded = true; loadVotes(); }
 }
 
 /* ── 연결 ── */
@@ -1184,6 +1287,7 @@ document.addEventListener("click", e => {
 $("#tabHome").addEventListener("click", () => showTab("home"));
 $("#tabChamp").addEventListener("click", () => showTab("champ"));
 $("#tabRank").addEventListener("click", () => showTab("rank"));
+$("#tabVote").addEventListener("click", () => showTab("vote"));
 $("#find").addEventListener("click", doSearch);
 $("#q").addEventListener("keydown", e => { if(e.key === "Enter") doSearch(); });
 $("#more").addEventListener("click", () => { if(curId) loadSummoner(curId, true); });

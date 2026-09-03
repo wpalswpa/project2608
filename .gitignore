@@ -32,3 +32,4 @@ data/champion_raw*
 # 랭킹 이름 캐시 — PUUID 를 담으므로 공개 저장소에 올리지 않는다
 data/ranking_names.jsonl
 data/tier_raw.jsonl
+db/votes.sqlite3
