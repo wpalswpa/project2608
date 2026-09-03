@@ -147,9 +147,11 @@ Pipeline
 | `my_side` | `"블루"` / `"레드"` | 사용자는 자기 팀 기준으로 읽는다 |
 | `my_win_prob` | 0~1 실수 | 내가 레드면 `1 - win_prob_blue` — 화면이 뒤집지 않게 |
 | `my_won` | bool | 〃 |
+| `roster` | 참가자 10명 (이름·챔피언·포지션·KDA·진영·본인여부) | 이미 받은 match 응답에 있어 추가 호출 0회 |
 | `band` | 구간 이름 문자열 | 경계 정본은 `lolwin/features.py` — 화면에 숫자를 적지 않기 위해 |
 | `verdict` | `우세승` · `역전승` · `역전패` · `열세패` | 10분 유불리 x 실제 결과 |
 
+응답 최상위에 `rank`(솔로랭크 티어, 조회 실패 시 null)와 `next_start` 가 온다.
 `summary` 에 `n` · `avg_win_prob_10min` · 판정별 건수 · `model_correct` 가 들어 있어
 첫 화면 요약 타일이 세지 않아도 된다.
 

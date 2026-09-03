@@ -189,6 +189,21 @@ def timeline_to_diff13(timeline: dict, blue_ids: set, red_ids: set) -> dict:
     }
 
 
+PLATFORM = "kr"           # 랭크 정보는 대륙(asia)이 아니라 플랫폼(kr) 라우팅
+
+
+def get_rank(puuid: str) -> dict | None:
+    """솔로랭크 티어. 실패해도 예외를 올리지 않는다 — 부가 정보라 조회가 막혀도 본 기능은 살아야 한다."""
+    try:
+        for e in _get(f"https://{PLATFORM}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}"):
+            if e.get("queueType") == "RANKED_SOLO_5x5":
+                return {"tier": e["tier"], "rank": e["rank"], "lp": e["leaguePoints"],
+                        "wins": e["wins"], "losses": e["losses"]}
+    except Exception:
+        pass
+    return None
+
+
 def analyze_recent(riot_id: str, count: int = 5, start: int = 0) -> dict:
     """소환사의 최근 솔로랭크 경기들을 10분 시점에서 복기한다.
 
@@ -221,9 +236,22 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0) -> dict:
         my_won = bool(blue_won) if i_am_blue else not blue_won
         # 경기 날짜 — "언제 범위의 전적인가" 를 화면이 한 줄로 보여주기 위해
         played_at = time.strftime("%m.%d", time.localtime(info.get("gameCreation", 0) / 1000))
+        # 팀원·상대 정보는 이미 받은 match 응답에 들어 있다 (추가 호출 0회).
+        # 펼쳤을 때 "누구와 함께였고 누구를 상대했나" 를 보여주기 위해 정리해 둔다.
+        roster = [{
+            "name": (p.get("riotIdGameName") or "").strip(),
+            "tag": p.get("riotIdTagline") or "",
+            "champion": p.get("championName"),
+            "position": p.get("teamPosition") or "",
+            "kda": f"{p.get('kills', 0)}/{p.get('deaths', 0)}/{p.get('assists', 0)}",
+            "side": "블루" if p["teamId"] == 100 else "레드",
+            "is_me": p["puuid"] == puuid,
+        } for p in info["participants"]]
+
         games.append({
             "match_id": mid,
             "played_at": played_at,
+            "roster": roster,
             "champion": me["championName"],
             "my_side": "블루" if me["teamId"] == 100 else "레드",
             "duration_min": round(info["gameDuration"] / 60),
@@ -256,7 +284,8 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0) -> dict:
         "우세승": counts.get("우세승", 0),
         "model_correct": sum(1 for g in games if g["model_correct"]),
     }
-    return {"riot_id": riot_id, "queue": "솔로랭크", "games": games, "summary": summary,
+    return {"riot_id": riot_id, "queue": "솔로랭크", "rank": get_rank(puuid),
+            "games": games, "summary": summary,
             "start": start, "next_start": start + count}
 
 
