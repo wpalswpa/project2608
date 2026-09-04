@@ -169,6 +169,9 @@ def report():
     big = df[df["격차"] >= 2500].groupby("tier").size().rename("크게벌어진판")
     g = g.join(big, on="tier").fillna({"크게벌어진판": 0})
     g["크게벌어진비율"] = (g["크게벌어진판"] / g["경기수"]).round(4)
+    # 티어당 150~300판이라 점추정만 보이면 없는 차이를 읽게 된다 — 95% 구간을 함께 낸다
+    import numpy as _np
+    g["오차"] = (1.96 * _np.sqrt(g["정확도"] * (1 - g["정확도"]) / g["경기수"])).round(4)
     g["정확도"] = g["정확도"].round(4)
     g["평균골드차"] = g["평균골드차"].round(0)
     order = {t: i for i, t in enumerate(TIERS)}
@@ -182,8 +185,10 @@ def report():
           "PLATINUM": "플래티넘", "EMERALD": "에메랄드", "DIAMOND": "다이아몬드"}
     fig, ax = plt.subplots(figsize=(9, 4.6))
     labels = [KO.get(t, t) for t in g["tier"]]
-    bars = ax.bar(labels, g["정확도"], color=["#2f6fe4" if t == "DIAMOND" else "#9aa5b1"
-                                              for t in g["tier"]], width=0.6)
+    bars = ax.bar(labels, g["정확도"], yerr=g["오차"], capsize=4,
+                  error_kw=dict(ecolor="#444", lw=1.2),
+                  color=["#2f6fe4" if t == "DIAMOND" else "#9aa5b1"
+                         for t in g["tier"]], width=0.6)
     for b, acc, n in zip(bars, g["정확도"], g["경기수"]):
         ax.text(b.get_x() + b.get_width() / 2, acc + .008, f"{acc:.3f}",
                 ha="center", fontsize=10, fontweight="bold")
@@ -194,11 +199,25 @@ def report():
     ax.set_ylim(0.45, 1.0)
     ax.set_ylabel("정확도")
     ax.legend(fontsize=9, loc="upper left")
-    ax.set_title("티어를 바꾸면 정확도가 어떻게 되나 — 같은 모델, 다른 티어 경기",
-                 fontsize=12.5, pad=10)
+    ax.set_title("티어를 바꿔도 정확도는 비슷하다 — 같은 모델, 다른 티어 경기" + chr(10) +
+                 "(막대 위 선은 95% 신뢰구간 · 전부 겹친다 = 티어 간 차이를 확인할 수 없다)",
+                 fontsize=12, pad=10)
     fig.tight_layout()
     os.makedirs("reports/figures", exist_ok=True)
     fig.savefig(FIG, dpi=130, bbox_inches="tight")
+    # 묶어서 한 번 더 — 티어 하나하나는 표본이 작아 판정이 안 선다
+    import math as _m
+    low = df[df["tier"].isin(["IRON", "BRONZE", "SILVER", "GOLD"])]["맞힘"]
+    high = df[df["tier"].isin(["PLATINUM", "EMERALD", "DIAMOND"])]["맞힘"]
+    if len(low) and len(high):
+        la, ha = low.mean(), high.mean()
+        se = _m.sqrt(la * (1 - la) / len(low) + ha * (1 - ha) / len(high))
+        z = (ha - la) / se if se else 0
+        pv = 2 * (1 - 0.5 * (1 + _m.erf(abs(z) / _m.sqrt(2))))
+        print(chr(10) + f"저티어(아이언~골드) {la:.4f} (n={len(low)}) vs "
+              f"고티어(플래~다이아) {ha:.4f} (n={len(high)})")
+        print(f"차이 {ha - la:+.4f} · z={z:.2f} · p={pv:.3f}"
+              f" → {'차이 확인됨' if pv < 0.05 else '차이를 확인할 수 없음'}")
     print(f"[저장] {OUT} · {FIG}")
 
 

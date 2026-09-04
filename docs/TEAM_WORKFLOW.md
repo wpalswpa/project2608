@@ -27,7 +27,7 @@ clone 한 뒤 반드시 `git checkout team` 부터. 개인 브랜치는 만들�
 |---|---|---|
 | **정상천** (팀장 · 발표) | 발표자료 · 대본 · 리허설 2회 | **`presentation_draft.pptx` 이 파일 하나만** |
 | **이제민** (`wpalswpa`) | 분석 · 지표 · 문서 · 라이브러리 | `lolwin/` `tests/` `pyproject.toml` `reports/` `docs/` `notebooks/` `README.md` `STUDY.md` `model_card.md` `runs.csv` `specs/` `src/repeat_check.py` `src/factcheck.py` |
-| **임예은 · 임의석** | 웹 · 서버 · 배포 | `web/` `check_project.sh` `docs/deploy.md` `docs/ddbm-intent/` |
+| **박예은 · 임의석** | 웹 · 서버 · 배포 | `web/` `check_project.sh` `docs/deploy.md` `docs/ddbm-intent/` |
 
 `.pptx` 는 바이너리라 충돌이 나면 병합이 불가능하다.
 **이 파일은 정상천만 만진다** — 나머지는 열어보기만 하고 커밋하지 않는다.
@@ -36,7 +36,7 @@ clone 한 뒤 반드시 `git checkout team` 부터. 개인 브랜치는 만들�
 
 | 사람 | 손대는 파일 |
 |---|---|
-| 임예은 | `web/frontend.py` · `web/templates/` (화면 쪽) |
+| 박예은 | `web/frontend.py` · `web/templates/` (화면 쪽) |
 | 임의석 | `web/app.py` · `web/test_*.py` · `check_project.sh` (백엔드·배포 쪽) |
 
 > 바꿔도 되지만 **시작 전에 정해놓을 것.**
@@ -44,7 +44,7 @@ clone 한 뒤 반드시 `git checkout team` 부터. 개인 브랜치는 만들�
 **2026-09-02 임시 인수** — 서비스 담당이 부재하여 **이제민이 `web/` 을 임시로 맡는다.**
 그동안 손댄 것: `frontend.py` 그림 라우트 추가, `app.py` 의 공개 API 전환·CSV 경로 수정,
 `templates/index.html` 화면 개편. 담당자 복귀 시 이 목록을 인계하고 소유권을 되돌린다.
-**충돌 방지를 위해 복귀 전까지 임예은·임의석은 `web/` 을 건드리지 않는다.**
+**충돌 방지를 위해 복귀 전까지 박예은·임의석은 `web/` 을 건드리지 않는다.**
 
 데이터·모델(`db/` `src/day*` `src/finalize_model.py` `artifacts/` **`predict.py`**)은 **동결**
 — 숫자가 바뀌므로 **이제민 승인 후에만**. 서비스는 `predict.py` 를 **읽기만** 한다.
@@ -58,8 +58,8 @@ clone 한 뒤 반드시 `git checkout team` 부터. 개인 브랜치는 만들�
 | 문서 숫자 정합성 | 이제민 | ✅ **완료** — `factcheck` 0건 (문서 13개) |
 | 페이즈 2 재정의 (골드 제외 재분석) | 이제민 | ✅ **완료** — 킬 계수 −0.107 → +0.508, 정확도는 0.002만 하락 |
 | **문서 검증** (④) | 이제민 | ✅ **완료** — 문서마다 갈리던 계수를 실측으로 통일. 계수 대조 규칙을 `factcheck` 에 추가해 재발 차단 |
-| 서비스가 발표 순간까지 살아 있기 | 임예은 · 임의석 | ⬜ https://p4.sumzip.com 접속 · 예시 버튼 동작 |
-| 화면 다듬기 | 임예은 | ⬜ 처음 보는 사람이 설명 없이 써본다 |
+| 서비스가 발표 순간까지 살아 있기 | 박예은 · 임의석 | ⬜ https://p4.sumzip.com 접속 · 예시 버튼 동작 |
+| 화면 다듬기 | 박예은 | ⬜ 처음 보는 사람이 설명 없이 써본다 |
 | `team` → `main` 병합 (제출 스냅샷) | 임의석 | ⬜ 리허설 통과 후 |
 | 발표자료 + 대본 + 리허설 | 정상천 | ⬜ 12~15장 · 시연 3단계 · 리허설 2회 |
 | **정성 스모크 테스트 (SC-7)** | 이제민 | ✅ 완료 — 3문항 중 2개 정답, 킬 오답을 근거로 README 게임 설명(구 부록) 보완 (기록: docs/spec.md) |
@@ -97,7 +97,7 @@ cd ~/project2608 && ./check_project.sh deploy    # git pull → 재시작 → �
 
 DDBM 사이트의 "시스템 설계 구현 상태"도 이 폴더(`specs/002-ml-prediction-service/`)를 읽으므로 같은 명령으로 갱신된다.
 
-## 처음 합류할 때 — **이제민 · 임예은 · 임의석** (Windows·macOS 공통)
+## 처음 합류할 때 — **이제민 · 박예은 · 임의석** (Windows·macOS 공통)
 
 정상천은 `.pptx` 외에는 아래를 할 필요가 없다. 서비스는 https://p4.sumzip.com 에서 보면 되고,
 그 밖의 결과물은 이제민에게 파일이나 메시지로 전달하면 이제민이 커밋한다.
