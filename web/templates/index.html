@@ -273,6 +273,17 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .coach ul{list-style:none;margin:0;padding:0}
 .coach .gain{font-weight:700;color:var(--blue)}
 .coach .after{color:var(--muted);font-size:12px}
+.stylerows{display:flex;flex-direction:column;gap:7px;margin-top:9px}
+.strow{display:grid;grid-template-columns:56px 1fr 52px 46px;align-items:center;gap:9px;font-size:12.5px}
+.sname{font-weight:600}
+.sbar{height:9px;background:var(--panel-2);border-radius:5px;overflow:hidden}
+.sbar i{display:block;height:100%;background:var(--blue);border-radius:5px}
+.sn{color:var(--muted);font-size:11.5px;text-align:right}
+.swr{font-weight:700;text-align:right}
+.swr.weak{color:var(--faint);font-weight:400}
+.snote{margin:9px 0 0;font-size:12.5px;line-height:1.6;padding-left:10px;border-left:2px solid var(--gold)}
+.gstyle{margin-top:9px;font-size:11.5px;line-height:1.6}
+.gsh{color:var(--faint)}
 .trajwrap{grid-column:1/-1;margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
 .trajgrid{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:stretch}
 .tyax{display:flex;flex-direction:column;justify-content:space-between;
@@ -412,6 +423,8 @@ footer > *{position:relative;z-index:2}
     10분 시점으로 분석합니다. 랭킹은 주기적으로 갱신한 스냅샷이라 실시간 순위와
     다를 수 있습니다.</p>
   </section>
+
+  <div id="styleBox"></div>
 
   <details class="box" id="verdictHelp">
     <summary>판정 4가지가 무슨 뜻인가</summary>
@@ -573,7 +586,7 @@ function normalize(x, isSummoner){
     key: x.match_id, champion: x.champion, side: x.my_side,
     win_prob: x.my_win_prob, won: x.my_won, verdict: x.verdict, band: x.band,
     correct: x.model_correct, side_label: x.my_side, played_at: x.played_at, roster: x.roster || [],
-    trajectory: x.trajectory || [], swing_minute: x.swing_minute,
+    trajectory: x.trajectory || [], swing_minute: x.swing_minute, style: x.style,
     gold: x.features.GoldDiff, kills: x.features.KillsDiff, dragons: x.features.DragonsDiff,
     factors: x.top_factors, features: x.features, warnings: x.warnings || [],
     sub: `${x.played_at ? x.played_at + " · " : ""}${x.duration_min}분 경기`,
@@ -742,6 +755,14 @@ async function toggleDetail(rowEl, g){
 
   /* 분 단위 골드 궤적 — 이미 받은 타임라인에서 나온 값이라 추가 호출이 없다.
      "10분에 기울었다" 가 아니라 "몇 분에 갈렸나" 를 보여준다. */
+  /* 이 판의 성향 — 한 줄 */
+  const gst = g.style;
+  const styleLine = !gst ? "" : `<p class="note gstyle">
+    <b>${esc(gst.name)} 판</b> — ${esc(gst.desc)}
+    <span class="gsh">싸움 ${(gst.shares.fight*100).toFixed(0)}% ·
+    파밍 ${(gst.shares.farm*100).toFixed(0)}% ·
+    오브젝트 ${(gst.shares.objective*100).toFixed(0)}%</span></p>`;
+
   const tr = g.trajectory || [];
   let trajHTML = "";
   if(tr.length > 2){
@@ -777,7 +798,7 @@ async function toggleDetail(rowEl, g){
   }
 
   rowEl.querySelector(".detail").innerHTML =
-    `<div><h4>이 판을 가른 것</h4>${facs}${facLegend}${killNote}${trajHTML}</div>
+    `<div><h4>이 판을 가른 것</h4>${facs}${facLegend}${killNote}${styleLine}${trajHTML}</div>
      <div class="coach"><h4>이랬다면 어땠나 — 10분 승률 ${pct(g.win_prob)} 기준</h4>${coachHTML}<p class="note" style="margin-top:8px;font-size:11.5px">지표들은 서로 얽혀 있어(킬·CS↔골드 상관 0.6~0.9) CS만 오르는 상황은 현실에 없습니다 — 그래서 <b>따라오는 골드까지 함께 올려</b> 계산합니다. 실험이 아니라 실제 경기 기록으로 계산한 추정이라, "이렇게 하면 이긴다"의 증명이 아니라 <b>"그런 상태였던 경기들은 이만큼 이겼다"</b>로 읽어주세요. 지표는 팀 단위 차이라 개인이 아니라 <b>팀</b> 이야기입니다.</p>${adviceHTML}</div>` +
     (rosterHTML ? `<div class="rosterwrap"><h4>이 경기 팀 구성</h4>${rosterHTML}</div>` : "") +
     (g.warnings.length ? `<div class="warnbox">${g.warnings.map(esc).join("<br>")}</div>` : "");
@@ -870,6 +891,26 @@ function renderSummary(sum, label, scope){
   $("#brief").innerHTML = `<div class="brief"><div class="who">COACH · ${esc(label)}</div>
     <h2>${msg[0]}</h2><p>${msg[1]}</p>
     ${scope ? `<p style="margin-top:6px;font-size:11.5px;color:var(--faint)">${esc(scope)}</p>` : ""}</div>`;
+  /* 플레이 성향 — 격차를 무엇으로 만들었나. 예측이 아니라 복기 재료다.
+     같은 골드 격차면 유형별 역전율이 40% 로 같았으므로 승률 예측에는 쓰지 않는다. */
+  const st = sum.style;
+  $("#styleBox").innerHTML = !st ? "" : `
+    <details class="box" id="styleWrap" open>
+      <summary>플레이 성향 — 격차를 무엇으로 만들었나</summary>
+      <div class="stylerows">
+        ${st.rows.map(r => `<div class="strow">
+          <span class="sname">${esc(r.name)}</span>
+          <span class="sbar"><i style="width:${Math.round(r.games / sum.n * 100)}%"></i></span>
+          <span class="sn num">${r.games}판</span>
+          <span class="swr num${r.enough ? "" : " weak"}">${r.enough
+            ? (r.win_rate * 100).toFixed(0) + "%" : "—"}</span>
+        </div>`).join("")}
+      </div>
+      ${st.note ? `<p class="snote"><b>${esc(st.note)}</b></p>` : ""}
+      <p class="note" style="font-size:11px;margin-top:6px">${esc(st.caution)}
+      3판 미만인 유형은 승률을 내지 않습니다.</p>
+    </details>`;
+
   const t = (k, v, s, warn) =>
     `<div class="tile${warn ? " warn" : ""}"><div class="k">${k}</div>
      <div class="v num">${v}</div><div class="s">${s}</div></div>`;
@@ -1292,7 +1333,7 @@ function showTab(which){
     : which === "champ" ? "마스터 이상 솔로랭크에서 <b>최근 실제로 관찰된</b> 챔피언·라인별 승률입니다."
     : which === "rank" ? "솔로랭크 <b>상위 1,000명</b>입니다. 이름을 누르면 그 유저의 10분 판정을 볼 수 있습니다."
     : "곧 열리는 프로 경기입니다. <b>누가 이길지 찍어보세요</b> — 상금도 참가비도 없습니다.";
-  document.querySelectorAll(".wrap > details.box, .wrap > h3.sec, .wrap > .more, .wrap > p.sub")
+  document.querySelectorAll(".wrap > details.box, .wrap > h3.sec, .wrap > .more, .wrap > p.sub, #styleBox")
     .forEach(el => { if(el.id !== "champMeta") el.hidden = !home; });
   $("#champPage").hidden = which !== "champ";
   $("#rankPage").hidden = which !== "rank";

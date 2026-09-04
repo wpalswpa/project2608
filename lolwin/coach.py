@@ -66,6 +66,78 @@ VERDICT_ADVICE = {
 }
 
 
+# ── 경기 스타일 — "격차를 무엇이 만들었나" ────────────────────────
+# 군집 실험에서 배운 것: 유형은 승패를 예측하지 못한다(같은 격차면 역전율 40% 로 동일).
+# 그래서 예측에는 쓰지 않고, "어떻게 이겼나/졌나" 를 설명하는 데만 쓴다.
+#
+# 격차의 '크기' 는 빼고 '구성 비중' 만 본다. 크기를 넣으면 골드 격차를 되읽을 뿐이라
+# 새 정보가 없다(골드가 벌어질수록 싸움도 많아진다 — 실측 4.3 → 17.1).
+STYLE_NAME = {"fight": "싸움", "farm": "파밍", "objective": "오브젝트"}
+STYLE_DESC = {
+    "fight": "킬·어시스트가 격차를 만든 판입니다. 교전 결과가 그대로 점수가 됐습니다.",
+    "farm": "미니언이 격차를 만든 판입니다. 싸움보다 라인전에서 벌었습니다.",
+    "objective": "드래곤·전령·타워가 격차를 만든 판입니다. 오브젝트 운영이 컸습니다.",
+}
+
+
+def style_of(feats: dict) -> dict | None:
+    """10분 격차를 무엇이 만들었나 — 비중으로 본다.
+
+    반환: {"key","name","desc","shares":{...},"clear":bool}
+    clear=False 면 한 가지로 부르기 애매한 판이다(1위 비중 50% 미만 · 전체의 29%).
+    """
+    try:
+        fight = abs(feats["KillsDiff"]) + abs(feats["AssistsDiff"])
+        farm = abs(feats["TotalMinionsKilledDiff"]) / 10
+        obj = (abs(feats["DragonsDiff"]) + abs(feats["HeraldsDiff"])
+               + abs(feats["TowersDestroyedDiff"])) * 3
+    except KeyError:
+        return None
+    total = fight + farm + obj
+    if total <= 0:
+        return None
+    shares = {"fight": fight / total, "farm": farm / total, "objective": obj / total}
+    key = max(shares, key=shares.get)
+    return {"key": key, "name": STYLE_NAME[key], "desc": STYLE_DESC[key],
+            "shares": {k: round(v, 3) for k, v in shares.items()},
+            "clear": shares[key] >= 0.5}
+
+
+def style_summary(games: list) -> dict | None:
+    """여러 판을 모아 성향과 유형별 승률 — "당신은 어떤 판에 강한가".
+
+    한 판으로는 아무 말도 못 한다. 유형별로 3판 이상 쌓였을 때만 승률을 낸다.
+    """
+    from collections import defaultdict
+
+    agg = defaultdict(lambda: {"n": 0, "won": 0})
+    for g in games:
+        st = g.get("style")
+        if not st:
+            continue
+        a = agg[st["key"]]
+        a["n"] += 1
+        a["won"] += 1 if g.get("my_won") else 0
+    if not agg:
+        return None
+    rows = [{"key": k, "name": STYLE_NAME[k], "games": v["n"], "wins": v["won"],
+             "win_rate": round(v["won"] / v["n"], 4),
+             "enough": v["n"] >= 3}
+            for k, v in agg.items()]
+    rows.sort(key=lambda r: -r["games"])
+    judged = [r for r in rows if r["enough"]]
+    note = None
+    if len(judged) >= 2:
+        best, worst = max(judged, key=lambda r: r["win_rate"]), min(judged, key=lambda r: r["win_rate"])
+        if best["key"] != worst["key"] and best["win_rate"] - worst["win_rate"] >= 0.25:
+            note = (f"{best['name']} 판에서 {best['win_rate']:.0%}, "
+                    f"{worst['name']} 판에서 {worst['win_rate']:.0%} — "
+                    f"{worst['name']} 쪽을 다시 볼 만합니다.")
+    return {"rows": rows, "note": note,
+            "caution": "판수가 적어 참고용입니다. 유형은 승패를 예측하지 않습니다 — "
+                       "같은 골드 격차라면 어떤 유형이든 역전 확률은 비슷했습니다."}
+
+
 def verdict_of(win_prob: float, won: bool) -> str:
     """10분 시점 유불리 x 실제 결과 = 네 갈래 판정.
 

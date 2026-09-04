@@ -376,7 +376,7 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
     riot_id: "게임명#태그" (예: "Hide on bush#KR1")
     반환: {"riot_id": ..., "games": [경기별 {예측, 실제, 피처, 정보}]}
     """
-    from lolwin.coach import verdict_of           # 판정 정본 (샘플 경기와 공유)
+    from lolwin.coach import style_of, style_summary, verdict_of   # 판정·성향 정본
     from lolwin.features import gold_bin_bounds   # 구간 경계 정본
     from predict import predict          # 예측은 단일 진실만 사용
 
@@ -448,6 +448,8 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
             "my_win_prob": round(my_p, 4),
             "my_won": my_won,
             "verdict": verdict_of(my_p, my_won),
+            # 격차를 무엇이 만들었나 — 예측이 아니라 "어떻게 이겼나" 설명용
+            "style": style_of(feats),
         })
     # 첫 화면 요약 타일이 쓸 값 — 화면에서 세지 않게 서버가 센다
     from collections import Counter
@@ -462,6 +464,8 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
         "역전승": counts.get("역전승", 0),
         "우세승": counts.get("우세승", 0),
         "model_correct": sum(1 for g in games if g["model_correct"]),
+        # 여러 판을 모아야 성향이 보인다 — 한 판으로는 아무 말도 못 한다
+        "style": style_summary(games),
     }
     return {"riot_id": riot_id, "queue": "솔로랭크", "rank": get_rank(puuid),
             "games": games, "summary": summary,

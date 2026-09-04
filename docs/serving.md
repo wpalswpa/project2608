@@ -111,7 +111,7 @@
 | `GET /api/champions` | 챔피언 x 라인 승률표 (`position` 으로 라인 필터). 각 행에 `top_players`(그 챔피언 승률이 높았던 유저 최대 5명). 마스터 이상 솔로랭크 **관찰 승률**이지 모델 예측이 아니다 |
 | `GET /api/matches` | **시험셋 복기 (검증·재현용 — 사용자 화면에서는 쓰지 않는다)** — 예측 vs 실제, `top_factors` 5개에 실제 격차 `value` 포함, 필터(`band`·`correct`)·페이징·번호 조회(`id`) |
 | `POST /api/ranks` | puuid 목록의 솔로랭크 티어 — 행을 펼칠 때만 부른다 (기본 응답에 넣으면 판마다 최대 10콜) |
-| `POST /api/summoner` | Riot ID 로 최근 솔로랭크 경기를 10분 시점 복기 (`count` 1~10 · `start` 로 페이지 · 결과를 5분 캐시하고 `cached` 로 알린다) (`RIOT_API_KEY` 필요, 없으면 503). 경기마다 `band`·`my_win_prob`·`my_won`·`verdict`·`played_at`·`top_factors`(5개)·`trajectory`(분 단위 골드차)·`swing_minute`, 전체 `summary`(판정별 건수·`period`) 포함 |
+| `POST /api/summoner` | Riot ID 로 최근 솔로랭크 경기를 10분 시점 복기 (`count` 1~10 · `start` 로 페이지 · 결과를 5분 캐시하고 `cached` 로 알린다) (`RIOT_API_KEY` 필요, 없으면 503). 경기마다 `band`·`my_win_prob`·`my_won`·`verdict`·`played_at`·`top_factors`(5개)·`trajectory`(분 단위 골드차)·`swing_minute`·`style`(격차 구성), 전체 `summary`(판정별 건수·`period`) 포함 |
 | `GET /figures/<이름>` | `reports/` 의 그림 (사본을 두지 않는다) |
 
 ## 6. 구현 구조 — 누가 계산하나
@@ -219,3 +219,18 @@ python tests/test_contract.py       # 출력 형식·에러 규약
 일정 출처는 Riot 공식 개발자 API 가 아니다(공식 API 에 e스포츠 일정 엔드포인트가
 없다). `src/collect_schedule.py` 가 받아 CSV 로 굳히고 서비스는 그 파일만 읽으므로,
 출처가 막혀도 스크립트만 교체하면 되고 서비스는 그대로 돈다.
+
+## 플레이 성향 (`style`) 의 경계
+
+경기마다 `style` — 10분 격차를 무엇이 만들었나(싸움 · 파밍 · 오브젝트 비중)를 담고,
+`summary.style` 에 유형별 판수와 승률을 모은다.
+
+**예측에는 쓰지 않는다.** 군집 실험에서 실측한 결과다 —
+같은 골드 격차라면 어떤 유형이든 역전 확률이 40% 안팎으로 같았고(난타전 40.1 · 운영전 40.1 ·
+시야전 38.8), 유형을 피처로 넣거나 유형별로 모델을 나누면 오히려 손해였다(−0.005 · −0.007).
+그래서 `style` 은 "어떻게 이겼나" 를 설명하는 복기 재료로만 쓴다.
+
+격차의 **크기가 아니라 구성 비중**을 본다. 크기를 넣으면 골드 격차를 되읽을 뿐이다 —
+골드가 벌어질수록 싸움도 많아지기 때문이다(평균 싸움 규모 접전 4.3 → 결정 17.1).
+
+유형별 승률은 **3판 이상 쌓였을 때만** 낸다. 그 아래는 `enough: false` 로 표시하고 승률을 비운다.
