@@ -502,7 +502,10 @@ const KO = {FirstBlood:"첫 킬 (블루=1)",KillsDiff:"킬 차이",GoldDiff:"골
   TotalJungleMinionsKilledDiff:"정글 몹 차이"};
 const RIOT_READY = {% if riot_ready %}true{% else %}false{% endif %};
 const DDRAGON = "https://ddragon.leagueoflegends.com/cdn";
-const DDV = "14.24.1";                       /* 초상화 버전 — 없으면 이미지가 안 뜬다 */
+let DDV = "14.24.1";                         /* 폴백 — loadChampNames 가 최신으로 갱신 */
+/* 챔피언 id 보정 — 데이터는 "FiddleSticks", DDragon 은 "Fiddlesticks" 처럼 어긋난다 */
+let CHAMP_ID = {};
+const champId = id => CHAMP_ID[(id || "").toLowerCase()] || id;
 /* 행 배경 장식용. 샘플(시험셋) 경기에는 챔피언 정보가 없으므로 "이 판의 챔피언" 인 척하지 않는다 —
    투명도 7% 로 깔리는 배경일 뿐이다. 소환사 조회에서는 실제 챔피언 초상이 왼쪽에 뜬다. */
 const ART = ["Ashe","Garen","Lux","Yasuo","Ahri","Jinx","Leona","Ezreal","Thresh","Riven"];
@@ -525,11 +528,16 @@ let confBins = [];
 let CHAMP_KO = {};
 async function loadChampNames(){
   try{
+    /* 버전을 고정하면 신챔(Ambessa·Mel …)이 영문·이미지 깨짐으로 남는다 — 최신을 따라간다 */
+    try{
+      const vs = await (await fetch("https://ddragon.leagueoflegends.com/api/versions.json")).json();
+      if(Array.isArray(vs) && vs[0]) DDV = vs[0];
+    }catch(e){ /* 폴백 버전 유지 */ }
     const d = await (await fetch(`${DDRAGON}/${DDV}/data/ko_KR/champion.json`)).json();
-    Object.entries(d.data).forEach(([k, v]) => { CHAMP_KO[k] = v.name; });
+    Object.entries(d.data).forEach(([k, v]) => { CHAMP_KO[k] = v.name; CHAMP_ID[k.toLowerCase()] = k; });
   }catch(e){}
 }
-const champKo = id => CHAMP_KO[id] || id;
+const champKo = id => CHAMP_KO[champId(id)] || id;
 
 const TIER_SHORT = {IRON:"아이언",BRONZE:"브론즈",SILVER:"실버",GOLD:"골드",PLATINUM:"플래",
     EMERALD:"에메",DIAMOND:"다이아",MASTER:"마스터",GRANDMASTER:"그마",CHALLENGER:"챌린저"};
@@ -584,7 +592,7 @@ function rowHTML(g){
   const num = g.key.replace(/^m/, "");
   const art = g.champion || ART[Math.abs(hashOf(g.key)) % ART.length];
   const portrait = g.champion
-    ? `<img class="champ" src="${DDRAGON}/${DDV}/img/champion/${esc(g.champion)}.png"
+    ? `<img class="champ" src="${DDRAGON}/${DDV}/img/champion/${esc(champId(g.champion))}.png"
             alt="${esc(champKo(g.champion))}" loading="lazy">`
     : `<div class="champ-ph"><b>${esc(num)}</b><span>경기</span></div>`;
   const iAmBlue = g.side_label === "블루";
@@ -701,7 +709,7 @@ async function toggleDetail(rowEl, g){
         const rk = m.rank;
         const tierTxt = rk ? (TIER_SHORT[rk.tier] || rk.tier) : "…";
         return `<div class="rrow${m.is_me ? " me" : ""}">
-        <img src="${DDRAGON}/${DDV}/img/champion/${esc(m.champion)}.png" alt="" loading="lazy">
+        <img src="${DDRAGON}/${DDV}/img/champion/${esc(champId(m.champion))}.png" alt="" loading="lazy">
         <span class="rpos">${esc(POS[m.position] || "-")}</span>
         ${id ? `<a class="rname" href="#" data-search="${esc(id)}" title="${esc(id)} 전적 보기">${esc(m.name)}</a>`
              : `<span class="rname">―</span>`}
@@ -1186,17 +1194,51 @@ async function loadChampions(){
       t.innerHTML = `<tbody><tr><td>표시할 통계가 아직 없습니다.</td></tr></tbody>`; return;
     }
     const POSKO = {TOP:"탑", JUNGLE:"정글", MIDDLE:"미드", BOTTOM:"원딜", UTILITY:"서폿"};
+
+    /* 전체 탭 — 서버는 챔피언 x 라인 조합을 주므로 같은 챔피언이 라인 수만큼 반복된다.
+       챔피언 단위로 합산하고, 라인 칸에는 판수가 많은 순으로 라인을 보여준다. */
+    let rows = d.rows;
+    if(!champPos){
+      const agg = new Map();
+      for(const r of d.rows){
+        const g = agg.get(r.champion) || {champion: r.champion, games: 0, wins: 0,
+                                          pick_rate: 0, lanes: [], top_players: []};
+        g.games += r.games;
+        g.wins += r.games * r.win_rate;
+        g.pick_rate += r.pick_rate;
+        g.lanes.push([r.position, r.games]);
+        g.top_players = g.top_players.concat(r.top_players || []);
+        agg.set(r.champion, g);
+      }
+      rows = [...agg.values()].map(g => {
+        g.lanes.sort((x, y) => y[1] - x[1]);
+        const seen = new Set();
+        return {
+          champion: g.champion,
+          position: g.lanes.map(l => POSKO[l[0]] || l[0]).slice(0, 2).join("·")
+                    + (g.lanes.length > 2 ? " 외" : ""),
+          games: g.games,
+          win_rate: g.wins / g.games,
+          pick_rate: g.pick_rate,
+          low_sample: g.games < 10,
+          top_players: g.top_players
+            .filter(u => { const k = u.name + "#" + u.tag;
+                           if(seen.has(k)) return false; seen.add(k); return true; })
+            .sort((x, y) => y.win_rate - x.win_rate).slice(0, 5),
+        };
+      }).sort((x, y) => (x.low_sample - y.low_sample) || (y.win_rate - x.win_rate));
+    }
     t.innerHTML =
       `<thead><tr><th>#</th><th>챔피언</th>${champPos ? "" : "<th>라인</th>"}
         <th>승률</th><th>표본</th><th>픽률</th><th></th></tr></thead><tbody>` +
-      d.rows.map((r, i) => {
+      rows.map((r, i) => {
         const tp = r.top_players || [];
         const key = `${r.champion}|${r.position}`;
         return `<tr class="crow" data-key="${esc(key)}">
         <td class="num" style="color:var(--faint)">${i + 1}</td>
-        <td><span class="cch"><img src="${DDRAGON}/${DDV}/img/champion/${esc(r.champion)}.png"
+        <td><span class="cch"><img src="${DDRAGON}/${DDV}/img/champion/${esc(champId(r.champion))}.png"
             alt="" loading="lazy">${esc(champKo(r.champion))}</span></td>
-        ${champPos ? "" : `<td>${esc(POSKO[r.position] || r.position)}</td>`}
+        ${champPos ? "" : `<td style="font-size:11.5px;color:var(--muted)">${esc(r.position)}</td>`}
         <td><span class="wbar"><i style="width:${(r.win_rate * 100).toFixed(0)}%"></i>
             <b>${(r.win_rate * 100).toFixed(1)}%</b></span></td>
         <td class="num">${r.games.toLocaleString()}판${r.low_sample
