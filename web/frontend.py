@@ -46,6 +46,19 @@ def index():
     return render_template("index.html", riot_ready=riot_ready, domain=DOMAIN, backend_ok=(status == 200))
 
 
+@app.after_request
+def _no_cache_html(resp):
+    """화면(HTML)은 캐시하지 않는다.
+
+    배포해도 사용자 브라우저가 옛 index.html 을 계속 쓰면 새 기능이 안 보인다 —
+    실제로 그랬다. 화면은 매번 새로 받게 하고, 그림 같은 정적 파일은 그대로 캐시한다.
+    """
+    if resp.mimetype == "text/html":
+        resp.headers["Cache-Control"] = "no-store, must-revalidate"
+        resp.headers["Pragma"] = "no-cache"
+    return resp
+
+
 @app.route("/figures/<path:name>")
 def figures(name):
     """reports/ 의 그림을 그대로 내려준다.
