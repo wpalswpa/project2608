@@ -219,6 +219,11 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .gauge .mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-2);z-index:2}
 .gauge .lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;
   padding:0 8px;font-size:11px;font-weight:600;z-index:3;pointer-events:none}
+/* 라벨이 두 줄로 꺾이면 22px 높이에서 잘리고, 극단 승률(94%+)에서는 라벨이
+   채움 경계에 걸쳐 흰 글자가 밝은 배경 위에 놓여 안 보였다.
+   반투명 칩을 깔면 어떤 바탕(파랑 채움·연분홍 빈 곳) 위에서도 읽힌다. */
+.gauge .lbl span{white-space:nowrap;flex:none;padding:1px 6px;border-radius:4px;
+  background:rgba(15,23,42,.45);color:#fff!important;text-shadow:none}
 .gauge{height:22px}
 .gauge .lbl .l{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 
