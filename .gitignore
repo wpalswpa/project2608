@@ -33,3 +33,6 @@ data/champion_raw*
 data/ranking_names.jsonl
 data/tier_raw.jsonl
 db/votes.sqlite3
+
+# PowerPoint 잠금 파일 (열려 있는 동안 생겼다 사라진다)
+~$*
