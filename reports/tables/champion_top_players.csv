@@ -1,176 +1,606 @@
 ﻿champion,position,name,tag,판수,승률
-Akali,MIDDLE,Ivory,1012,10,0.8
-Akshan,TOP,Practice Jg ID,KR1,8,0.875
-Alistar,UTILITY,Croco,0223,8,0.75
-Alistar,UTILITY,touch,wuwu,9,0.6667
-Alistar,UTILITY,들개처럼,KR1,9,0.5556
-Ambessa,TOP,shangxianshen,Ambes,19,0.6316
-Ambessa,TOP,T1 Midir,KR06,14,0.5714
-Anivia,TOP,메롱 약오르지롱,KR2,11,0.6364
-AurelionSol,MIDDLE,乾夏帆,尔多龙,19,0.5789
-Aurora,MIDDLE,芋圆波波,啵 啵,11,0.6364
-Azir,MIDDLE,지 훈,KJH,14,0.6429
-Bard,UTILITY,DNS Quantum,KR 1,8,0.75
-Bard,UTILITY,이나경,아 로,8,0.75
-Bard,UTILITY,키보드에음료쏟아서고장내는이도윤,KR1,8,0.625
-Bard,UTILITY,T1 구름,2007,11,0.5455
-Camille,TOP,月下沙利叶,b9ii,21,0.6667
-Camille,TOP,Castle,Jo1,9,0.6667
-Camille,TOP,Kingen,KR1,8,0.625
-Camille,UTILITY,Cecilia,1325,9,0.8889
-Camille,UTILITY,pleata,KR22,10,0.7
-Camille,UTILITY,들개처럼,KR1,12,0.6667
-Camille,UTILITY,T1 에테르,1225,20,0.6
-Cassiopeia,BOTTOM,김민교 수제자,KR1,11,0.7273
-Cassiopeia,BOTTOM,라티오스,0406,11,0.5455
-Cassiopeia,MIDDLE,냐하하,2698,8,0.75
-Cassiopeia,MIDDLE,Wonderwall,mid,11,0.7273
-Cassiopeia,MIDDLE,HLE Buddy,5812,11,0.5455
-Chogath,JUNGLE,JUGKlNG,kr,10,0.6
-Chogath,TOP,hacker troller,2907,8,0.625
-DrMundo,TOP,puppyxi,1123,10,0.6
-Evelynn,JUNGLE,抖音夕影,520,14,0.7143
-Ezreal,BOTTOM,Comfy,KR2,11,0.7273
-Ezreal,BOTTOM,꼬마딩구리,KR1,10,0.7
-Ezreal,BOTTOM,정 진,이용승,20,0.65
-FiddleSticks,JUNGLE,허수아비,무적이야,26,0.5769
-FiddleSticks,JUNGLE,抖音  威某人,wmr,9,0.5556
-Fiora,TOP,슈프림,1000,17,0.5294
-Fizz,JUNGLE,끝까지 포기하지말자,never,11,0.6364
-Fizz,MIDDLE,끝까지 포기하지말자,never,30,0.7
-Galio,MIDDLE,자다가일어나서하악질하는박쿠키,ฅ ฅ,11,0.5455
-Gangplank,TOP,태양물고기,6797,25,0.52
-Gnar,TOP,Blade,Ggul,23,0.5652
-Graves,JUNGLE,Im noob777,777,11,0.7273
-Gwen,TOP,puppyxi,1123,8,0.75
-Gwen,TOP,T1 Guardian,KR3,16,0.5625
-Hecarim,JUNGLE,抖音小y,zzzz,24,0.7083
-Hecarim,JUNGLE,이 차가 식기전에,KR1,17,0.5882
-Hwei,BOTTOM,딸깍푸슝맨,一炊之夢,10,0.6
-Hwei,MIDDLE,요네 go home,xxxww,8,0.625
-Ivern,JUNGLE,광희짱,123,12,0.5833
-JarvanIV,JUNGLE,나의본색,KR1,8,0.625
-JarvanIV,JUNGLE,Bonnie,0314,9,0.5556
-Jax,TOP,우또기,KR1,21,0.7619
-Jax,TOP,기리보이혁갓,아입니두,8,0.625
-Jayce,TOP,데이터얻는계정,지나갈게요,11,0.5455
-Jhin,BOTTOM,Bonnie,0314,8,0.875
-Jhin,BOTTOM,jkjkjkjkk,1173,12,0.75
-Jhin,BOTTOM,meviusskybluelon,gs6mg,10,0.7
-Jhin,BOTTOM,T1 Jinbeom,KR3,11,0.5455
-KSante,TOP,YOSEMITE,0202,12,0.8333
-KSante,TOP,소 중,유튜브,11,0.7273
-Kaisa,BOTTOM,NASA,쟁 구,8,0.875
-Kaisa,BOTTOM,Kania,kr04,8,0.75
-Kaisa,BOTTOM,A D,0120,9,0.6667
-Kaisa,BOTTOM,Ghost,올라갑니다,13,0.6154
-Kaisa,BOTTOM,漆黒の氷と炎の魔法使い,KR123,9,0.5556
-Kalista,BOTTOM,결 혼,KR1,14,0.5714
-Kalista,BOTTOM,HLE GGomZi,666,13,0.5385
-Katarina,MIDDLE,Suyek,夙夜yuu,17,0.7647
-Kled,TOP,KanbeKotori,726,18,0.7778
-KogMaw,BOTTOM,코그모,ΚR1,13,0.6154
-LeeSin,JUNGLE,抖音丶小猪仔,小猪仔,9,0.7778
-LeeSin,JUNGLE,mikasa,0430,12,0.75
-LeeSin,JUNGLE,Opinio,1011,10,0.7
-LeeSin,JUNGLE,Cuzz,KR1,9,0.6667
-LeeSin,JUNGLE,haerin,하이린,11,0.6364
-Leona,UTILITY,Let me sup,KR1,8,0.625
-Lissandra,MIDDLE,抖音王纪超,26号首秀,12,0.6667
-Lissandra,TOP,抖音王纪超,26号首秀,10,0.7
-Locke,MIDDLE,모든일은같이,KR1,9,0.5556
-Lulu,UTILITY,永远输不完,三分王,8,1.0
-Lulu,UTILITY,Miyi,oymy,11,0.8182
-Lulu,UTILITY,호랑이가될남자,KR1,8,0.625
-Lulu,UTILITY,Cecilia,1325,10,0.6
-Malzahar,MIDDLE,抖音王纪超,26号首秀,12,0.5833
-Maokai,UTILITY,매 루,KR1,20,0.55
-MonkeyKing,JUNGLE,Im noob777,777,8,0.625
-Naafiri,JUNGLE,T1 Carim,0409,8,0.625
-Nasus,MIDDLE,Zac,KR1,8,0.875
-Nautilus,UTILITY,Let me sup,KR1,8,0.75
-Nautilus,UTILITY,DNS Quantum,KR 1,11,0.7273
-Nautilus,UTILITY,Celine,KR33,8,0.625
-Nidalee,JUNGLE,Hugo小宝贝,君临韩服,9,0.6667
-Nidalee,JUNGLE,Opinio,1011,11,0.6364
-Nidalee,JUNGLE,dyxiaofang,Miss,16,0.5625
-Nidalee,JUNGLE,펀 치,S T,9,0.5556
-Olaf,TOP,강하다 별,123,8,0.75
-Olaf,TOP,LFT forge,KR2,24,0.6667
-Olaf,TOP,songman,KR11,9,0.6667
-Olaf,TOP,Casting,KR11,14,0.6429
-Olaf,TOP,이직로그,0820,11,0.5455
-Orianna,MIDDLE,도천지,KR1,28,0.6429
-Pantheon,TOP,The Herta,Hokai,15,0.6667
-Pantheon,TOP,빵 디,씰룩씰룩,11,0.5455
-Pantheon,TOP,zhen xi,黑玫瑰,13,0.5385
-Pantheon,UTILITY,kiss,0520,8,0.625
-Pyke,UTILITY,아무생각없음,0831,13,0.6154
-Pyke,UTILITY,YoRu,KR7,23,0.5652
-Qiyana,JUNGLE,698kk,Miss,11,0.8182
-Qiyana,JUNGLE,mikasa,0430,9,0.7778
-Qiyana,JUNGLE,haerin,하이린,12,0.75
-Qiyana,JUNGLE,xiaofang,qaq,11,0.7273
-Qiyana,JUNGLE,Bonnie,0314,20,0.6
-Rakan,UTILITY,Effort,4444,9,0.5556
-RekSai,JUNGLE,抖音Eason7,医生七,12,0.6667
-RekSai,JUNGLE,命定之死,Death,14,0.5714
-RekSai,JUNGLE,최섭섭,왜그랬섭,15,0.5333
-Rell,UTILITY,맘이멍들었죠,0128,8,0.75
-Rell,UTILITY,Dco6o,Miss,13,0.5385
-Renekton,TOP,간디도롤하면폭력,레문123,19,0.5263
-Rengar,JUNGLE,抖音阿甘爱跑步,xtz小弟,31,0.7097
-Rengar,JUNGLE,Eris,Greyt,13,0.6923
-Riven,TOP,围绕我打,05top,8,0.75
-Riven,TOP,04년생태우형이야,1234,25,0.64
-Riven,TOP,Azhy,KR1,9,0.5556
+Aatrox,TOP,기사키,bee,8,0.75
+Aatrox,TOP,classline,ATROX,13,0.5385
+Ahri,MIDDLE,하얗고예쁨,KR1,38,0.5789
+Ahri,MIDDLE,빙 결,9893,14,0.5714
+Akali,MIDDLE,EPG 카이조쿠단,쿠 마,12,0.6667
+Akali,MIDDLE,AKALKING,아칼링아님,8,0.625
+Akali,MIDDLE,vrdmvd,NICE,8,0.625
+Akali,MIDDLE,월 묘,月 兎,8,0.625
+Akali,MIDDLE,Ivory,1012,13,0.6154
+Akshan,MIDDLE,뽀시래기 뽀현이,0118,23,0.6087
+Alistar,UTILITY,Maybefff,0320,9,0.7778
+Alistar,UTILITY,들개처럼,KR1,22,0.7727
+Alistar,UTILITY,Croco,0223,11,0.7273
+Alistar,UTILITY,flymetothestar,1127,21,0.7143
+Alistar,UTILITY,BRO Felix,1012,8,0.625
+Ambessa,JUNGLE,add,ary,10,0.6
+Ambessa,JUNGLE,무감정솔랭기계,2007,9,0.5556
+Ambessa,TOP,YiNova,2006,8,0.875
+Ambessa,TOP,you will lose,Sprd,8,0.875
+Ambessa,TOP,차가운코끼리,KR0,11,0.7273
+Ambessa,TOP,T1 Weather,0830,30,0.7
+Ambessa,TOP,진짜롤너무어렵다,FATOP,8,0.625
+Anivia,MIDDLE,Kynel99,1104,33,0.7273
+Anivia,TOP,The shy,asdf,9,0.6667
+Anivia,TOP,메롱 약오르지롱,KR2,24,0.625
+Anivia,TOP,1Jiang,2003,14,0.5714
+Aphelios,BOTTOM,나아침먹고싶어,7401,9,0.8889
+Aphelios,BOTTOM,MIKASA,mio韩服,8,0.875
+Aphelios,BOTTOM,lost valor,592,11,0.6364
+Aphelios,BOTTOM,抖音丶11efls,奶龙大王,14,0.5714
+AurelionSol,BOTTOM,斗鱼丶自宇666,zoe,8,0.625
+AurelionSol,MIDDLE,乾夏帆,尔多龙,51,0.5882
+AurelionSol,MIDDLE,抖音林北的龙大根,HTC,13,0.5385
+Aurora,BOTTOM,芋圆波波,啵 啵,24,0.5833
+Azir,MIDDLE,지 훈,KJH,28,0.6429
+Bard,UTILITY,Effort,4444,8,0.875
+Bard,UTILITY,Luon,11111,12,0.8333
+Bard,UTILITY,장 주,0000,16,0.8125
+Bard,UTILITY,폐 허,KR1,10,0.8
+Bard,UTILITY,푸 린,OwO,9,0.7778
+Blitzcrank,UTILITY,카in,부산183,9,0.8889
+Blitzcrank,UTILITY,장 주,0000,15,0.7333
+Blitzcrank,UTILITY,성 훈,1231,12,0.5833
+Braum,UTILITY,Aklass,lol,9,1.0
+Caitlyn,BOTTOM,Robin,星期日,9,0.6667
+Caitlyn,BOTTOM,nun,linn,12,0.5833
+Caitlyn,BOTTOM,T1 Eclipse,2009,9,0.5556
+Caitlyn,BOTTOM,로 컨,0214,44,0.5455
+Camille,JUNGLE,뽀 시,111,9,0.5556
+Camille,TOP,v99l,Miss,10,1.0
+Camille,TOP,Castle,Jo1,14,0.7857
+Camille,TOP,1Jiang,2003,12,0.75
+Camille,TOP,上路折磨王,88888,57,0.6316
+Camille,TOP,kiin,KR1,8,0.625
+Camille,UTILITY,Cecilia,1325,10,0.8
+Camille,UTILITY,xycg,KR1,9,0.7778
+Camille,UTILITY,pleata,KR22,12,0.75
+Camille,UTILITY,Universe,zy1,8,0.75
+Camille,UTILITY,keb10,鈴原るる,10,0.7
+Cassiopeia,BOTTOM,투정꾼,Daemi,10,0.8
+Cassiopeia,BOTTOM,쥐정우2,6705,9,0.7778
+Cassiopeia,BOTTOM,Hebi,스케치,20,0.65
+Cassiopeia,BOTTOM,김민교 수제자,KR1,17,0.6471
+Cassiopeia,BOTTOM,Chang Min,KR1,13,0.6154
+Cassiopeia,MIDDLE,폭풍의 언덕,5126,12,0.8333
+Cassiopeia,MIDDLE,Betelgeuse,68553,9,0.7778
+Cassiopeia,MIDDLE,오케이션,강민오우,9,0.7778
+Cassiopeia,MIDDLE,냐하하,2698,12,0.75
+Cassiopeia,MIDDLE,CCCdda,OET,8,0.75
+Cassiopeia,TOP,짖어라,지옥에서,9,0.7778
+Chogath,JUNGLE,MihawK,1115,9,0.6667
+Chogath,JUNGLE,관 모,KR2,9,0.6667
+Chogath,JUNGLE,희태시기,КR1,9,0.5556
+Chogath,JUNGLE,十三day,jug,13,0.5385
+Chogath,JUNGLE,타 잔,KR1,13,0.5385
+Chogath,TOP,hacker troller,2907,11,0.5455
+Corki,BOTTOM,노익스강,noex,10,0.6
+Corki,BOTTOM,NinjaKiwi,KoR,23,0.5217
+Corki,TOP,깽깽이,kr3,8,0.625
+Darius,TOP,불이과,KR1,19,0.5789
+Darius,TOP,A1A8,Miss,30,0.5667
+Darius,TOP,잼 잼,1012,23,0.5652
+Diana,MIDDLE,twitch yuuudeiii,5589,17,0.5294
+DrMundo,TOP,抖音丶cl666,Mio韩服,9,0.8889
+DrMundo,TOP,Reve Bonheur Toi,happy,46,0.6087
+DrMundo,TOP,대 황 도,복숭아,15,0.6
+Draven,BOTTOM,정 진,이용승,10,0.7
+Draven,BOTTOM,암영천왕,KoR,20,0.55
+Ekko,JUNGLE,jugtao,ekko,14,0.5714
+Ekko,MIDDLE,Douyin Koe,KOE艾克,9,0.7778
+Ekko,MIDDLE,재형2,1113,16,0.75
+Ekko,MIDDLE,까미야뒤로굴러,KR1,24,0.7083
+Ekko,MIDDLE,Ekkorea,SUNA,57,0.5088
+Ekko,TOP,새로시작한단마음,KR1,11,0.9091
+Elise,JUNGLE,앙증남,120kg,13,0.5385
+Elise,UTILITY,기리보이혁갓,아입니두,9,0.5556
+Elise,UTILITY,Erebia,111,21,0.5238
+Evelynn,JUNGLE,군대로좀꺼질것,0331,8,0.875
+Evelynn,JUNGLE,抖音夕影,520,19,0.7368
+Evelynn,JUNGLE,Bijaeve,004,72,0.5972
+Ezreal,BOTTOM,Peyz,KR11,10,0.8
+Ezreal,BOTTOM,문영화,KR1,8,0.75
+Ezreal,BOTTOM,聞起來像中國菜,pig,10,0.7
+Ezreal,BOTTOM,Comfy,KR2,28,0.6786
+Ezreal,BOTTOM,거제 야호,오이쉬,15,0.6667
+FiddleSticks,JUNGLE,左特稻草人,520,34,0.6471
+FiddleSticks,UTILITY,채팅치지마시바,kr2,34,0.5588
+Fiora,TOP,마라탕1,사주세요,8,0.625
+Fiora,TOP,이 안,S 2,8,0.625
+Fiora,TOP,抖音丶cry毛,mio韩服,12,0.5833
+Fiora,TOP,슈프림,1000,25,0.56
+Fiora,TOP,kfo,KR1,9,0.5556
+Fizz,JUNGLE,SPIRIT,0701,8,0.75
+Fizz,JUNGLE,끝까지 포기하지말자,never,19,0.6316
+Fizz,MIDDLE,끝까지 포기하지말자,never,48,0.625
+Fizz,MIDDLE,MangoFish,6666,13,0.6154
+Fizz,MIDDLE,데마시아TV,Lux R,16,0.5625
+Fizz,MIDDLE,fear,1385,9,0.5556
+Galio,MIDDLE,devil galio,hmbb,10,0.9
+Galio,MIDDLE,DNS Flip,2008,14,0.7143
+Galio,MIDDLE,갈크크,갈 갈,13,0.6923
+Galio,MIDDLE,抖音小彤佐伊,0130,9,0.6667
+Galio,MIDDLE,YiNova,2006,8,0.625
+Galio,TOP,자다가일어나서하악질하는박쿠키,ฅ ฅ,28,0.6071
+Galio,UTILITY,抖音小阿鬼,Mio韩服,10,0.6
+Gangplank,TOP,harunohi,늙크크,9,0.8889
+Gangplank,TOP,No Surprises,199,16,0.625
+Gangplank,TOP,송플랭크,CTID,30,0.6
+Gangplank,TOP,태양물고기,6797,45,0.5778
+Gangplank,TOP,Astra,KR4,43,0.5349
+Gnar,TOP,빵 디,씰룩씰룩,9,0.8889
+Gnar,TOP,UNSECRET,6789,16,0.625
+Gnar,TOP,차가운코끼리,KR0,10,0.6
+Gnar,TOP,Blade,Ggul,55,0.5455
+Graves,JUNGLE,BALKHAN,LOL,12,0.8333
+Graves,JUNGLE,guz1vjppr0kut3,2810,11,0.7273
+Graves,JUNGLE,Im noob777,777,18,0.7222
+Graves,JUNGLE,truthZZ,QAQ,10,0.7
+Graves,JUNGLE,梦中的风铃,xycj,9,0.6667
+Gwen,MIDDLE,rad,kr3,12,0.6667
+Gwen,TOP,YiNova,2006,9,0.8889
+Gwen,TOP,1zumi,一粥米,15,0.8
+Gwen,TOP,T1 Weather,0830,33,0.6667
+Gwen,TOP,puppyxi,1123,24,0.5833
+Hecarim,JUNGLE,Natalie,0304,10,0.7
+Hecarim,JUNGLE,이 차가 식기전에,KR1,22,0.6364
+Hecarim,JUNGLE,서릿빛 겨울의 설흔,잔 향,21,0.619
+Hecarim,JUNGLE,抖音小y,zzzz,52,0.5577
+Hecarim,JUNGLE,一只毛驴,666,66,0.5152
+Hwei,BOTTOM,딸깍푸슝맨,一炊之夢,17,0.5882
+Hwei,MIDDLE,튼튼짱짱만욱,튼튼짱짱,15,0.6
+Illaoi,TOP,G1psyDanger,KR1,17,0.5294
+Irelia,MIDDLE,Aileri,KR1,14,0.7143
+Irelia,TOP,아뇨아뇨아뇨아뇨,아니요,10,0.9
+Irelia,TOP,Aileri,KR1,10,0.8
+Irelia,TOP,기리보이혁갓,아입니두,10,0.6
+Irelia,TOP,단 아,mio韩服,15,0.5333
+Irelia,TOP,의문의 이렐리아 유저,KR2,17,0.5294
+Ivern,JUNGLE,조광희,0111,24,0.5833
+Ivern,JUNGLE,광희짱,123,16,0.5625
+Ivern,JUNGLE,NoRoo,T 1,15,0.5333
+Janna,UTILITY,renmeixinshan,2003,14,0.5714
+JarvanIV,JUNGLE,who am i,6320,15,0.6667
+JarvanIV,JUNGLE,Carax,KR2,9,0.6667
+JarvanIV,JUNGLE,Who am I,0802,8,0.625
+JarvanIV,JUNGLE,hjzt0ahjhj,KR2,8,0.625
+JarvanIV,JUNGLE,나의본색,KR1,13,0.6154
+JarvanIV,UTILITY,삥글리끼,KR1,17,0.5294
+Jax,JUNGLE,Aaron Johnson,KR1,11,0.5455
+Jax,TOP,1Jiang,2003,8,0.875
+Jax,TOP,잠자는 왕,KR1,13,0.7692
+Jax,TOP,kfo,KR1,8,0.75
+Jax,TOP,songman,KR11,8,0.75
+Jax,TOP,채팅안치기,할수있을까,10,0.7
+Jax,UTILITY,뽀 시,111,9,0.7778
+Jayce,JUNGLE,잠자는 왕,KR1,17,0.6471
+Jayce,JUNGLE,파워냉방,777,8,0.625
+Jayce,MIDDLE,누군가의 개입을 받고 있습니다,매튜렁,11,0.8182
+Jayce,MIDDLE,Upgrade 할거야,0509,20,0.6
+Jayce,TOP,늘 완벽하고싶다,2026,8,0.875
+Jayce,TOP,FA Kartis,HK01,12,0.75
+Jayce,TOP,1 cent top,KR1,17,0.7059
+Jayce,TOP,Brandnew,stric,10,0.7
+Jayce,TOP,Standard,811,16,0.6875
+Jhin,BOTTOM,zhongdan xiumin,KR1,11,0.8182
+Jhin,BOTTOM,jkjkjkjkk,1173,21,0.7619
+Jhin,BOTTOM,Hey,ohayo,8,0.75
+Jhin,BOTTOM,결 혼,KR1,14,0.7143
+Jhin,BOTTOM,FAad,2007,13,0.6923
+Jinx,BOTTOM,에이긍,KR33,16,0.75
+Jinx,BOTTOM,아이러니,KR1,8,0.75
+Jinx,BOTTOM,아이타이,S 2,13,0.5385
+KSante,MIDDLE,ParisVan,不知名歌手,8,0.625
+KSante,TOP,webg88,Miss,13,0.7692
+KSante,TOP,YOSEMITE,0202,17,0.7647
+KSante,TOP,Uranus,kr08,25,0.68
+KSante,TOP,YiNova,2006,9,0.6667
+KSante,TOP,稻谷c,小谷帝,9,0.6667
+Kaisa,BOTTOM,Lactea Rx,KR1,9,1.0
+Kaisa,BOTTOM,taone,na2,11,0.8182
+Kaisa,BOTTOM,触目惊心,0120,9,0.7778
+Kaisa,BOTTOM,예쁜피망,KR1,9,0.7778
+Kaisa,BOTTOM,기리보이혁갓,입이두,8,0.75
+Kalista,BOTTOM,쿼카콜라,기여오,8,0.75
+Kalista,BOTTOM,노익스강,noex,10,0.7
+Kalista,BOTTOM,im bug,213,12,0.6667
+Kalista,BOTTOM,정 진,이용승,50,0.64
+Kalista,BOTTOM,결 혼,KR1,48,0.625
+Karma,UTILITY,쥐정우2,6705,8,0.75
+Karma,UTILITY,DNS Quantum,KR 1,8,0.625
+Karma,UTILITY,Celine,KR33,10,0.6
+Karma,UTILITY,Luon,11111,14,0.5714
+Karma,UTILITY,奶油蛋卷,ovo,19,0.5263
+Karthus,BOTTOM,우 뚱,돼 지,12,0.6667
+Karthus,JUNGLE,화이팅an,KR1,9,0.8889
+Karthus,JUNGLE,인천 이민웅,1234,8,0.875
+Karthus,JUNGLE,pet,KR2,12,0.6667
+Karthus,TOP,몰라몰라,666,13,0.6154
+Katarina,BOTTOM,抖音陈年卡特,xmm,10,0.8
+Katarina,BOTTOM,Starburst Stream,s t,12,0.6667
+Katarina,MIDDLE,포뇨의 지느러미,유튜브,20,0.8
+Katarina,MIDDLE,Suyek,夙夜yuu,54,0.6481
+Katarina,MIDDLE,시도는 발전이다,도 전,14,0.6429
+Katarina,MIDDLE,Hebi,S 2,11,0.6364
+Katarina,MIDDLE,IAXAI,KR1,8,0.625
+Kayn,JUNGLE,니 악,Kayn,33,0.6061
+Kayn,JUNGLE,抖音丶鹏鹏426,426,18,0.5556
+Kennen,TOP,고양이튀김,meow,8,0.75
+Kennen,TOP,g44,8971,8,0.625
+Kennen,TOP,hello,DVZA,8,0.625
+Khazix,JUNGLE,겸손하는 마음,666,35,0.5429
+Kindred,JUNGLE,v99l,Miss,22,0.7727
+Kindred,JUNGLE,nigo,yyaa,10,0.6
+Kindred,JUNGLE,icsy,1012,23,0.5652
+Kindred,JUNGLE,Peanut,05012,38,0.5263
+Kled,BOTTOM,애니비아 부리는 왜 파란색일까,몰라용,11,0.6364
+Kled,TOP,aierlanlaozhu,KR1,12,0.75
+Kled,TOP,jackeybeibei,0810,11,0.6364
+Kled,TOP,Yukino,mio韩服,29,0.5862
+Kled,TOP,KanbeKotori,726,63,0.5238
+KogMaw,BOTTOM,우제한테배운카밀,KR1,16,0.875
+KogMaw,BOTTOM,코그모,ΚR1,31,0.6774
+KogMaw,BOTTOM,Kog,КR1,26,0.5769
+Leblanc,MIDDLE,Seven fire,雷霆嘎巴,12,0.6667
+Leblanc,MIDDLE,쪼렙이다말로하자,KR1,17,0.5294
+LeeSin,JUNGLE,Arise,4202,8,0.875
+LeeSin,JUNGLE,메타몽,상휘몽,8,0.875
+LeeSin,JUNGLE,SMITE,K T,10,0.8
+LeeSin,JUNGLE,Cuzz,KR1,14,0.7857
+LeeSin,JUNGLE,mikasa,0430,22,0.7727
+Leona,UTILITY,Blade,Ggul,8,0.875
+Leona,UTILITY,hanghang,Nova,11,0.8182
+Leona,UTILITY,hacker troller,2907,8,0.75
+Leona,UTILITY,Let me sup,KR1,17,0.6471
+Leona,UTILITY,Celine,KR33,14,0.5714
+Lissandra,MIDDLE,포 츈,KR1,8,0.875
+Lissandra,MIDDLE,PULSAR,X2V2,10,0.8
+Lissandra,MIDDLE,抖音王纪超,26号首秀,14,0.6429
+Lissandra,MIDDLE,태원마초,太原马超,11,0.5455
+Lissandra,TOP,抖音王纪超,26号首秀,16,0.625
+Lissandra,TOP,빵 디,씰룩씰룩,10,0.6
+Locke,JUNGLE,李源榮,唯我獨尊,11,0.6364
+Locke,JUNGLE,악마의삶 이종하,KR1,19,0.5789
+Locke,MIDDLE,Dongnan,030,17,0.7647
+Locke,MIDDLE,稳当人,外卖员,17,0.7059
+Locke,MIDDLE,김하콩,하 리,20,0.65
+Locke,MIDDLE,메탈가루몬,0509,11,0.6364
+Locke,MIDDLE,EDG BuLLDoG,KR2,8,0.625
+Locke,UTILITY,Ekkorea,SUNA,10,0.6
+Lucian,BOTTOM,qianzaoche,23512,14,0.7857
+Lucian,BOTTOM,FA Kingdom,KR1,8,0.625
+Lucian,BOTTOM,마문2,0310,10,0.6
+Lucian,BOTTOM,jkjkjkjkk,1173,9,0.5556
+Lucian,BOTTOM,강 철,샤 넬,9,0.5556
+Lulu,TOP,큼방가요,KR2,21,0.5238
+Lulu,UTILITY,keria,1212,8,0.875
+Lulu,UTILITY,Miyi,oymy,17,0.7647
+Lulu,UTILITY,호랑이가될남자,KR1,12,0.75
+Lulu,UTILITY,무섭노,무습노,8,0.75
+Lulu,UTILITY,DNS Quantum,KR 1,14,0.7143
+Lux,MIDDLE,1일1똴,의자왕,8,0.625
+Malzahar,MIDDLE,抖音王纪超,26号首秀,15,0.5333
+Maokai,JUNGLE,xiaofang,qaq,10,0.8
+Maokai,UTILITY,그러건아말건아,0720,10,0.8
+Maokai,UTILITY,허거덩덩덩,KR3,12,0.75
+Maokai,UTILITY,실명 중독자,KR1,11,0.6364
+Maokai,UTILITY,매 루,KR1,83,0.5783
+MasterYi,JUNGLE,龙宫公主,김유빈,27,0.5926
+MasterYi,JUNGLE,정글먹는 순돌이,wow,9,0.5556
+Milio,UTILITY,DNS Quantum,KR 1,10,0.7
+MissFortune,BOTTOM,맘이멍들었죠,0128,8,0.625
+MissFortune,BOTTOM,미스포츈외길인생,KR1,21,0.619
+MonkeyKing,JUNGLE,Im noob777,777,12,0.6667
+MonkeyKing,JUNGLE,모든일이한데연결되다,KR777,8,0.625
+MonkeyKing,JUNGLE,진조 알퀘이드,KR1,8,0.625
+Naafiri,JUNGLE,PigKinG고수,777,11,0.8182
+Naafiri,JUNGLE,T1 Carim,0409,9,0.6667
+Naafiri,JUNGLE,Na병현,2001,8,0.625
+Naafiri,JUNGLE,xiaofang,qaq,10,0.6
+Naafiri,JUNGLE,무감정솔랭기계,2007,13,0.5385
+Naafiri,MIDDLE,dogod,青柠ouo,12,0.8333
+Nami,UTILITY,Mese,EQX小呈,9,0.7778
+Nasus,MIDDLE,Zac,KR1,9,0.7778
+Nasus,MIDDLE,DNS Junu,2008,10,0.6
+Nasus,MIDDLE,Aespa,Kari,17,0.5882
+Nasus,TOP,dog old 8,kr11,9,0.7778
+Nasus,TOP,Zzk,asdf,11,0.7273
+Nasus,TOP,hacker troller,2907,14,0.6429
+Nasus,TOP,잠자는 왕,KR1,24,0.625
+Nasus,TOP,Blade,Ggul,10,0.6
+Nautilus,UTILITY,永远输不完,三分王,13,0.8462
+Nautilus,UTILITY,kingpo54,KR1,12,0.75
+Nautilus,UTILITY,Comfy,KR2,8,0.75
+Nautilus,UTILITY,choice2,3929,8,0.75
+Nautilus,UTILITY,T1 에테르,1225,13,0.6923
+Neeko,MIDDLE,抖音丶77nic,岁岁平安,15,0.9333
+Neeko,UTILITY,Cecilia,1325,10,0.6
+Neeko,UTILITY,Stronger,kr51,10,0.6
+Neeko,UTILITY,dy晚星白,bin,9,0.5556
+Nidalee,JUNGLE,longtimenosee,kr22,16,0.875
+Nidalee,JUNGLE,love stroy,KR7,26,0.7692
+Nidalee,JUNGLE,Snow,426,8,0.75
+Nidalee,JUNGLE,Hugo小宝贝,君临韩服,15,0.7333
+Nidalee,JUNGLE,티 어,ε з,20,0.65
+Nunu,JUNGLE,Cookie,3245,9,0.6667
+Olaf,JUNGLE,抖音小y,zzzz,11,0.7273
+Olaf,TOP,DXnuf,KR2,24,0.8333
+Olaf,TOP,Menhera,MID,10,0.8
+Olaf,TOP,songman,KR11,13,0.7692
+Olaf,TOP,LichtundSchatten,Licht,8,0.75
+Olaf,TOP,샤오 쑤A,KR1,10,0.7
+Orianna,MIDDLE,kastella,s t,11,0.8182
+Orianna,MIDDLE,Wonderwall,mid,8,0.625
+Orianna,MIDDLE,DNS Hinata,9999,13,0.6154
+Orianna,MIDDLE,HLE Buddy,5812,23,0.5652
+Orianna,MIDDLE,지금을사랑하다,kr11,33,0.5455
+Pantheon,JUNGLE,imissyou,1017,10,0.8
+Pantheon,JUNGLE,Bonnie,0314,13,0.6154
+Pantheon,MIDDLE,zhen xi,黑玫瑰,12,0.8333
+Pantheon,MIDDLE,AAAwendyAAA,zypp,13,0.6923
+Pantheon,TOP,Zx56t,Miss,8,0.875
+Pantheon,TOP,zhen xi,黑玫瑰,33,0.6061
+Pantheon,TOP,Abyss,1753,10,0.6
+Pantheon,TOP,뇌 녹 사,KR1,12,0.5833
+Pantheon,TOP,The Herta,Hokai,60,0.5667
+Pantheon,UTILITY,SCP 002,GiaTy,9,0.8889
+Pantheon,UTILITY,alwind,wind,10,0.7
+Pantheon,UTILITY,dy晚星白,bin,17,0.6471
+Pantheon,UTILITY,kiss,0520,38,0.6053
+Pantheon,UTILITY,Celine,KR33,13,0.5385
+Poppy,UTILITY,Dorian,0404,8,0.625
+Pyke,UTILITY,아무생각없음,0831,20,0.6
+Pyke,UTILITY,YoRu,KR7,36,0.5833
+Qiyana,JUNGLE,至死不渝,mio韩服,16,0.875
+Qiyana,JUNGLE,KRX Winner,KR0,11,0.8182
+Qiyana,JUNGLE,관 모,KR2,13,0.7692
+Qiyana,JUNGLE,Cookie,3245,12,0.75
+Qiyana,JUNGLE,DK Lucid,KR1,12,0.75
+Qiyana,MIDDLE,qwezxc,369,9,0.6667
+Qiyana,MIDDLE,CƯỜNG CƠ TRƯỞNG,RANK1,17,0.6471
+Qiyana,MIDDLE,AbrZjh,1024,30,0.5667
+Qiyana,MIDDLE,ying,97998,13,0.5385
+Quinn,TOP,Jar of Flies,Dirt,9,0.6667
+Rakan,UTILITY,Cecilia,1325,10,0.7
+Rakan,UTILITY,푸카룡,요리킹,10,0.7
+Rakan,UTILITY,BRO Felix,1012,8,0.625
+Rakan,UTILITY,L666,Miss,10,0.6
+Rakan,UTILITY,Dorian,0404,9,0.5556
+Rammus,UTILITY,새우깡끼룩,KR1,14,0.8571
+RekSai,JUNGLE,命定之死,Death,27,0.7037
+RekSai,JUNGLE,抖音Eason7,医生七,19,0.6316
+RekSai,JUNGLE,냥 코,냥 코,18,0.6111
+RekSai,JUNGLE,BaMang,KR2,10,0.6
+RekSai,JUNGLE,깝치면너만손해,해보던가,20,0.55
+Rell,UTILITY,Cecilia,1325,14,0.7857
+Rell,UTILITY,pzz 1,0626,15,0.7333
+Rell,UTILITY,Kim Sang Hoon,Rell,30,0.6667
+Rell,UTILITY,乌鲁木齐中路,Where,9,0.6667
+Rell,UTILITY,Dco6o,Miss,28,0.6429
+Renata,UTILITY,호랑이가될남자,KR1,11,0.5455
+Renekton,TOP,간디도롤하면폭력,레문123,38,0.5526
+Renekton,TOP,탄약톤,레넥톤,13,0.5385
+Rengar,JUNGLE,抖音阿甘爱跑步,xtz小弟,42,0.6667
+Rengar,JUNGLE,Binance,OKX,18,0.6111
+Rengar,JUNGLE,Eris,Greyt,31,0.5484
+Rengar,JUNGLE,你没有心,2005,26,0.5385
+Rengar,JUNGLE,抖音苏苏狮子,5200,23,0.5217
+Rengar,TOP,kai,李 漢,9,0.7778
+Rengar,UTILITY,살찐유미의협곡일지,8992,8,0.625
+Rengar,UTILITY,Opinio,1011,31,0.5161
+Riven,MIDDLE,04년생태우형이야,1234,9,0.8889
+Riven,TOP,小灿灿,xyr,19,0.7895
+Riven,TOP,xu xu bao bao,dudu,8,0.625
+Riven,TOP,04년생태우형이야,1234,67,0.6119
+Riven,TOP,Azhy,KR1,11,0.5455
+Riven,TOP,围绕我打,05top,52,0.5385
+Rumble,TOP,UNSECRET,6789,9,0.7778
+Rumble,TOP,14小孩幻想赢对线,4453,8,0.75
+Rumble,TOP,乌鲁木齐中路,Where,14,0.6429
 Rumble,TOP,차가운코끼리,KR0,9,0.5556
-Ryze,MIDDLE,Wonderwall,mid,11,0.5455
-Sett,TOP,y78y,Miss,23,0.5652
-Shen,TOP,찬스케,KR1,8,0.875
-Shen,UTILITY,YdBB,0107,8,1.0
-Shen,UTILITY,정 진,이용승,25,0.56
-Singed,MIDDLE,起风了,CCC,10,0.8
-Skarner,UTILITY,가재 야호,239,15,0.6
-Sylas,JUNGLE,Ivory,1012,9,0.6667
-Sylas,MIDDLE,OnPi,온 피,38,0.5526
-Syndra,MIDDLE,BebePink,KR 1,8,0.75
-Syndra,MIDDLE,Ivory,1012,18,0.6667
-Syndra,MIDDLE,mtrngrxsyl,6146,9,0.5556
-Taliyah,JUNGLE,pet,KR2,8,0.75
-Taliyah,JUNGLE,抖音丶小猪仔,小猪仔,8,0.625
-Taliyah,MIDDLE,Odysseus,KR131,36,0.6111
-Talon,JUNGLE,抖音阿甘爱跑步,xtz小弟,14,0.7143
-Talon,JUNGLE,T1 이재명,재오페구케,11,0.6364
-Talon,JUNGLE,안녕 시간의 숲,LOL,8,0.625
-Talon,MIDDLE,Sad,12315,9,0.5556
-Teemo,TOP,실명 중독자,KR1,11,0.5455
-Thresh,UTILITY,Let me sup,KR1,9,0.6667
-Tristana,BOTTOM,트타랑,6666,10,0.9
-TwistedFate,MIDDLE,new number,KR1,22,0.5909
-TwistedFate,MIDDLE,람곰치,BONK,68,0.5588
-Velkoz,BOTTOM,이탈리아 스파게티 맛집 벨코즈,장인의솜씨,9,0.7778
-Viego,JUNGLE,抖音丶小猪仔,小猪仔,17,0.5882
-Vladimir,MIDDLE,Ming,GJH,9,0.6667
-Warwick,TOP,칼과 창 방패,KR1,9,0.7778
-Xerath,BOTTOM,트래킹,99999,13,0.6923
-Xerath,BOTTOM,히트맨,ddddd,21,0.5714
-Xerath,MIDDLE,hhiio6,Miss,14,0.7143
-Xerath,MIDDLE,抖音王纪超,26号首秀,22,0.5909
-Yasuo,MIDDLE,Naruto,Helix,18,0.8889
-Yasuo,MIDDLE,미소녀,mio韩服,15,0.6
-Yasuo,MIDDLE,Yoruka Kirihime,KR4,24,0.5417
-Yone,MIDDLE,奶熊王,枫哥不是区,32,0.625
-Yunara,BOTTOM,Departures,Kami,8,0.75
-Yunara,BOTTOM,Xiang,God,9,0.6667
-Yunara,BOTTOM,qianshi,小湘好,14,0.6429
-Yunara,BOTTOM,정 진,이용승,13,0.6154
-Zed,MIDDLE,온 재,KR1,14,0.5714
-Zed,MIDDLE,적당한게 좋아,KR1,19,0.5263
-Zed,TOP,적당한게 좋아,KR1,10,0.6
-Zeri,BOTTOM,PpCheng,장군님,17,0.7059
-Ziggs,BOTTOM,라쿤99,KR1,8,0.875
-Zoe,MIDDLE,Witt,123,37,0.6486
-Zyra,JUNGLE,라 쿤,박성호,9,0.8889
-Zyra,JUNGLE,라쿤99,KR1,12,0.5833
-Zyra,JUNGLE,Manchester,sea,11,0.5455
+Ryze,MIDDLE,착하게 살자,0990,14,0.7143
+Ryze,MIDDLE,Mickey,30살,9,0.6667
+Ryze,MIDDLE,gaubeo202,KR1,9,0.6667
+Ryze,MIDDLE,zazazazazazazaza,kr01,9,0.6667
+Ryze,MIDDLE,Wonderwall,mid,17,0.5294
+Senna,UTILITY,세 나,기미니,9,0.6667
+Senna,UTILITY,이 슬,예 슬,8,0.625
+Senna,UTILITY,Oh0Tech,KR1,62,0.5806
+Seraphine,BOTTOM,속박의빛,KR1,8,0.75
+Seraphine,UTILITY,Cecilia,1325,8,0.75
+Seraphine,UTILITY,Chase,Cecil,21,0.7143
+Sett,TOP,Lv 05 세트,KR1,8,0.75
+Sett,TOP,y78y,Miss,108,0.5648
+Sett,TOP,적태양,KR1,9,0.5556
+Sett,UTILITY,y78y,Miss,8,0.875
+Shen,TOP,찬스케,KR1,21,0.7619
+Shen,UTILITY,YdBB,0107,13,0.8462
+Shen,UTILITY,想回家,real,9,0.7778
+Shen,UTILITY,T1 에테르,1225,11,0.7273
+Shen,UTILITY,happy,day14,11,0.7273
+Shen,UTILITY,xX King Xx,GOD,12,0.6667
+Shyvana,JUNGLE,관 모,KR2,9,0.6667
+Shyvana,TOP,Imoogi,kr03,12,0.6667
+Singed,MIDDLE,km56,miss,8,1.0
+Singed,MIDDLE,起风了,CCC,11,0.8182
+Singed,TOP,知鸟不是陀螺,cn1,8,1.0
+Singed,TOP,전 죽,4444,8,0.625
+Sion,TOP,시다림,헬로코,10,0.7
+Sion,TOP,슈퍼샤이온,버니즈,18,0.6667
+Sion,TOP,baekjongmin,0812,10,0.6
+Sivir,BOTTOM,ComeBack,lm27,8,0.625
+Skarner,JUNGLE,Devoured,JGGOD,16,0.625
+Skarner,UTILITY,cupang1,KR1,8,0.75
+Skarner,UTILITY,가재 야호,239,21,0.7143
+Skarner,UTILITY,호랑이가될남자,KR1,10,0.7
+Skarner,UTILITY,Trick the brain,졸귀탱하냥,11,0.6364
+Skarner,UTILITY,이스굿,KR1,21,0.5238
+Swain,BOTTOM,바텀권위자,FDO,12,0.6667
+Swain,UTILITY,바텀권위자,FDO,11,0.6364
+Sylas,JUNGLE,Ivory,1012,17,0.8235
+Sylas,JUNGLE,안 오면 죽을게,1116,15,0.7333
+Sylas,JUNGLE,무감정솔랭기계,2007,23,0.6957
+Sylas,JUNGLE,아메키라노,ICE,8,0.625
+Sylas,JUNGLE,첫눈이 내리면 좋겠어,2009,9,0.5556
+Sylas,MIDDLE,Anhuanhuan,huya,34,0.6471
+Sylas,MIDDLE,성문왕자,0502,10,0.6
+Sylas,MIDDLE,마루냥냥이,마루냥냥,9,0.5556
+Sylas,MIDDLE,OnPi,온 피,112,0.5536
+Sylas,MIDDLE,Sad,12315,41,0.5366
+Sylas,TOP,Sad,12315,11,0.7273
+Syndra,BOTTOM,qwerdfb,qvq,9,0.8889
+Syndra,BOTTOM,xing zhui yue,KR1,13,0.7692
+Syndra,BOTTOM,Maybefff,0320,8,0.625
+Syndra,BOTTOM,정 진,이용승,10,0.6
+Syndra,MIDDLE,Betelgeuse,68553,10,0.8
+Syndra,MIDDLE,길가다가까까사달라고조르는이도윤,KR1,9,0.7778
+Syndra,MIDDLE,BebePink,KR 1,11,0.7273
+Syndra,MIDDLE,DNS Hinata,9999,14,0.7143
+Syndra,MIDDLE,이지만의하루,이지만,10,0.7
+TahmKench,UTILITY,Kotoha,ハコリリ,16,0.6875
+Taliyah,JUNGLE,죡같네,KR69,9,0.7778
+Taliyah,JUNGLE,Binance,OKX,12,0.6667
+Taliyah,JUNGLE,별이 내리는 밤의 끝에서,별똥별,14,0.6429
+Taliyah,JUNGLE,Chinwan,小秦王,10,0.6
+Taliyah,JUNGLE,抖音丶小猪仔,小猪仔,17,0.5882
+Taliyah,MIDDLE,稳当人,外卖员,10,0.9
+Taliyah,MIDDLE,Bei7,1003,14,0.7857
+Taliyah,MIDDLE,람곰치,BONK,12,0.5833
+Taliyah,MIDDLE,Odysseus,KR131,72,0.5556
+Taliyah,TOP,Odysseus,KR131,8,0.625
+Talon,JUNGLE,Bei7,1003,10,0.9
+Talon,JUNGLE,ekffur,kr2,20,0.8
+Talon,JUNGLE,안녕 시간의 숲,LOL,11,0.7273
+Talon,JUNGLE,czy,2005,35,0.7143
+Talon,JUNGLE,抖音阿甘爱跑步,xtz小弟,19,0.6842
+Talon,MIDDLE,たばこ,asd,26,0.7308
+Talon,MIDDLE,Aespa,Kari,15,0.6667
+Talon,MIDDLE,비의 증명,미 래,9,0.6667
+Talon,MIDDLE,저예요,접니다,11,0.6364
+Talon,MIDDLE,Sad,12315,41,0.6341
+Taric,UTILITY,00동현,승현이벌레,25,0.6
+Taric,UTILITY,YoRu,KR7,26,0.5385
+Teemo,TOP,96년생 티모장인,9202,14,0.7143
+Teemo,TOP,Error404Teemo,실명중독자,15,0.6667
+Thresh,UTILITY,wangzhe fuzhu,fuzhu,8,0.875
+Thresh,UTILITY,lost valor,592,16,0.8125
+Thresh,UTILITY,호랑이가될남자,KR1,13,0.7692
+Thresh,UTILITY,Dco6o,Miss,11,0.7273
+Thresh,UTILITY,BaMang,KR2,10,0.6
+Tristana,BOTTOM,트타랑,6666,13,0.8462
+Tristana,BOTTOM,douyin丶江江,0402,19,0.6842
+Tristana,BOTTOM,零六06,Mio韩服,15,0.6667
+Tristana,BOTTOM,김촐래,KR2,47,0.6383
+Tristana,BOTTOM,위 로 금,받아라,11,0.6364
+Tristana,MIDDLE,오케이션,강민오우,8,0.75
+Tristana,MIDDLE,Peanut,05012,10,0.6
+Tryndamere,MIDDLE,JaxKing,FuHan,8,0.625
+Tryndamere,TOP,Q평실패각,KR1,12,0.8333
+Tryndamere,TOP,테토남,2040,10,0.6
+TwistedFate,MIDDLE,줏대없는놈,KR3,14,0.7857
+TwistedFate,MIDDLE,Desire,Tired,16,0.6875
+TwistedFate,MIDDLE,디네스트커피,123,14,0.6429
+TwistedFate,MIDDLE,람곰치,BONK,126,0.5317
+Udyr,TOP,J9B8,KR1,19,0.8421
+Urgot,TOP,엄민규,kr4,12,0.6667
+Varus,TOP,distance,poesy,23,0.6087
+Vayne,TOP,Howling,hobin,9,0.6667
+Vayne,TOP,88nianzhanshen,zypp,13,0.6154
+Vayne,TOP,큼방가요,KR2,15,0.6
+Velkoz,BOTTOM,이탈리아 스파게티 맛집 벨코즈,장인의솜씨,11,0.7273
+Velkoz,BOTTOM,비주류 빌드 계정,KR1,28,0.5714
+Velkoz,BOTTOM,고냉고냉,KR1,15,0.5333
+Vi,JUNGLE,다시 잘해보기,KR12,10,0.8
+Vi,JUNGLE,DK Solid,마 산,11,0.7273
+Vi,JUNGLE,Bonnie,0314,18,0.7222
+Vi,JUNGLE,MihawK,1115,10,0.7
+Vi,JUNGLE,매화검존,6686,33,0.5455
+Viego,JUNGLE,十三day,jug,16,0.75
+Viego,JUNGLE,themmixao,2008,12,0.6667
+Viego,JUNGLE,첫눈이 내리면 좋겠어,2009,27,0.5926
+Viego,JUNGLE,6두콩,KR1,9,0.5556
+Viktor,BOTTOM,漆黒の氷と炎の魔法使い,KR123,15,0.6
+Viktor,MIDDLE,93642875del,KR1,8,0.75
+Viktor,MIDDLE,Cloudburst,KR1,8,0.75
+Viktor,MIDDLE,HLE Buddy,5812,8,0.75
+Viktor,MIDDLE,마루냥냥이,마루냥냥,17,0.7059
+Viktor,MIDDLE,Headshrinker,KR1,9,0.5556
+Vladimir,BOTTOM,MAGEBLOOD,E500,18,0.6111
+Vladimir,MIDDLE,雨月熙,Fight,24,0.7083
+Vladimir,MIDDLE,Ming,GJH,14,0.6429
+Vladimir,MIDDLE,Una,air,16,0.625
+Vladimir,TOP,雨月熙,Fight,9,0.6667
+Vladimir,TOP,kfo,KR1,29,0.6207
+Volibear,TOP,Thisisbear,Thisb,47,0.5319
+Warwick,TOP,OvwvO,KR1,11,0.7273
+Warwick,TOP,alwind,wind,33,0.6364
+Warwick,TOP,칼과 창 방패,KR1,13,0.6154
+Warwick,TOP,마인크래트프,세체뽀,23,0.6087
+Warwick,TOP,늑대왕,늑대왕,19,0.5263
+Xayah,BOTTOM,정 진,이용승,9,0.6667
+Xayah,BOTTOM,바바바밤,1999,8,0.625
+Xayah,BOTTOM,노익스강,noex,10,0.6
+Xayah,BOTTOM,qianshi,小湘好,12,0.5833
+Xerath,BOTTOM,트래킹,99999,20,0.75
+Xerath,BOTTOM,엔마왓슨,0311,15,0.6
+Xerath,BOTTOM,히트맨,ddddd,43,0.5116
+Xerath,MIDDLE,hhiio6,Miss,29,0.6552
+Xerath,MIDDLE,엔마왓슨,0311,11,0.6364
+Xerath,MIDDLE,抖音王纪超,26号首秀,26,0.5769
+Yasuo,BOTTOM,고동준,고동준,8,0.75
+Yasuo,BOTTOM,podo,S T,11,0.7273
+Yasuo,BOTTOM,미소녀,mio韩服,11,0.5455
+Yasuo,BOTTOM,Yoruka Kirihime,KR4,30,0.5333
+Yasuo,MIDDLE,Naruto,Helix,23,0.8696
+Yasuo,MIDDLE,내가 당신의 뜻을 이어받을게,프제짱,14,0.8571
+Yasuo,MIDDLE,고동준,고동준,12,0.8333
+Yasuo,MIDDLE,미소녀,mio韩服,28,0.6786
+Yasuo,MIDDLE,Sasuke,erid,25,0.6
+Yasuo,TOP,yassuo,칼 날,12,0.6667
+Yasuo,TOP,Sasuke,erid,11,0.6364
+Yasuo,TOP,Yoruka Kirihime,KR4,16,0.5625
+Yone,BOTTOM,양인모,고소현,8,0.625
+Yone,MIDDLE,mesaon,1226,8,1.0
+Yone,MIDDLE,피지컬의 괴물,jiro,9,0.8889
+Yone,MIDDLE,Sasuke,erid,10,0.8
+Yone,MIDDLE,백 수,zzzz,9,0.6667
+Yone,MIDDLE,奶熊王,枫哥不是区,53,0.6415
+Yone,TOP,Kisara Yagyu,執行者,9,0.5556
+Yone,TOP,奶熊王,枫哥不是区,22,0.5455
+Yone,TOP,齐枫永恩34D,奶熊王,13,0.5385
+Yorick,TOP,thecat,606,14,0.5714
+Yunara,BOTTOM,jusaka,KR2,13,0.8462
+Yunara,BOTTOM,baekjongmin,0812,15,0.8
+Yunara,BOTTOM,REDRED,따바라,10,0.8
+Yunara,BOTTOM,소년가장 원딜,KR1,9,0.7778
+Yunara,BOTTOM,Lucky WhaleShark,행고상,13,0.7692
+Yuumi,UTILITY,xiao yi,KR1,8,0.625
+Yuumi,UTILITY,제라스,유 미,14,0.5714
+Zac,JUNGLE,Zac,KR1,75,0.5333
+Zed,BOTTOM,뭇 별,0909,27,0.6667
+Zed,MIDDLE,온 재,KR1,64,0.5156
+Zed,MIDDLE,뭇 별,0909,47,0.5106
+Zed,TOP,적당한게 좋아,KR1,22,0.5455
+Zeri,BOTTOM,Dellow,KR8,9,1.0
+Zeri,BOTTOM,수노미,0422,11,0.8182
+Zeri,BOTTOM,서예지,1008,15,0.8
+Zeri,BOTTOM,피카츄,KR1,24,0.75
+Zeri,BOTTOM,망고재민,Min,13,0.6923
+Zeri,MIDDLE,碎碎念,思念QAQ,11,0.5455
+Ziggs,BOTTOM,라쿤99,KR1,10,0.8
+Ziggs,BOTTOM,Glory Day,Based,16,0.625
+Ziggs,BOTTOM,작고귀엽다,KR1,11,0.5455
+Ziggs,BOTTOM,Little Bomb,HK1,25,0.52
+Zilean,MIDDLE,French bulldogO,KR1,36,0.5278
+Zoe,MIDDLE,lkkk,0530,17,0.7647
+Zoe,MIDDLE,제영우,Zoebf,24,0.6667
+Zoe,MIDDLE,평 타,BASIC,48,0.625
+Zoe,MIDDLE,luther,0319,13,0.6154
+Zoe,MIDDLE,Witt,123,64,0.5938
+Zoe,TOP,쪼렙이다말로하자,KR1,11,0.7273
+Zyra,JUNGLE,묵직한놈,99999,9,0.8889
+Zyra,JUNGLE,라 쿤,박성호,15,0.8
+Zyra,JUNGLE,sleep late,0606,34,0.7353
+Zyra,JUNGLE,sugar,07270,26,0.6538
+Zyra,JUNGLE,라쿤99,KR1,33,0.5455
