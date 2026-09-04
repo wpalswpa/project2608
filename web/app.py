@@ -388,7 +388,15 @@ def api_schedule():
         pass                       # 투표 저장이 안 되더라도 일정은 보여준다
 
     out = []
+    now = datetime.now(timezone.utc)
     for r in rows:
+        # 이미 시작한 경기는 목록에서 뺀다 — 투표도 못 하는데(409) 화면에 남아
+        # "죽은 경기" 가 쌓인다. CSV 가 낡아도 화면은 항상 예정 경기만 보인다.
+        try:
+            if datetime.fromisoformat(str(r["start_at"]).replace("Z", "+00:00")) <= now:
+                continue
+        except (ValueError, TypeError):
+            pass
         t = tally.get(r["match_id"], {1: 0, 2: 0})
         out.append({**{k: r.get(k) for k in
                        ("match_id", "start_at", "league", "block", "bo",

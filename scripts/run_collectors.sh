@@ -13,6 +13,8 @@ PY=python3; "$PY" -c "pass" 2>/dev/null || PY=python
 LOG=logs; mkdir -p "$LOG"
 
 run_once() {
+  echo "[$(date '+%H:%M:%S')] 경기 일정 갱신 (승부예측용)"
+  "$PY" -u src/collect_schedule.py >> "$LOG/collect_schedule.log" 2>&1
   echo "[$(date '+%H:%M:%S')] 챔피언 표본 수집 (40분)"
   "$PY" -u src/collect_champion_stats.py --minutes 40 --players 400 --per-player 15 \
     >> "$LOG/collect_champion.log" 2>&1
