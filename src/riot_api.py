@@ -376,7 +376,7 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
     riot_id: "게임명#태그" (예: "Hide on bush#KR1")
     반환: {"riot_id": ..., "games": [경기별 {예측, 실제, 피처, 정보}]}
     """
-    from lolwin.coach import style_of, style_summary, verdict_of   # 판정·성향 정본
+    from lolwin.coach import radar_of, style_of, style_summary, verdict_of   # 판정·성향 정본
     from lolwin.features import gold_bin_bounds   # 구간 경계 정본
     from predict import predict          # 예측은 단일 진실만 사용
 
@@ -466,6 +466,8 @@ def analyze_recent(riot_id: str, count: int = 5, start: int = 0, with_ranks: boo
         "model_correct": sum(1 for g in games if g["model_correct"]),
         # 여러 판을 모아야 성향이 보인다 — 한 판으로는 아무 말도 못 한다
         "style": style_summary(games),
+        # 다섯 축 백분위 — 프로필 옆 레이더. 3판 미만이면 None
+        "radar": radar_of(games),
     }
     return {"riot_id": riot_id, "queue": "솔로랭크", "rank": get_rank(puuid),
             "games": games, "summary": summary,

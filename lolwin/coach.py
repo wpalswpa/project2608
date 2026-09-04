@@ -66,6 +66,79 @@ VERDICT_ADVICE = {
 }
 
 
+# ── 유저 레이더 — 다섯 축으로 성향을 그린다 ────────────────────
+# 축을 고른 기준: ① 사용자가 자기 플레이로 읽을 수 있어야 하고 ② 서로 겹치면 안 된다.
+# 학습셋 9,879판에서 다섯 축의 상관을 재보니 최대 0.15 로 겹치지 않는다
+# (교전·성장·오브젝트·공성·시야). 겹치는 축을 넣으면 같은 말을 두 번 그리는 셈이다.
+#
+# 값은 절대량이 아니라 **백분위**로 그린다. "교전 11" 은 아무 뜻도 없지만
+# "상위 25%" 는 읽힌다. 기준선은 학습셋 분위수다(아래 RADAR_Q).
+RADAR_AXES = ["교전", "성장", "오브젝트", "공성", "시야"]
+
+# 축별 (25%, 50%, 75%, 95%) 분위수 — 학습셋 9,879판 실측
+RADAR_Q = {
+    "교전": (4.0, 6.0, 11.0, 19.0),
+    "성장": (20.0, 32.0, 48.0, 75.0),
+    "오브젝트": (1.0, 1.0, 2.0, 2.0),
+    "공성": (0.0, 0.0, 0.0, 1.0),
+    "시야": (3.0, 6.0, 21.0, 61.0),
+}
+
+
+def _axis_values(feats: dict) -> dict:
+    return {
+        "교전": abs(feats["KillsDiff"]) + abs(feats["AssistsDiff"]),
+        "성장": abs(feats["TotalMinionsKilledDiff"]) + abs(feats["TotalJungleMinionsKilledDiff"]),
+        "오브젝트": abs(feats["DragonsDiff"]) + abs(feats["HeraldsDiff"]),
+        "공성": abs(feats["TowersDestroyedDiff"]),
+        "시야": abs(feats["WardsPlacedDiff"]) + abs(feats["WardsDestroyedDiff"]),
+    }
+
+
+def _percentile(axis: str, v: float) -> int:
+    """분위수 사이를 선형 보간해 0~100 으로. 화면은 이 값만 쓴다."""
+    q25, q50, q75, q95 = RADAR_Q[axis]
+    pts = [(0.0, 0), (q25, 25), (q50, 50), (q75, 75), (q95, 95)]
+    if v >= q95:
+        return 100 if v > q95 else 95
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if v <= x1:
+            if x1 == x0:
+                return y1
+            return int(round(y0 + (v - x0) / (x1 - x0) * (y1 - y0)))
+    return 95
+
+
+def radar_of(games: list) -> dict | None:
+    """여러 판을 모아 다섯 축 백분위 — "당신은 어떤 유형인가".
+
+    한 판으로는 성향이 아니다. 3판 이상일 때만 낸다.
+    """
+    rows = [g.get("features") for g in games if g.get("features")]
+    if len(rows) < 3:
+        return None
+    sums = {a: 0.0 for a in RADAR_AXES}
+    for f in rows:
+        try:
+            for a, v in _axis_values(f).items():
+                sums[a] += v
+        except KeyError:
+            return None
+    axes = [{"name": a, "score": _percentile(a, sums[a] / len(rows))} for a in RADAR_AXES]
+
+    top = max(axes, key=lambda x: x["score"])
+    low = min(axes, key=lambda x: x["score"])
+    TYPE = {"교전": "싸움꾼", "성장": "파머", "오브젝트": "운영가",
+            "공성": "공성가", "시야": "시야 장인"}
+    label = TYPE[top["name"]] if top["score"] >= 60 else "균형형"
+    desc = (f"{top['name']} 상위 {100 - top['score']}%" if top["score"] >= 60
+            else "한쪽으로 치우치지 않은 유형입니다")
+    return {"axes": axes, "n": len(rows), "label": label, "desc": desc,
+            "strong": top["name"], "weak": low["name"],
+            "note": f"{len(rows)}판 평균을 전체 경기와 견준 백분위입니다. "
+                    f"높다고 잘하는 것이 아니라 그 쪽에 치우쳤다는 뜻입니다."}
+
+
 # ── 경기 스타일 — "격차를 무엇이 만들었나" ────────────────────────
 # 군집 실험에서 배운 것: 유형은 승패를 예측하지 못한다(같은 격차면 역전율 40% 로 동일).
 # 그래서 예측에는 쓰지 않고, "어떻게 이겼나/졌나" 를 설명하는 데만 쓴다.
