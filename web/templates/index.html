@@ -982,6 +982,9 @@ async function loadSummoner(riotId, append){
       period: (allRows[allRows.length-1].played_at && allRows[0].played_at)
         ? `${allRows[allRows.length-1].played_at} ~ ${allRows[0].played_at}` : null};
     ["우세승","역전승","역전패","열세패"].forEach(k => agg[k] = allRows.filter(r => r.verdict === k).length);
+    /* 성향은 "더 보기" 로 쌓인 전부를 기준으로 화면에서 다시 센다 —
+       서버 summary.style 은 그 페이지 것만 담고 있어 그대로 쓰면 어긋난다 */
+    agg.style = styleSummaryOf(allRows);
     const rk = d.rank;
     rankTile = "";
     renderProfile(d.riot_id, rk, agg);
@@ -1155,6 +1158,35 @@ async function castVote(mid, pick){
                alert(e.error || "투표하지 못했습니다."); return; }
     loadVotes();
   }catch(e){ alert("투표하지 못했습니다."); }
+}
+
+/* 불러온 판 전부로 성향을 센다. 서버(lolwin/coach.style_summary)와 같은 규칙 —
+   3판 미만 유형은 승률을 내지 않는다. */
+function styleSummaryOf(rows){
+  const agg = new Map();
+  rows.forEach(r => {
+    const st = r.style;
+    if(!st) return;
+    const a = agg.get(st.key) || {key: st.key, name: st.name, games: 0, wins: 0};
+    a.games++; if(r.won) a.wins++;
+    agg.set(st.key, a);
+  });
+  if(!agg.size) return null;
+  const out = [...agg.values()].map(a => ({...a, win_rate: a.wins / a.games, enough: a.games >= 3}))
+                               .sort((x, y) => y.games - x.games);
+  const judged = out.filter(r => r.enough);
+  let note = null;
+  if(judged.length >= 2){
+    const best = judged.reduce((a, b) => a.win_rate >= b.win_rate ? a : b);
+    const worst = judged.reduce((a, b) => a.win_rate <= b.win_rate ? a : b);
+    if(best.key !== worst.key && best.win_rate - worst.win_rate >= 0.25)
+      note = `${best.name} 판에서 ${Math.round(best.win_rate*100)}%, ` +
+             `${worst.name} 판에서 ${Math.round(worst.win_rate*100)}% — ` +
+             `${worst.name} 쪽을 다시 볼 만합니다.`;
+  }
+  return {rows: out, note,
+    caution: "판수가 적어 참고용입니다. 유형은 승패를 예측하지 않습니다 — " +
+             "같은 골드 격차라면 어떤 유형이든 역전 확률은 비슷했습니다."};
 }
 
 /* ── 유저 랭킹 페이지 ── */
