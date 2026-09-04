@@ -1475,6 +1475,11 @@ $("#tabHome").addEventListener("click", () => showTab("home"));
 $("#tabChamp").addEventListener("click", () => showTab("champ"));
 $("#tabRank").addEventListener("click", () => showTab("rank"));
 $("#tabVote").addEventListener("click", () => showTab("vote"));
+/* 주소 해시로 탭을 바로 연다 — #champ · #rank · #vote. 링크 공유용 */
+{
+  const t = (location.hash || "").replace("#", "");
+  if(["champ", "rank", "vote"].includes(t)) showTab(t);
+}
 $("#find").addEventListener("click", doSearch);
 $("#q").addEventListener("keydown", e => { if(e.key === "Enter") doSearch(); });
 $("#more").addEventListener("click", () => { if(curId) loadSummoner(curId, true); });
