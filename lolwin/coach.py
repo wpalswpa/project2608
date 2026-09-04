@@ -66,6 +66,51 @@ VERDICT_ADVICE = {
 }
 
 
+# ── 라인 기준선 — "내 티어가 거품인가" ────────────────────────
+# 팀 간 격차 축(레이더)은 티어를 안 가린다 — 아이언과 다이아의 평균이
+# 교전 7.5 대 8.4, 성장 38.6 대 34.5 로 사실상 같다(1,399판 실측).
+# 경기 양상을 재는 축이라 개인 실력을 못 잡는 것이다.
+#
+# 그래서 기준선을 밖에서 찾지 않고 **같은 판의 라인 상대**로 잡는다.
+# 상대는 나와 같은 티어에 배정된 사람이라, 별도 수집 없이 얻는 동급 표본이다.
+# "상대보다 CS 를 얼마나 앞섰나" 가 곧 "내 티어에서 내가 어디쯤인가" 다.
+LANE_GRADE = [
+    (0.70, "과소평가", "티어보다 잘합니다 — 올라갈 여지가 있습니다"),
+    (0.55, "제 실력", "티어에 맞게 하고 있습니다"),
+    (0.45, "박빙", "라인전은 반반입니다"),
+    (0.00, "거품 주의", "같은 티어 상대에게 밀리고 있습니다"),
+]
+
+
+def lane_baseline(games: list) -> dict | None:
+    """라인 상대와 견준 10분 성적 — 별도 기준선 수집이 필요 없다.
+
+    3판 미만이면 None. 판마다 라인 상대가 없을 수 있어(포지션 미기록) 있는 것만 센다.
+    """
+    lanes = [g.get("lane") for g in games if g.get("lane")]
+    if len(lanes) < 3:
+        return None
+    n = len(lanes)
+    cs = sum(l["cs_diff"] for l in lanes) / n
+    gold = sum(l["gold_diff"] for l in lanes) / n
+    lvl = sum(l["level_diff"] for l in lanes) / n
+    # 이겼다/졌다는 골드로 판정한다 — CS 만 보면 정글·서폿이 늘 지는 것으로 나온다
+    won = sum(1 for l in lanes if l["gold_diff"] > 0)
+    rate = won / n
+    grade, why = next((g, w) for th, g, w in LANE_GRADE if rate >= th)
+    pos = {}
+    for l in lanes:
+        pos[l["position"]] = pos.get(l["position"], 0) + 1
+    return {
+        "n": n, "win_rate": round(rate, 4), "wins": won,
+        "cs_diff": round(cs, 1), "gold_diff": round(gold), "level_diff": round(lvl, 2),
+        "grade": grade, "why": why,
+        "main_position": max(pos, key=pos.get) if pos else None,
+        "note": "같은 경기의 라인 상대는 나와 같은 티어에 배정된 사람입니다. "
+                "그래서 별도 기준선 없이 '내 티어에서 내가 어디쯤인가' 를 잴 수 있습니다.",
+    }
+
+
 # ── 유저 레이더 — 다섯 축으로 성향을 그린다 ────────────────────
 # 축을 고른 기준: ① 사용자가 자기 플레이로 읽을 수 있어야 하고 ② 서로 겹치면 안 된다.
 # 학습셋 9,879판에서 다섯 축의 상관을 재보니 최대 0.15 로 겹치지 않는다
@@ -73,14 +118,16 @@ VERDICT_ADVICE = {
 #
 # 값은 절대량이 아니라 **백분위**로 그린다. "교전 11" 은 아무 뜻도 없지만
 # "상위 25%" 는 읽힌다. 기준선은 학습셋 분위수다(아래 RADAR_Q).
-RADAR_AXES = ["교전", "성장", "오브젝트", "공성", "시야"]
+RADAR_AXES = ["교전", "라인", "정글", "오브젝트", "시야"]
 
-# 축별 (25%, 50%, 75%, 95%) 분위수 — 학습셋 9,879판 실측
+# 축별 (25%, 50%, 75%, 95%) 분위수 — 학습셋 9,879판 실측.
+# "공성"(타워)은 뺐다 — 10분 시점에는 91.8% 의 판이 0 이라 축이 되지 못한다.
+# 대신 정글을 라인과 분리했다(상관 0.02). 다섯 축 최대 상관 0.13.
 RADAR_Q = {
     "교전": (4.0, 6.0, 11.0, 19.0),
-    "성장": (20.0, 32.0, 48.0, 75.0),
+    "라인": (10.0, 20.0, 35.0, 61.0),
+    "정글": (4.0, 9.0, 16.0, 28.0),
     "오브젝트": (1.0, 1.0, 2.0, 2.0),
-    "공성": (0.0, 0.0, 0.0, 1.0),
     "시야": (3.0, 6.0, 21.0, 61.0),
 }
 
@@ -88,9 +135,9 @@ RADAR_Q = {
 def _axis_values(feats: dict) -> dict:
     return {
         "교전": abs(feats["KillsDiff"]) + abs(feats["AssistsDiff"]),
-        "성장": abs(feats["TotalMinionsKilledDiff"]) + abs(feats["TotalJungleMinionsKilledDiff"]),
+        "라인": abs(feats["TotalMinionsKilledDiff"]),
+        "정글": abs(feats["TotalJungleMinionsKilledDiff"]),
         "오브젝트": abs(feats["DragonsDiff"]) + abs(feats["HeraldsDiff"]),
-        "공성": abs(feats["TowersDestroyedDiff"]),
         "시야": abs(feats["WardsPlacedDiff"]) + abs(feats["WardsDestroyedDiff"]),
     }
 
@@ -128,12 +175,42 @@ def radar_of(games: list) -> dict | None:
 
     top = max(axes, key=lambda x: x["score"])
     low = min(axes, key=lambda x: x["score"])
-    TYPE = {"교전": "싸움꾼", "성장": "파머", "오브젝트": "운영가",
-            "공성": "공성가", "시야": "시야 장인"}
-    label = TYPE[top["name"]] if top["score"] >= 60 else "균형형"
-    desc = (f"{top['name']} 상위 {100 - top['score']}%" if top["score"] >= 60
-            else "한쪽으로 치우치지 않은 유형입니다")
+    sc = {a["name"]: a["score"] for a in axes}
+    spread = top["score"] - low["score"]
+
+    # 유형 이름 — 1축만 보면 "싸움꾼" 아니면 "균형형" 둘뿐이라 심심하다.
+    # 상위 두 축의 조합까지 보면 성격이 드러난다.
+    second = sorted(axes, key=lambda x: -x["score"])[1]
+    PAIR = {
+        ("교전", "라인"): ("주도권형", "싸움도 걸고 CS 도 챙깁니다. 라인 주도권을 쥡니다"),
+        ("교전", "정글"): ("갱킹형", "정글을 돌며 싸움을 만듭니다"),
+        ("교전", "오브젝트"): ("한타 설계형", "싸움을 오브젝트로 연결합니다"),
+        ("교전", "시야"): ("매복형", "시야를 잡고 기습을 노립니다"),
+        ("라인", "정글"): ("수확형", "라인과 정글을 두루 먹어 성장합니다"),
+        ("라인", "오브젝트"): ("운영형", "조용히 벌어 오브젝트로 굳힙니다"),
+        ("라인", "시야"): ("안정형", "시야를 깔고 안전하게 파밍합니다"),
+        ("정글", "오브젝트"): ("정글 운영형", "정글을 돌며 오브젝트를 선점합니다"),
+        ("정글", "시야"): ("정찰형", "정글을 돌며 시야를 장악합니다"),
+        ("오브젝트", "시야"): ("맵 장악형", "시야로 오브젝트를 선점합니다"),
+    }
+    SOLO = {
+        "교전": ("싸움꾼", "교전이 잦습니다. 킬·어시스트로 격차를 만듭니다"),
+        "라인": ("파머", "미니언으로 격차를 만듭니다. 싸움보다 라인전"),
+        "정글": ("정글러형", "정글 몬스터를 많이 먹습니다"),
+        "오브젝트": ("오브젝트형", "드래곤·전령을 챙겨 이득을 봅니다"),
+        "시야": ("시야 장인", "와드로 맵을 밝히고 지웁니다"),
+    }
+    if spread < 30:
+        label, desc = "균형형", "다섯 축이 고릅니다. 한쪽에 치우치지 않은 유형입니다"
+    elif top["score"] >= 60 and second["score"] >= 55 and top["name"] != second["name"]:
+        key = tuple(sorted([top["name"], second["name"]],
+                           key=lambda n: RADAR_AXES.index(n)))
+        label, desc = PAIR.get(key, SOLO[top["name"]])
+    else:
+        label, desc = SOLO[top["name"]]
+
     return {"axes": axes, "n": len(rows), "label": label, "desc": desc,
+            "top_axis": top["name"], "top_score": top["score"],
             "strong": top["name"], "weak": low["name"],
             "note": f"{len(rows)}판 평균을 전체 경기와 견준 백분위입니다. "
                     f"높다고 잘하는 것이 아니라 그 쪽에 치우쳤다는 뜻입니다."}

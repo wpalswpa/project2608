@@ -132,7 +132,7 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
   padding:18px 20px;margin-top:18px;box-shadow:var(--shadow)}
 .pf-emblem{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;
   justify-content:center;font-size:24px;font-weight:800;color:#fff;flex:0 0 auto}
-.pf-main{flex:1;min-width:180px}
+.pf-main{flex:1;min-width:200px}
 .pf-name{font-size:22px;font-weight:800;line-height:1.2}
 .pf-name .tagline{font-size:14px;color:var(--muted);font-weight:500}
 .pf-tier{font-size:15px;font-weight:700;margin-top:3px}
@@ -273,18 +273,30 @@ button.primary:hover:not(:disabled){filter:brightness(1.08);color:#fff}
 .coach ul{list-style:none;margin:0;padding:0}
 .coach .gain{font-weight:700;color:var(--blue)}
 .coach .after{color:var(--muted);font-size:12px}
-.pf-radar{display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid var(--line)}
-.radar{width:112px;height:112px;flex:none;overflow:visible}
+.pf-radar{display:flex;align-items:center;gap:12px;padding:0 0 0 18px;
+  border-left:1px solid var(--line);margin-left:auto}
+.radar{width:124px;height:124px;flex:none;overflow:visible}
 .radar .rgrid{fill:none;stroke:var(--line);stroke-width:.5;vector-effect:non-scaling-stroke}
 .radar .rspoke{stroke:var(--line);stroke-width:.5;vector-effect:non-scaling-stroke}
 .radar .rfill{fill:color-mix(in srgb,var(--blue) 28%,transparent);stroke:var(--blue);
   stroke-width:1.4;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 .radar .rdot{fill:var(--blue)}
-.radar .rlab{font-size:7px;fill:var(--muted);font-weight:600}
-.pf-rlabel{display:flex;flex-direction:column;gap:2px;font-size:11.5px;white-space:nowrap}
+.radar .rlab{font-size:6.5px;fill:var(--muted);font-weight:600}
+.pf-rlabel{display:flex;flex-direction:column;gap:3px;font-size:11.5px;max-width:150px}
 .pf-rlabel b{font-size:14px;color:var(--ink)}
-.pf-rlabel span{color:var(--muted)}
+.pf-rlabel span{color:var(--muted);line-height:1.5;word-break:keep-all}
 @media(max-width:900px){.pf-radar{border-left:none;padding:8px 0 0}}
+.lanebase{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:8px;
+  margin-top:9px;background:var(--panel-2);border-left:3px solid var(--line)}
+.lanebase.good{border-left-color:#2f9e5e}
+.lanebase.mid{border-left-color:var(--blue)}
+.lanebase.bad{border-left-color:var(--red)}
+.lb-grade{font-size:14px;font-weight:800;white-space:nowrap;padding-top:1px}
+.lanebase.good .lb-grade{color:#2f9e5e}
+.lanebase.bad .lb-grade{color:var(--red)}
+.lb-body{display:flex;flex-direction:column;gap:3px;font-size:12px;line-height:1.55}
+.lb-body span{color:var(--muted)}
+.lb-note{font-size:11px;color:var(--faint)}
 .stylerows{display:flex;flex-direction:column;gap:7px;margin-top:9px}
 .strow{display:grid;grid-template-columns:56px 1fr 52px 46px;align-items:center;gap:9px;font-size:12.5px}
 .sname{font-weight:600}
@@ -908,10 +920,17 @@ function renderSummary(sum, label, scope){
     ${scope ? `<p style="margin-top:6px;font-size:11.5px;color:var(--faint)">${esc(scope)}</p>` : ""}</div>`;
   /* 플레이 성향 — 격차를 무엇으로 만들었나. 예측이 아니라 복기 재료다.
      같은 골드 격차면 유형별 역전율이 40% 로 같았으므로 승률 예측에는 쓰지 않는다. */
-  const st = sum.style;
+  const st = sum.style, lb = sum.lane;
   $("#styleBox").innerHTML = !st ? "" : `
     <details class="box" id="styleWrap" open>
       <summary>플레이 성향 — 격차를 무엇으로 만들었나</summary>
+      ${lb ? `<div class="lanebase ${esc(lb.grade === "거품 주의" ? "bad" : lb.grade === "과소평가" ? "good" : "mid")}">
+        <div class="lb-grade">${esc(lb.grade)}</div>
+        <div class="lb-body"><b>${esc(lb.why)}</b>
+          <span>같은 티어 상대와 견줘 ${lb.n}판 중 <b>${lb.wins}판</b> 우세 ·
+          CS ${lb.cs_diff > 0 ? "+" : ""}${lb.cs_diff} · 골드 ${lb.gold_diff > 0 ? "+" : ""}${lb.gold_diff.toLocaleString()}</span>
+          <span class="lb-note">${esc(lb.note)}</span></div>
+      </div>` : ""}
       <div class="stylerows">
         ${st.rows.map(r => `<div class="strow">
           <span class="sname">${esc(r.name)}</span>
@@ -1001,6 +1020,7 @@ async function loadSummoner(riotId, append){
        서버 summary.style 은 그 페이지 것만 담고 있어 그대로 쓰면 어긋난다 */
     agg.style = styleSummaryOf(allRows);
     agg.radar = d.summary && d.summary.radar;   /* 다섯 축 백분위 (서버 계산) */
+    agg.lane = d.summary && d.summary.lane;     /* 라인 상대 기준선 */
     const rk = d.rank;
     rankTile = "";
     renderProfile(d.riot_id, rk, agg);
@@ -1180,7 +1200,7 @@ async function castVote(mid, pick){
    값은 절대량이 아니라 백분위다("교전 11" 은 안 읽히지만 "상위 25%" 는 읽힌다). */
 function radarSVG(radar){
   if(!radar || !radar.axes || radar.axes.length < 3) return "";
-  const A = radar.axes, N = A.length, R = 38, cx = 50, cy = 50;
+  const A = radar.axes, N = A.length, R = 34, cx = 50, cy = 50;
   const pt = (i, r) => {
     const ang = -Math.PI / 2 + i * 2 * Math.PI / N;     /* 12시부터 시계방향 */
     return [cx + Math.cos(ang) * r, cy + Math.sin(ang) * r];
@@ -1194,11 +1214,11 @@ function radarSVG(radar){
     return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" class="rspoke"></line>`;
   }).join("");
   const labels = A.map((a, i) => {
-    const [x, y] = pt(i, R + 9);
+    const [x, y] = pt(i, R + 11);
     return `<text x="${x.toFixed(1)}" y="${(y + 1.6).toFixed(1)}" class="rlab"
       text-anchor="${x > cx + 3 ? "start" : x < cx - 3 ? "end" : "middle"}">${esc(a.name)}</text>`;
   }).join("");
-  return `<svg class="radar" viewBox="0 0 100 100" role="img"
+  return `<svg class="radar" viewBox="-8 -6 116 116" role="img"
     aria-label="플레이 성향 ${esc(radar.label)}">
     ${grid}${spokes}
     <polygon points="${poly(null)}" class="rfill"></polygon>
