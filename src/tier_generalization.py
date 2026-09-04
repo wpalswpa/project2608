@@ -59,7 +59,12 @@ def get_paced(url: str, tries: int = 4) -> dict:
         except RateLimited as e:
             print(f"  [대기] {e.retry_after}초")
             time.sleep(e.retry_after + 1)
-    raise RiotApiError("한도가 계속 걸립니다.")
+        except OSError as e:
+            # 밤샘 수집 중 절전·와이파이 끊김으로 DNS 가 죽으면
+            # 남은 티어가 전부 즉시 실패한다 — 실제로 그렇게 날아갔다.
+            print(f"  [네트워크] {e} — 30초 뒤 재시도")
+            time.sleep(30)
+    raise RiotApiError("연결이 계속 실패합니다.")
 
 
 def seen_ids() -> set:

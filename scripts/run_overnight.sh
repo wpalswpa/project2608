@@ -19,6 +19,12 @@ echo "[$(date '+%H:%M:%S')] 2/3 챔피언 표본 (180분)"
 "$PY" -u src/collect_champion_stats.py --minutes 180 --players 900 --per-player 20 \
   >> logs/collect_champion.log 2>&1
 
+# 네트워크가 끊기면 티어가 통째로 날아간다. 시작 전에 연결을 확인하고,
+# 죽어 있으면 살아날 때까지 기다린다(최대 30분).
+for _ in $(seq 60); do
+  curl -s -o /dev/null -m 8 https://kr.api.riotgames.com && break
+  echo "  [대기] 네트워크 끊김 — 30초 뒤 재확인"; sleep 30
+done
 echo "[$(date '+%H:%M:%S')] 3/3 티어 연구"
 for T in IRON BRONZE SILVER GOLD PLATINUM EMERALD DIAMOND; do
   echo "  [$(date '+%H:%M:%S')] $T"
